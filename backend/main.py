@@ -3,6 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
 from core.database import engine, Base
 from auth.router import router as auth_router
+from clubs.router import router as clubs_router
+from matches.router import router as matches_router
+from messaging.router import router as messaging_router
+from notifications.router import router as notifications_router
 
 # Create FastAPI app
 app = FastAPI(
@@ -22,6 +26,10 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(clubs_router, prefix="/clubs", tags=["Clubs"])
+app.include_router(matches_router, prefix="/matches", tags=["Matches"])
+app.include_router(messaging_router, prefix="/messaging", tags=["Messaging"])
+app.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
 
 
 @app.on_event("startup")
