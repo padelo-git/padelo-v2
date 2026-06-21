@@ -56,6 +56,8 @@ padelo-v2/
 
 ### Ejecución
 
+#### Opción 1: Ejecución local
+
 ```bash
 cd backend
 python main.py
@@ -63,11 +65,69 @@ python main.py
 
 El servidor estará disponible en `http://localhost:8000`
 
+#### Opción 2: Docker Compose (recomendado)
+
+```bash
+docker-compose up
+```
+
+Esto iniciará:
+- Backend FastAPI en `http://localhost:8000`
+- PostgreSQL en `localhost:5432`
+- Redis en `localhost:6379`
+
 ## API Documentation
 
 La documentación interactiva de la API está disponible en:
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
+
+## Testing
+
+### Ejecutar tests localmente
+
+```bash
+cd backend
+./run_tests.sh
+```
+
+O manualmente:
+
+```bash
+cd backend
+pytest --cov=app --cov-report=html --cov-report=term-missing -v
+```
+
+### CI/CD
+
+Los tests se ejecutan automáticamente en cada push/PR a través de GitHub Actions.
+
+## Deployment
+
+### Deployment en servidor
+
+```bash
+./deploy.sh
+```
+
+Este script:
+1. Detiene los servicios existentes
+2. Pull del último código desde GitHub
+3. Build y start de los servicios con Docker Compose
+4. Ejecuta migraciones (si es necesario)
+
+### Deployment manual con Docker
+
+```bash
+# Build la imagen
+docker build -t padelo-v2 ./backend
+
+# Ejecutar el contenedor
+docker run -p 8000:8000 \
+  -e DATABASE_URL=postgresql://user:pass@host:5432/db \
+  -e REDIS_URL=redis://host:6379/0 \
+  padelo-v2
+```
 
 ## Características
 
@@ -75,26 +135,32 @@ La documentación interactiva de la API está disponible en:
 - ✅ Arquitectura modular y escalable
 - ✅ Base de datos PostgreSQL con SQLAlchemy async
 - ✅ Sistema de configuración con Pydantic
-- 🚧 Sistema de gestión de clubes
-- 🚧 Sistema de reservas de canchas
-- 🚧 Sistema de match-making automático
-- 🚧 Mensajería interna en tiempo real
-- 🚧 Notificaciones push
-- 🚧 Sistema de pagos
+- ✅ Sistema de gestión de clubes
+- ✅ Sistema de gestión de canchas
+- ✅ Sistema de match-making automático
+- ✅ Mensajería interna con WebSocket
+- ✅ Sistema de notificaciones push
+- ✅ Redis para colas y cache
+- ✅ Tests automáticos con pytest
+- ✅ CI/CD con GitHub Actions
+- ✅ Docker para deployment consistente
 
 ## Roadmap
 
 - [x] Configuración base del proyecto
 - [x] Módulo de autenticación
-- [ ] Módulo de gestión de clubes
-- [ ] Módulo de gestión de canchas
-- [ ] Módulo de match-making
-- [ ] Módulo de mensajería
-- [ ] Módulo de notificaciones
+- [x] Módulo de gestión de clubes
+- [x] Módulo de gestión de canchas
+- [x] Módulo de match-making
+- [x] Módulo de mensajería
+- [x] Módulo de notificaciones
+- [x] Tests automáticos
+- [x] CI/CD con GitHub Actions
+- [x] Docker para deployment
 - [ ] Frontend móvil (React Native)
 - [ ] Frontend web admin (React)
-- [ ] CI/CD
-- [ ] Testing
+- [ ] Deploy en servidor AWS
+- [ ] Migración de datos del sistema viejo
 
 ## Licencia
 
