@@ -44,7 +44,7 @@ async def login_user(user_credentials: UserLogin, db: AsyncSession = Depends(get
     
     # Get user using raw SQL
     result = await db.execute(
-        text("SELECT id, email, hashed_password, is_active, full_name, role, is_club_admin, club_id FROM users WHERE email = :email"),
+        text("SELECT id, email, hashed_password, is_active, full_name, role, is_club_admin, club_id, created_at FROM users WHERE email = :email"),
         {"email": user_credentials.email}
     )
     user_row = result.fetchone()
@@ -77,7 +77,8 @@ async def login_user(user_credentials: UserLogin, db: AsyncSession = Depends(get
         "is_active": user_row[3],
         "role": user_row[5] if user_row[5] else "player",
         "is_club_admin": user_row[6] if user_row[6] else False,
-        "club_id": user_row[7]
+        "club_id": user_row[7],
+        "created_at": user_row[8]
     }
     
     return {"access_token": access_token, "token_type": "bearer", "user": user_data}
