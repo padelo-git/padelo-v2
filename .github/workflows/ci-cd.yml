@@ -60,6 +60,16 @@ jobs:
           git pull origin main
           docker-compose up -d --build
           
+    - name: Create admin user
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd ~/padelo-v2/backend
+          docker-compose exec -T backend python create_admin.py
+          
     - name: Notify deployment success
       if: success()
       run: echo "Deployment completed successfully!"
