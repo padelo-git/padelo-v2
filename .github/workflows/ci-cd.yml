@@ -56,6 +56,7 @@ jobs:
         script: |
           cd ~/padelo-v2
           docker-compose down --remove-orphans
+          docker network prune -f
           docker system prune -f
           git pull origin main
           docker-compose up -d --build
