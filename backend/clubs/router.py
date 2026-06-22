@@ -238,6 +238,53 @@ async def create_reservation(
     await db.commit()
     await db.refresh(db_reservation)
     
+    # Try automatic payment via Stripe if price is set
+    if reservation.price and reservation.price > 0:
+        try:
+            from payments.stripe_service import get_stripe_service
+            stripe_service = get_stripe_service()
+            
+            if stripe_service:
+                payment_result = await stripe_service.process_match_payment(
+                    user_id=reservation.user_id,
+                    match_id=db_reservation.id,
+                    amount=int(reservation.price * 100),
+                    currency="usd"
+                )
+                
+                if payment_result["success"]:
+                    # Create payment record
+                    payment = Payment(
+                        club_id=club_id,
+                        user_id=reservation.user_id,
+                        amount=reservation.price,
+                        method="card",
+                        description=f"Reserva automática - Cancha #{reservation.court_id}",
+                        created_at=func.now()
+                    )
+                    db.add(payment)
+                    await db.commit()
+                    
+                    # Update reservation status
+                    db_reservation.status = "confirmed"
+                    await db.commit()
+                    
+                    return {
+                        **db_reservation.__dict__,
+                        "payment_status": "paid",
+                        "payment_method": "system",
+                        "client_secret": payment_result.get("client_secret")
+                    }
+        except Exception as e:
+            # If automatic payment fails, allow manual payment
+            print(f"Automatic payment failed: {e}")
+            return {
+                **db_reservation.__dict__,
+                "payment_status": "pending",
+                "payment_method": "manual",
+                "message": "Payment failed, please pay manually"
+            }
+    
     return db_reservation
 
 

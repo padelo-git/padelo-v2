@@ -584,7 +584,7 @@ function ClubPanel() {
             </form>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '15px', marginBottom: '20px' }}>
             <div style={{ padding: '15px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', textAlign: 'center' }}>
               <h4 style={{ fontSize: '24px', marginBottom: '5px' }}>${payments.filter(p => p.method === 'card').reduce((sum, p) => sum + p.amount, 0)}</h4>
               <p style={{ fontSize: '14px' }}>Tarjeta</p>
@@ -596,6 +596,10 @@ function ClubPanel() {
             <div style={{ padding: '15px', backgroundColor: '#17a2b8', color: 'white', borderRadius: '5px', textAlign: 'center' }}>
               <h4 style={{ fontSize: '24px', marginBottom: '5px' }}>${payments.filter(p => p.method === 'transfer').reduce((sum, p) => sum + p.amount, 0)}</h4>
               <p style={{ fontSize: '14px' }}>Transferencia</p>
+            </div>
+            <div style={{ padding: '15px', backgroundColor: '#6c757d', color: 'white', borderRadius: '5px', textAlign: 'center' }}>
+              <h4 style={{ fontSize: '24px', marginBottom: '5px' }}>${payments.filter(p => p.description && p.description.includes('automática')).reduce((sum, p) => sum + p.amount, 0)}</h4>
+              <p style={{ fontSize: '14px' }}>Sistema</p>
             </div>
           </div>
 
