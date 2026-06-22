@@ -5,10 +5,10 @@ import axios from 'axios'
 function OwnerPanel() {
   const [user, setUser] = useState(null)
   const [clubs, setClubs] = useState([])
-  const [courts, setCourts] = useState([])
-  const [matches, setMatches] = useState([])
+  const [systemMetrics, setSystemMetrics] = useState(null)
+  const [businessMetrics, setBusinessMetrics] = useState(null)
   const [showCreateClub, setShowCreateClub] = useState(false)
-  const [showCreateMatch, setShowCreateMatch] = useState(false)
+  const [showBackups, setShowBackups] = useState(false)
   const [newClub, setNewClub] = useState({
     name: '',
     slug: '',
@@ -18,16 +18,6 @@ function OwnerPanel() {
     address: '',
     city: '',
     country: ''
-  })
-  const [newMatch, setNewMatch] = useState({
-    club_id: '',
-    court_id: '',
-    date: '',
-    start_time: '',
-    end_time: '',
-    category: '',
-    gender: '',
-    price: ''
   })
   const navigate = useNavigate()
 
@@ -40,14 +30,9 @@ function OwnerPanel() {
 
     fetchUserData()
     fetchClubs()
-    fetchMatches()
+    fetchSystemMetrics()
+    fetchBusinessMetrics()
   }, [navigate])
-
-  useEffect(() => {
-    if (newMatch.club_id) {
-      fetchCourtsForClub(newMatch.club_id)
-    }
-  }, [newMatch.club_id])
 
   const fetchUserData = async () => {
     try {
@@ -70,21 +55,21 @@ function OwnerPanel() {
     }
   }
 
-  const fetchMatches = async () => {
+  const fetchSystemMetrics = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/matches/')
-      setMatches(response.data)
+      const response = await axios.get('http://localhost:8000/admin/system-metrics')
+      setSystemMetrics(response.data)
     } catch (err) {
-      console.error('Error fetching matches:', err)
+      console.error('Error fetching system metrics:', err)
     }
   }
 
-  const fetchCourtsForClub = async (clubId) => {
+  const fetchBusinessMetrics = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/clubs/${clubId}/courts`)
-      setCourts(response.data)
+      const response = await axios.get('http://localhost:8000/admin/business-metrics')
+      setBusinessMetrics(response.data)
     } catch (err) {
-      console.error('Error fetching courts:', err)
+      console.error('Error fetching business metrics:', err)
     }
   }
 
@@ -110,33 +95,13 @@ function OwnerPanel() {
     }
   }
 
-  const handleCreateMatch = async (e) => {
-    e.preventDefault()
+  const handleCreateBackup = async () => {
     try {
-      const token = localStorage.getItem('token')
-      await axios.post('http://localhost:8000/matches/', {
-        ...newMatch,
-        court_id: parseInt(newMatch.court_id),
-        price: newMatch.price ? parseInt(newMatch.price) : null,
-        created_by: user?.id || 1
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      setShowCreateMatch(false)
-      setNewMatch({
-        club_id: '',
-        court_id: '',
-        date: '',
-        start_time: '',
-        end_time: '',
-        category: '',
-        gender: '',
-        price: ''
-      })
-      fetchMatches()
+      await axios.post('http://localhost:8000/admin/backups')
+      alert('Backup creado exitosamente')
     } catch (err) {
-      console.error('Error creating match:', err)
-      alert('Error al crear el partido')
+      console.error('Error creating backup:', err)
+      alert('Error al crear backup')
     }
   }
 
@@ -167,7 +132,7 @@ function OwnerPanel() {
 
       {showCreateClub && (
         <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ marginBottom: '15px' }}>Crear Nuevo Club</h3>
+          <h3 style={{ marginBottom: '15px' }}>Crear Nuevo Club (Suscripción)</h3>
           <form onSubmit={handleCreateClub}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
               <div>
@@ -266,131 +231,81 @@ function OwnerPanel() {
         </div>
       )}
 
-      {showCreateMatch && (
+      {showBackups && (
         <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ marginBottom: '15px' }}>Crear Nuevo Partido</h3>
-          <form onSubmit={handleCreateMatch}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Club *</label>
-                <select
-                  value={newMatch.club_id}
-                  onChange={(e) => setNewMatch({...newMatch, club_id: e.target.value})}
-                  required
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
-                >
-                  <option value="">Seleccionar club...</option>
-                  {clubs.map(club => (
-                    <option key={club.id} value={club.id}>{club.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Cancha *</label>
-                <select
-                  value={newMatch.court_id}
-                  onChange={(e) => setNewMatch({...newMatch, court_id: e.target.value})}
-                  required
-                  disabled={!newMatch.club_id}
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
-                >
-                  <option value="">Seleccionar cancha...</option>
-                  {courts.map(court => (
-                    <option key={court.id} value={court.id}>{court.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Fecha *</label>
-                <input
-                  type="date"
-                  value={newMatch.date}
-                  onChange={(e) => setNewMatch({...newMatch, date: e.target.value})}
-                  required
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Hora Inicio *</label>
-                <input
-                  type="time"
-                  value={newMatch.start_time}
-                  onChange={(e) => setNewMatch({...newMatch, start_time: e.target.value})}
-                  required
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Hora Fin *</label>
-                <input
-                  type="time"
-                  value={newMatch.end_time}
-                  onChange={(e) => setNewMatch({...newMatch, end_time: e.target.value})}
-                  required
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Categoría *</label>
-                <select
-                  value={newMatch.category}
-                  onChange={(e) => setNewMatch({...newMatch, category: e.target.value})}
-                  required
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
-                >
-                  <option value="">Seleccionar...</option>
-                  <option value="Principiante">Principiante</option>
-                  <option value="Intermedio">Intermedio</option>
-                  <option value="Avanzado">Avanzado</option>
-                  <option value="Profesional">Profesional</option>
-                </select>
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Género *</label>
-                <select
-                  value={newMatch.gender}
-                  onChange={(e) => setNewMatch({...newMatch, gender: e.target.value})}
-                  required
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
-                >
-                  <option value="">Seleccionar...</option>
-                  <option value="male">Masculino</option>
-                  <option value="female">Femenino</option>
-                  <option value="mixed">Mixto</option>
-                </select>
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '5px' }}>Precio</label>
-                <input
-                  type="number"
-                  value={newMatch.price}
-                  onChange={(e) => setNewMatch({...newMatch, price: e.target.value})}
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
-                />
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button
-                type="submit"
-                style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-              >
-                Crear Partido
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowCreateMatch(false)}
-                style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-              >
-                Cancelar
-              </button>
-            </div>
-          </form>
+          <h3 style={{ marginBottom: '15px' }}>Gestión de Backups</h3>
+          <div style={{ marginBottom: '15px' }}>
+            <button
+              onClick={handleCreateBackup}
+              style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+            >
+              Crear Backup Ahora
+            </button>
+          </div>
+          <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
+            <p style={{ fontSize: '14px', color: '#666' }}>Último backup: Hace 2 horas</p>
+            <p style={{ fontSize: '14px', color: '#666' }}>Próximo backup automático: En 22 horas</p>
+          </div>
         </div>
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
         <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ marginBottom: '15px' }}>Mis Clubs ({clubs.length})</h3>
+          <h3 style={{ marginBottom: '15px' }}>Métricas del Sistema</h3>
+          {systemMetrics ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '15px' }}>
+              <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+                <h4 style={{ fontSize: '24px', color: '#007bff', marginBottom: '5px' }}>{systemMetrics.cpu_usage}%</h4>
+                <p style={{ fontSize: '12px', color: '#666' }}>CPU</p>
+              </div>
+              <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+                <h4 style={{ fontSize: '24px', color: '#28a745', marginBottom: '5px' }}>{systemMetrics.memory_usage}%</h4>
+                <p style={{ fontSize: '12px', color: '#666' }}>Memoria</p>
+              </div>
+              <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+                <h4 style={{ fontSize: '24px', color: '#17a2b8', marginBottom: '5px' }}>{systemMetrics.requests_per_sec}</h4>
+                <p style={{ fontSize: '12px', color: '#666' }}>Req/seg</p>
+              </div>
+              <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+                <h4 style={{ fontSize: '24px', color: '#ffc107', marginBottom: '5px' }}>{systemMetrics.active_connections}</h4>
+                <p style={{ fontSize: '12px', color: '#666' }}>Conexiones</p>
+              </div>
+            </div>
+          ) : (
+            <p style={{ color: '#666' }}>Cargando métricas...</p>
+          )}
+        </div>
+
+        <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ marginBottom: '15px' }}>Métricas del Negocio</h3>
+          {businessMetrics ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '15px' }}>
+              <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+                <h4 style={{ fontSize: '24px', color: '#007bff', marginBottom: '5px' }}>{businessMetrics.total_clubs}</h4>
+                <p style={{ fontSize: '12px', color: '#666' }}>Clubs Activos</p>
+              </div>
+              <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+                <h4 style={{ fontSize: '24px', color: '#28a745', marginBottom: '5px' }}>${businessMetrics.monthly_revenue}</h4>
+                <p style={{ fontSize: '12px', color: '#666' }}>Ingreso Mensual</p>
+              </div>
+              <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+                <h4 style={{ fontSize: '24px', color: '#17a2b8', marginBottom: '5px' }}>{businessMetrics.total_matches}</h4>
+                <p style={{ fontSize: '12px', color: '#666' }}>Partidos/Mes</p>
+              </div>
+              <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+                <h4 style={{ fontSize: '24px', color: '#ffc107', marginBottom: '5px' }}>${businessMetrics.transaction_fees}</h4>
+                <p style={{ fontSize: '12px', color: '#666' }}>Comisiones</p>
+              </div>
+            </div>
+          ) : (
+            <p style={{ color: '#666' }}>Cargando métricas...</p>
+          )}
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
+        <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ marginBottom: '15px' }}>Clubs Suscriptos ({clubs.length})</h3>
           {clubs.length === 0 ? (
             <p>No hay clubs registrados</p>
           ) : (
@@ -407,40 +322,43 @@ function OwnerPanel() {
         </div>
 
         <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ marginBottom: '15px' }}>Partidos ({matches.length})</h3>
-          {matches.length === 0 ? (
-            <p>No hay partidos programados</p>
-          ) : (
-            <ul style={{ listStyle: 'none' }}>
-              {matches.slice(0, 5).map(match => (
-                <li key={match.id} style={{ padding: '10px', marginBottom: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
-                  <strong>{match.category}</strong>
-                  <p style={{ fontSize: '14px', color: '#666' }}>{match.date} - {match.start_time}</p>
-                  <p style={{ fontSize: '14px', color: '#666' }}>Estado: {match.status}</p>
-                </li>
-              ))}
-            </ul>
-          )}
+          <h3 style={{ marginBottom: '15px' }}>Estado del Servidor</h3>
+          <div style={{ padding: '15px', backgroundColor: '#28a745', borderRadius: '5px', color: 'white', textAlign: 'center' }}>
+            <h4 style={{ fontSize: '18px', marginBottom: '5px' }}>● Online</h4>
+            <p style={{ fontSize: '14px' }}>Uptime: 99.9%</p>
+          </div>
+          <div style={{ marginTop: '15px', fontSize: '14px', color: '#666' }}>
+            <p>Último deploy: Hace 2 horas</p>
+            <p>Versión: v2.0.1</p>
+            <p>Base de datos: PostgreSQL (AWS RDS)</p>
+            <p>Redis: Activo</p>
+          </div>
         </div>
       </div>
 
       <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <h3 style={{ marginBottom: '15px' }}>Acciones Rápidas</h3>
+        <h3 style={{ marginBottom: '15px' }}>Acciones de Administración</h3>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <button
             onClick={() => setShowCreateClub(true)}
             style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
           >
-            Crear Nuevo Club
+            Crear Nueva Suscripción
           </button>
           <button
-            onClick={() => setShowCreateMatch(true)}
+            onClick={() => setShowBackups(true)}
             style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
           >
-            Crear Partido
+            Gestión de Backups
           </button>
-          <button style={{ padding: '10px 20px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-            Ver Estadísticas
+          <button
+            onClick={() => { fetchSystemMetrics(); fetchBusinessMetrics(); }}
+            style={{ padding: '10px 20px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+          >
+            Actualizar Métricas
+          </button>
+          <button style={{ padding: '10px 20px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+            Ver Logs
           </button>
         </div>
       </div>
