@@ -22,7 +22,7 @@ async def create_admin_user():
         # Check if admin user already exists
         result = await conn.execute(
             text("SELECT id FROM users WHERE email = :email"),
-            {"email": "DavidGCTD@gmail.com"}
+            {"email": "davidgctd@gmail.com"}
         )
         existing_user = result.fetchone()
         
@@ -39,7 +39,7 @@ async def create_admin_user():
                 VALUES (:email, :hashed_password, :full_name, :is_active, :role, :is_club_admin, NULL, NOW(), NOW())
             """),
             {
-                "email": "DavidGCTD@gmail.com",
+                "email": "davidgctd@gmail.com",
                 "hashed_password": hashed_password,
                 "full_name": "David Admin",
                 "is_active": True,
@@ -49,7 +49,7 @@ async def create_admin_user():
         )
         
         print("Admin user created successfully!")
-        print("Email: DavidGCTD@gmail.com")
+        print("Email: davidgctd@gmail.com")
         print("Password: Argentina2026")
         print("IMPORTANT: Change this password after first login!")
 

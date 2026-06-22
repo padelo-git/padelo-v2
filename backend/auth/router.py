@@ -97,7 +97,7 @@ async def debug_admin_check(db: AsyncSession = Depends(get_db)):
     
     result = await db.execute(
         text("SELECT id, email, is_active, role, is_club_admin, hashed_password FROM users WHERE email = :email"),
-        {"email": "DavidGCTD@gmail.com"}
+        {"email": "davidgctd@gmail.com"}
     )
     admin_user = result.fetchone()
     
