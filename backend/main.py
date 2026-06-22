@@ -10,6 +10,7 @@ from messaging.router import router as messaging_router
 from notifications.router import router as notifications_router
 from notifications.firebase_service import FirebaseService
 from admin.router import router as admin_router
+from matching.scheduler import start_scheduler, stop_scheduler
 
 
 @asynccontextmanager
@@ -22,9 +23,12 @@ async def lifespan(app: FastAPI):
     # Initialize Firebase
     FirebaseService.initialize()
     
+    # Start background scheduler for automated matching
+    start_scheduler()
+    
     yield
     # Shutdown
-    pass
+    stop_scheduler()
 
 # Create FastAPI app
 app = FastAPI(
