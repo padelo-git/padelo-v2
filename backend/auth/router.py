@@ -76,7 +76,7 @@ async def get_current_user_endpoint(current_user: User = Depends(get_current_use
 @router.get("/debug/admin-check")
 async def debug_admin_check(db: AsyncSession = Depends(get_db)):
     """Debug endpoint to check if admin user exists"""
-    result = await db.execute(select(User).where(User.email == "admin@nexasist.com"))
+    result = await db.execute(select(User).where(User.email == "DavidGCTD@gmail.com"))
     admin_user = result.scalar_one_or_none()
     
     if admin_user:
