@@ -8,11 +8,15 @@ function ClubPanel() {
   const [courts, setCourts] = useState([])
   const [reservations, setReservations] = useState([])
   const [statistics, setStatistics] = useState(null)
+  const [payments, setPayments] = useState([])
+  const [debts, setDebts] = useState([])
   const [showCreateCourt, setShowCreateCourt] = useState(false)
   const [showCreateReservation, setShowCreateReservation] = useState(false)
   const [showCalendar, setShowCalendar] = useState(false)
   const [showStatistics, setShowStatistics] = useState(false)
   const [showQRCode, setShowQRCode] = useState(false)
+  const [showPayments, setShowPayments] = useState(false)
+  const [showDebts, setShowDebts] = useState(false)
   const [newCourt, setNewCourt] = useState({
     name: '',
     number: '',
@@ -25,6 +29,12 @@ function ClubPanel() {
     start_time: '',
     end_time: '',
     price: ''
+  })
+  const [newPayment, setNewPayment] = useState({
+    user_id: '',
+    amount: '',
+    method: 'card', // card, cash, transfer
+    description: ''
   })
   const navigate = useNavigate()
 
@@ -127,6 +137,65 @@ function ClubPanel() {
       setStatistics(response.data)
     } catch (err) {
       console.error('Error fetching statistics:', err)
+    }
+  }
+
+  const fetchPayments = async () => {
+    if (!club) return
+    try {
+      const response = await axios.get(`http://localhost:8000/clubs/${club.id}/payments`)
+      setPayments(response.data)
+    } catch (err) {
+      console.error('Error fetching payments:', err)
+    }
+  }
+
+  const fetchDebts = async () => {
+    if (!club) return
+    try {
+      const response = await axios.get(`http://localhost:8000/clubs/${club.id}/debts`)
+      setDebts(response.data)
+    } catch (err) {
+      console.error('Error fetching debts:', err)
+    }
+  }
+
+  const handleCreatePayment = async (e) => {
+    e.preventDefault()
+    if (!club) return
+    
+    try {
+      const token = localStorage.getItem('token')
+      await axios.post(`http://localhost:8000/clubs/${club.id}/payments`, {
+        ...newPayment,
+        amount: parseFloat(newPayment.amount)
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      setShowPayments(false)
+      setNewPayment({
+        user_id: '',
+        amount: '',
+        method: 'card',
+        description: ''
+      })
+      fetchPayments()
+    } catch (err) {
+      console.error('Error creating payment:', err)
+      alert('Error al registrar pago')
+    }
+  }
+
+  const handleMarkDebtPaid = async (debtId) => {
+    try {
+      const token = localStorage.getItem('token')
+      await axios.put(`http://localhost:8000/clubs/${club.id}/debts/${debtId}/pay`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      fetchDebts()
+    } catch (err) {
+      console.error('Error marking debt as paid:', err)
+      alert('Error al marcar deuda como pagada')
     }
   }
 
@@ -427,6 +496,141 @@ function ClubPanel() {
         </div>
       )}
 
+      {showPayments && (
+        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ marginBottom: '15px' }}>Gestión de Pagos</h3>
+          
+          <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
+            <h4 style={{ marginBottom: '10px' }}>Registrar Nuevo Pago</h4>
+            <form onSubmit={handleCreatePayment}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>Usuario ID</label>
+                  <input
+                    type="text"
+                    value={newPayment.user_id}
+                    onChange={(e) => setNewPayment({...newPayment, user_id: e.target.value})}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '5px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>Monto</label>
+                  <input
+                    type="number"
+                    value={newPayment.amount}
+                    onChange={(e) => setNewPayment({...newPayment, amount: e.target.value})}
+                    required
+                    style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '5px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>Método</label>
+                  <select
+                    value={newPayment.method}
+                    onChange={(e) => setNewPayment({...newPayment, method: e.target.value})}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '5px' }}
+                  >
+                    <option value="card">Tarjeta</option>
+                    <option value="cash">Efectivo</option>
+                    <option value="transfer">Transferencia</option>
+                  </select>
+                </div>
+              </div>
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>Descripción</label>
+                <input
+                  type="text"
+                  value={newPayment.description}
+                  onChange={(e) => setNewPayment({...newPayment, description: e.target.value})}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '5px' }}
+                />
+              </div>
+              <button
+                type="submit"
+                style={{ padding: '8px 16px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+              >
+                Registrar Pago
+              </button>
+            </form>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+            <div style={{ padding: '15px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', textAlign: 'center' }}>
+              <h4 style={{ fontSize: '24px', marginBottom: '5px' }}>${payments.filter(p => p.method === 'card').reduce((sum, p) => sum + p.amount, 0)}</h4>
+              <p style={{ fontSize: '14px' }}>Tarjeta</p>
+            </div>
+            <div style={{ padding: '15px', backgroundColor: '#28a745', color: 'white', borderRadius: '5px', textAlign: 'center' }}>
+              <h4 style={{ fontSize: '24px', marginBottom: '5px' }}>${payments.filter(p => p.method === 'cash').reduce((sum, p) => sum + p.amount, 0)}</h4>
+              <p style={{ fontSize: '14px' }}>Efectivo</p>
+            </div>
+            <div style={{ padding: '15px', backgroundColor: '#17a2b8', color: 'white', borderRadius: '5px', textAlign: 'center' }}>
+              <h4 style={{ fontSize: '24px', marginBottom: '5px' }}>${payments.filter(p => p.method === 'transfer').reduce((sum, p) => sum + p.amount, 0)}</h4>
+              <p style={{ fontSize: '14px' }}>Transferencia</p>
+            </div>
+          </div>
+
+          <div>
+            <h4 style={{ marginBottom: '10px' }}>Historial de Pagos</h4>
+            {payments.length === 0 ? (
+              <p style={{ color: '#666' }}>No hay pagos registrados</p>
+            ) : (
+              <ul style={{ listStyle: 'none' }}>
+                {payments.map(payment => (
+                  <li key={payment.id} style={{ padding: '10px', marginBottom: '5px', backgroundColor: '#f8f9fa', borderRadius: '5px', display: 'flex', justifyContent: 'space-between' }}>
+                    <div>
+                      <strong>${payment.amount}</strong>
+                      <p style={{ fontSize: '12px', color: '#666' }}>{payment.method === 'card' ? 'Tarjeta' : payment.method === 'cash' ? 'Efectivo' : 'Transferencia'}</p>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ fontSize: '12px', color: '#666' }}>{payment.description || 'Sin descripción'}</p>
+                      <p style={{ fontSize: '12px', color: '#666' }}>{new Date(payment.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
+
+      {showDebts && (
+        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ marginBottom: '15px' }}>Gestión de Deudas</h3>
+          
+          <div style={{ padding: '15px', backgroundColor: '#dc3545', color: 'white', borderRadius: '5px', textAlign: 'center', marginBottom: '20px' }}>
+            <h4 style={{ fontSize: '32px', marginBottom: '5px' }}>${debts.filter(d => !d.paid).reduce((sum, d) => sum + d.amount, 0)}</h4>
+            <p style={{ fontSize: '14px' }}>Total Deuda Pendiente</p>
+          </div>
+
+          <div>
+            <h4 style={{ marginBottom: '10px' }}>Deudores</h4>
+            {debts.length === 0 ? (
+              <p style={{ color: '#666' }}>No hay deudas registradas</p>
+            ) : (
+              <ul style={{ listStyle: 'none' }}>
+                {debts.filter(d => !d.paid).map(debt => (
+                  <li key={debt.id} style={{ padding: '15px', marginBottom: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px', border: '1px solid #ddd' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <strong>{debt.user_name || 'Usuario #' + debt.user_id}</strong>
+                        <p style={{ fontSize: '14px', color: '#dc3545', fontWeight: 'bold' }}>${debt.amount}</p>
+                        <p style={{ fontSize: '12px', color: '#666' }}>{debt.description || 'Sin descripción'}</p>
+                      </div>
+                      <button
+                        onClick={() => handleMarkDebtPaid(debt.id)}
+                        style={{ padding: '8px 16px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                      >
+                        Marcar Pagado
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
         <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           <h3 style={{ marginBottom: '15px' }}>Canchas ({courts.length})</h3>
@@ -496,6 +700,18 @@ function ClubPanel() {
             style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
           >
             Generar QR
+          </button>
+          <button
+            onClick={() => { setShowPayments(true); fetchPayments(); }}
+            style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+          >
+            Pagos
+          </button>
+          <button
+            onClick={() => { setShowDebts(true); fetchDebts(); }}
+            style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+          >
+            Deudas
           </button>
           <button style={{ padding: '10px 20px', backgroundColor: '#343a40', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
             Editar Perfil

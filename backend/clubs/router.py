@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from typing import List
 from core.database import get_db
 from core.security import get_current_user, get_current_club_admin
-from clubs.models import Club, Court, Reservation
+from clubs.models import Club, Court, Reservation, Payment, Debt
 from clubs.schemas import (
     ClubCreate, ClubUpdate, ClubResponse, ClubWithCourts,
     CourtCreate, CourtUpdate, CourtResponse,
@@ -269,3 +269,97 @@ async def update_reservation(reservation_id: int, reservation_update: Reservatio
     await db.refresh(reservation)
     
     return reservation
+
+
+# Payment endpoints
+@router.get("/{club_id}/payments")
+async def get_payments(club_id: int, db: AsyncSession = Depends(get_db)):
+    """Get all payments for a club"""
+    result = await db.execute(select(Payment).where(Payment.club_id == club_id))
+    payments = result.scalars().all()
+    
+    return [
+        {
+            "id": p.id,
+            "user_id": p.user_id,
+            "amount": float(p.amount),
+            "method": p.method,
+            "description": p.description,
+            "created_at": p.created_at.isoformat() if p.created_at else None
+        }
+        for p in payments
+    ]
+
+
+@router.post("/{club_id}/payments")
+async def create_payment(club_id: int, payment_data: dict, db: AsyncSession = Depends(get_db)):
+    """Create a new payment"""
+    payment = Payment(
+        club_id=club_id,
+        user_id=payment_data.get("user_id"),
+        amount=payment_data.get("amount"),
+        method=payment_data.get("method"),
+        description=payment_data.get("description")
+    )
+    
+    db.add(payment)
+    await db.commit()
+    await db.refresh(payment)
+    
+    return {
+        "id": payment.id,
+        "user_id": payment.user_id,
+        "amount": float(payment.amount),
+        "method": payment.method,
+        "description": payment.description,
+        "created_at": payment.created_at.isoformat() if payment.created_at else None
+    }
+
+
+# Debt endpoints
+@router.get("/{club_id}/debts")
+async def get_debts(club_id: int, db: AsyncSession = Depends(get_db)):
+    """Get all debts for a club"""
+    result = await db.execute(select(Debt).where(Debt.club_id == club_id))
+    debts = result.scalars().all()
+    
+    return [
+        {
+            "id": d.id,
+            "user_id": d.user_id,
+            "user_name": f"Usuario #{d.user_id}",  # In production, fetch actual user name
+            "amount": float(d.amount),
+            "description": d.description,
+            "paid": d.paid,
+            "paid_at": d.paid_at.isoformat() if d.paid_at else None,
+            "created_at": d.created_at.isoformat() if d.created_at else None
+        }
+        for d in debts
+    ]
+
+
+@router.put("/{club_id}/debts/{debt_id}/pay")
+async def mark_debt_paid(club_id: int, debt_id: int, db: AsyncSession = Depends(get_db)):
+    """Mark a debt as paid"""
+    result = await db.execute(select(Debt).where(Debt.id == debt_id, Debt.club_id == club_id))
+    debt = result.scalar_one_or_none()
+    
+    if not debt:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Debt not found"
+        )
+    
+    debt.paid = True
+    debt.paid_at = func.now()
+    
+    await db.commit()
+    await db.refresh(debt)
+    
+    return {
+        "id": debt.id,
+        "user_id": debt.user_id,
+        "amount": float(debt.amount),
+        "paid": debt.paid,
+        "paid_at": debt.paid_at.isoformat() if debt.paid_at else None
+    }
