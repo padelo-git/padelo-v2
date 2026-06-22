@@ -39,19 +39,24 @@ async def register_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 async def login_user(user_credentials: UserLogin, db: AsyncSession = Depends(get_db)):
-    """Login user and return access token"""
-    # Get user
-    result = await db.execute(select(User).where(User.email == user_credentials.email))
-    user = result.scalar_one_or_none()
+    """Login user and return access token using raw SQL to avoid ORM issues"""
+    from sqlalchemy import text
     
-    if not user or not verify_password(user_credentials.password, user.hashed_password):
+    # Get user using raw SQL
+    result = await db.execute(
+        text("SELECT id, email, hashed_password, is_active, full_name, role, is_club_admin, club_id FROM users WHERE email = :email"),
+        {"email": user_credentials.email}
+    )
+    user_row = result.fetchone()
+    
+    if not user_row or not verify_password(user_credentials.password, user_row[2]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    if not user.is_active:
+    if not user_row[3]:  # is_active
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Inactive user"
@@ -60,11 +65,22 @@ async def login_user(user_credentials: UserLogin, db: AsyncSession = Depends(get
     # Create access token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.email, "user_id": user.id},
+        data={"sub": user_row[1], "user_id": user_row[0]},
         expires_delta=access_token_expires
     )
     
-    return {"access_token": access_token, "token_type": "bearer", "user": user}
+    # Create user response object
+    user_data = {
+        "id": user_row[0],
+        "email": user_row[1],
+        "full_name": user_row[4],
+        "is_active": user_row[3],
+        "role": user_row[5] if user_row[5] else "player",
+        "is_club_admin": user_row[6] if user_row[6] else False,
+        "club_id": user_row[7]
+    }
+    
+    return {"access_token": access_token, "token_type": "bearer", "user": user_data}
 
 
 @router.get("/me", response_model=UserResponse)
