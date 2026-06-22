@@ -751,58 +751,74 @@ function ClubPanel() {
 
       <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <h3 style={{ marginBottom: '15px' }}>Gestión del Club</h3>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => setShowCreateCourt(true)}
-            style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-          >
-            Agregar Cancha
-          </button>
-          <button
-            onClick={() => setShowCreateReservation(true)}
-            style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-          >
-            Crear Reserva
-          </button>
-          <button
-            onClick={() => setShowCalendar(true)}
-            style={{ padding: '10px 20px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-          >
-            Ver Calendario
-          </button>
-          <button
-            onClick={() => setShowStatistics(true)}
-            style={{ padding: '10px 20px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-          >
-            Ver Estadísticas
-          </button>
-          <button
-            onClick={() => setShowQRCode(true)}
-            style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-          >
-            Generar QR
-          </button>
-          <button
-            onClick={() => { setShowPayments(true); fetchPayments(); }}
-            style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-          >
-            Pagos
-          </button>
-          <button
-            onClick={() => { setShowDebts(true); fetchDebts(); }}
-            style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-          >
-            Deudas
-          </button>
-          <button
-            onClick={() => { setShowCashRegisters(true); fetchCashRegisters(); }}
-            style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-          >
-            Cajas
-          </button>
-          <button style={{ padding: '10px 20px', backgroundColor: '#343a40', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-            Editar Perfil
-          </button>
+        
+        <div style={{ marginBottom: '20px' }}>
+          <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px', fontWeight: 'bold' }}>Operaciones</p>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setShowCreateReservation(true)}
+              style={{ padding: '12px 24px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
+            >
+              📅 Nueva Reserva
+            </button>
+            <button
+              onClick={() => setShowCalendar(true)}
+              style={{ padding: '12px 24px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
+            >
+              📆 Calendario
+            </button>
+            <button
+              onClick={() => setShowCreateCourt(true)}
+              style={{ padding: '12px 24px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
+            >
+              🏟️ Agregar Cancha
+            </button>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px', fontWeight: 'bold' }}>Finanzas</p>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => { setShowPayments(true); fetchPayments(); }}
+              style={{ padding: '12px 24px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
+            >
+              💰 Pagos
+            </button>
+            <button
+              onClick={() => { setShowDebts(true); fetchDebts(); }}
+              style={{ padding: '12px 24px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
+            >
+              📋 Deudas
+            </button>
+            <button
+              onClick={() => { setShowCashRegisters(true); fetchCashRegisters(); }}
+              style={{ padding: '12px 24px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
+            >
+              🏦 Cajas
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px', fontWeight: 'bold' }}>Configuración</p>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setShowStatistics(true)}
+              style={{ padding: '12px 24px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
+            >
+              📊 Estadísticas
+            </button>
+            <button
+              onClick={() => setShowQRCode(true)}
+              style={{ padding: '12px 24px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
+            >
+              📱 Código QR
+            </button>
+            <button style={{ padding: '12px 24px', backgroundColor: '#343a40', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>
+              ⚙️ Editar Perfil
+            </button>
+          </div>
         </div>
       </div>
     </div>
