@@ -11,6 +11,7 @@ class Club(Base):
     name = Column(String, nullable=False)
     slug = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
     phone = Column(String)
     address = Column(Text)
     city = Column(String)

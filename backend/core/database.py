@@ -20,9 +20,6 @@ async_session = sessionmaker(
     expire_on_commit=False
 )
 
-# Base class for models
-Base = declarative_base()
-
 
 async def get_db() -> AsyncSession:
     """Dependency for getting async database session"""
