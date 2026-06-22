@@ -4,7 +4,7 @@ from typing import List
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str = "postgresql://padelo:padelo_secure_2026@localhost:5432/padelo_db"
+    DATABASE_URL: str = "postgresql+asyncpg://padelo:padelo_secure_2026@localhost:5432/padelo_db"
     
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"

@@ -6,7 +6,8 @@ from datetime import timedelta
 from core.database import get_db
 from core.security import verify_password, get_password_hash, create_access_token, decode_access_token
 from core.config import settings
-from auth.models import User, Club
+from auth.models import User
+from clubs.models import Club
 from auth.schemas import UserCreate, UserLogin, UserResponse, Token, ClubCreate, ClubLogin, ClubResponse
 
 router = APIRouter()
