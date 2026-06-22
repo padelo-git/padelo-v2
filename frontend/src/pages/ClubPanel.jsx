@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import QRCode from 'qrcode.react'
+import { QRCodeSVG } from 'qrcode.react'
 
 function ClubPanel() {
   const [club, setClub] = useState(null)
@@ -487,7 +487,7 @@ function ClubPanel() {
           <h3 style={{ marginBottom: '15px' }}>Código QR del Club</h3>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
             <div style={{ padding: '20px', backgroundColor: 'white', border: '2px solid #ddd', borderRadius: '10px' }}>
-              <QRCode 
+              <QRCodeSVG 
                 value={`https://nexasist.com/club/${club.slug}`}
                 size={200}
                 level="H"
