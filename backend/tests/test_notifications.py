@@ -8,8 +8,8 @@ class TestNotifications:
     @pytest.mark.asyncio
     async def test_create_notification(self, client: AsyncClient):
         """Test creating a notification"""
-        # Create user
-        user_response = await client.post(
+        # Create and login user
+        await client.post(
             "/auth/register",
             json={
                 "email": "notifuser@example.com",
@@ -17,7 +17,16 @@ class TestNotifications:
                 "full_name": "Notification User"
             }
         )
-        user_id = user_response.json()["id"]
+        login_response = await client.post(
+            "/auth/login",
+            json={
+                "email": "notifuser@example.com",
+                "password": "testpass123"
+            }
+        )
+        token = login_response.json()["access_token"]
+        
+        user_id = 1  # Mock user ID
         
         # Create notification
         response = await client.post(
@@ -28,7 +37,8 @@ class TestNotifications:
                 "body": "This is a test notification",
                 "notification_type": "match",
                 "data": '{"match_id": 1}'
-            }
+            },
+            headers={"Authorization": f"Bearer {token}"}
         )
         assert response.status_code == 200
         data = response.json()
@@ -57,8 +67,8 @@ class TestNotifications:
     @pytest.mark.asyncio
     async def test_mark_notification_as_read(self, client: AsyncClient):
         """Test marking a notification as read"""
-        # Create user
-        user_response = await client.post(
+        # Create and login user
+        await client.post(
             "/auth/register",
             json={
                 "email": "readuser@example.com",
@@ -66,7 +76,16 @@ class TestNotifications:
                 "full_name": "Read User"
             }
         )
-        user_id = user_response.json()["id"]
+        login_response = await client.post(
+            "/auth/login",
+            json={
+                "email": "readuser@example.com",
+                "password": "testpass123"
+            }
+        )
+        token = login_response.json()["access_token"]
+        
+        user_id = 1  # Mock user ID
         
         # Create notification
         notif_response = await client.post(
@@ -76,14 +95,16 @@ class TestNotifications:
                 "title": "Test Notification",
                 "body": "This is a test notification",
                 "notification_type": "match"
-            }
+            },
+            headers={"Authorization": f"Bearer {token}"}
         )
         notif_id = notif_response.json()["id"]
         
         # Mark as read
         response = await client.put(
             f"/notifications/{notif_id}",
-            json={"is_read": True}
+            json={"is_read": True},
+            headers={"Authorization": f"Bearer {token}"}
         )
         assert response.status_code == 200
         data = response.json()

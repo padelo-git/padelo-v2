@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
 from core.database import get_db
+from core.security import get_current_user
 from matches.models import Match, MatchInvitation, MatchRequest
 from matches.schemas import (
     MatchCreate, MatchUpdate, MatchResponse, MatchWithInvitations,
@@ -15,8 +16,12 @@ router = APIRouter()
 
 # Match endpoints
 @router.post("/", response_model=MatchResponse)
-async def create_match(match: MatchCreate, db: AsyncSession = Depends(get_db)):
-    """Create a new match"""
+async def create_match(
+    match: MatchCreate, 
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Create a new match (requires authentication)"""
     db_match = Match(
         club_id=match.club_id,
         court_id=match.court_id,
@@ -68,8 +73,13 @@ async def get_match(match_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/{match_id}", response_model=MatchResponse)
-async def update_match(match_id: int, match_update: MatchUpdate, db: AsyncSession = Depends(get_db)):
-    """Update match"""
+async def update_match(
+    match_id: int, 
+    match_update: MatchUpdate, 
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Update match (requires authentication)"""
     result = await db.execute(select(Match).where(Match.id == match_id))
     match = result.scalar_one_or_none()
     
@@ -91,8 +101,13 @@ async def update_match(match_id: int, match_update: MatchUpdate, db: AsyncSessio
 
 # Match Invitation endpoints
 @router.post("/{match_id}/invitations", response_model=MatchInvitationResponse)
-async def create_invitation(match_id: int, invitation: MatchInvitationCreate, db: AsyncSession = Depends(get_db)):
-    """Create a new match invitation"""
+async def create_invitation(
+    match_id: int, 
+    invitation: MatchInvitationCreate, 
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Create a new match invitation (requires authentication)"""
     # Check if match exists
     result = await db.execute(select(Match).where(Match.id == match_id))
     if not result.scalar_one_or_none():
@@ -124,8 +139,13 @@ async def get_invitations(match_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/invitations/{invitation_id}", response_model=MatchInvitationResponse)
-async def update_invitation(invitation_id: int, invitation_update: MatchInvitationUpdate, db: AsyncSession = Depends(get_db)):
-    """Update invitation status"""
+async def update_invitation(
+    invitation_id: int, 
+    invitation_update: MatchInvitationUpdate, 
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Update invitation status (requires authentication)"""
     result = await db.execute(select(MatchInvitation).where(MatchInvitation.id == invitation_id))
     invitation = result.scalar_one_or_none()
     

@@ -1,17 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from datetime import timedelta
 from core.database import get_db
-from core.security import verify_password, get_password_hash, create_access_token, decode_access_token
+from core.security import verify_password, get_password_hash, create_access_token, get_current_user
 from core.config import settings
 from auth.models import User
 from clubs.models import Club
 from auth.schemas import UserCreate, UserLogin, UserResponse, Token, ClubCreate, ClubLogin, ClubResponse
 
 router = APIRouter()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
 @router.post("/register", response_model=UserResponse)
@@ -70,35 +68,9 @@ async def login_user(user_credentials: UserLogin, db: AsyncSession = Depends(get
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
+async def get_current_user_endpoint(current_user: User = Depends(get_current_user)):
     """Get current user from token"""
-    payload = decode_access_token(token)
-    if payload is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    email: str = payload.get("sub")
-    if email is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    result = await db.execute(select(User).where(User.email == email))
-    user = result.scalar_one_or_none()
-    
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    return user
+    return current_user
 
 
 @router.post("/club/register", response_model=ClubResponse)

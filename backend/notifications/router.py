@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
 from core.database import get_db
+from core.security import get_current_user
 from notifications.models import Notification, DeviceToken
 from notifications.schemas import (
     NotificationCreate, NotificationUpdate, NotificationResponse,
@@ -14,8 +15,12 @@ router = APIRouter()
 
 # Notification endpoints
 @router.post("/", response_model=NotificationResponse)
-async def create_notification(notification: NotificationCreate, db: AsyncSession = Depends(get_db)):
-    """Create a new notification"""
+async def create_notification(
+    notification: NotificationCreate, 
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Create a new notification (requires authentication)"""
     db_notification = Notification(
         user_id=notification.user_id,
         title=notification.title,
@@ -63,8 +68,13 @@ async def get_notification(notification_id: int, db: AsyncSession = Depends(get_
 
 
 @router.put("/{notification_id}", response_model=NotificationResponse)
-async def update_notification(notification_id: int, notification_update: NotificationUpdate, db: AsyncSession = Depends(get_db)):
-    """Update notification (mark as read)"""
+async def update_notification(
+    notification_id: int, 
+    notification_update: NotificationUpdate, 
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Update notification (mark as read) (requires authentication)"""
     result = await db.execute(select(Notification).where(Notification.id == notification_id))
     notification = result.scalar_one_or_none()
     

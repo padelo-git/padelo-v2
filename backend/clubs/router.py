@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
 from core.database import get_db
+from core.security import get_current_user, get_current_club_admin
 from clubs.models import Club, Court, Reservation
 from clubs.schemas import (
     ClubCreate, ClubUpdate, ClubResponse, ClubWithCourts,
@@ -87,8 +88,13 @@ async def get_club(club_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/{club_id}", response_model=ClubResponse)
-async def update_club(club_id: int, club_update: ClubUpdate, db: AsyncSession = Depends(get_db)):
-    """Update club"""
+async def update_club(
+    club_id: int, 
+    club_update: ClubUpdate, 
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_club_admin)
+):
+    """Update club (requires club admin)"""
     result = await db.execute(select(Club).where(Club.id == club_id))
     club = result.scalar_one_or_none()
     
@@ -166,8 +172,13 @@ async def update_court(court_id: int, court_update: CourtUpdate, db: AsyncSessio
 
 # Reservation endpoints
 @router.post("/{club_id}/reservations", response_model=ReservationResponse)
-async def create_reservation(club_id: int, reservation: ReservationCreate, db: AsyncSession = Depends(get_db)):
-    """Create a new reservation"""
+async def create_reservation(
+    club_id: int, 
+    reservation: ReservationCreate, 
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Create a new reservation (requires authentication)"""
     # Check if club exists
     result = await db.execute(select(Club).where(Club.id == club_id))
     if not result.scalar_one_or_none():

@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
 from core.database import get_db
+from core.security import get_current_user
 from messaging.models import Message, MessageRead, Conversation
 from messaging.schemas import (
     MessageCreate, MessageResponse, MessageWithReads,
@@ -15,8 +16,12 @@ router = APIRouter()
 
 # Message endpoints
 @router.post("/", response_model=MessageResponse)
-async def create_message(message: MessageCreate, db: AsyncSession = Depends(get_db)):
-    """Create a new message"""
+async def create_message(
+    message: MessageCreate, 
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Create a new message (requires authentication)"""
     db_message = Message(
         club_id=message.club_id,
         sender_id=message.sender_id,

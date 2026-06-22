@@ -8,6 +8,24 @@ class TestMessaging:
     @pytest.mark.asyncio
     async def test_create_message(self, client: AsyncClient):
         """Test creating a message"""
+        # Create and login user
+        await client.post(
+            "/auth/register",
+            json={
+                "email": "msguser@example.com",
+                "password": "testpass123",
+                "full_name": "Message User"
+            }
+        )
+        login_response = await client.post(
+            "/auth/login",
+            json={
+                "email": "msguser@example.com",
+                "password": "testpass123"
+            }
+        )
+        token = login_response.json()["access_token"]
+        
         # Create club
         club_response = await client.post(
             "/clubs/",
@@ -20,16 +38,7 @@ class TestMessaging:
         )
         club_id = club_response.json()["id"]
         
-        # Create user
-        user_response = await client.post(
-            "/auth/register",
-            json={
-                "email": "msguser@example.com",
-                "password": "testpass123",
-                "full_name": "Message User"
-            }
-        )
-        user_id = user_response.json()["id"]
+        user_id = 1  # Mock user ID
         
         # Create message
         response = await client.post(
@@ -40,7 +49,8 @@ class TestMessaging:
                 "content": "Hello, this is a test message",
                 "message_type": "text",
                 "is_announcement": False
-            }
+            },
+            headers={"Authorization": f"Bearer {token}"}
         )
         assert response.status_code == 200
         data = response.json()
