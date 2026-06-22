@@ -1,6 +1,6 @@
 # Padelo V2
 Sistema de gestión de pádel con deploy automático a AWS via GitHub Actions
-PostgreSQL local detenido y puerto 8000 liberado para evitar conflictos
+Sistema viejo detenido (padelo.service y nginx.service) y puertos liberados
 
 Sistema de gestión de clubes de pádel - Versión 2
 
