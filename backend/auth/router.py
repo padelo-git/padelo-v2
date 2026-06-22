@@ -73,6 +73,25 @@ async def get_current_user_endpoint(current_user: User = Depends(get_current_use
     return current_user
 
 
+@router.get("/debug/admin-check")
+async def debug_admin_check(db: AsyncSession = Depends(get_db)):
+    """Debug endpoint to check if admin user exists"""
+    result = await db.execute(select(User).where(User.email == "admin@nexasist.com"))
+    admin_user = result.scalar_one_or_none()
+    
+    if admin_user:
+        return {
+            "exists": True,
+            "email": admin_user.email,
+            "is_active": admin_user.is_active,
+            "role": admin_user.role if hasattr(admin_user, 'role') else "no_role",
+            "is_club_admin": admin_user.is_club_admin if hasattr(admin_user, 'is_club_admin') else False,
+            "has_password": bool(admin_user.hashed_password)
+        }
+    else:
+        return {"exists": False}
+
+
 @router.post("/forgot-password")
 async def forgot_password(email_data: dict, db: AsyncSession = Depends(get_db)):
     """Send password reset email"""
