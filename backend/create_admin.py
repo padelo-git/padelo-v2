@@ -10,6 +10,15 @@ async def create_admin_user():
     engine = create_async_engine(settings.DATABASE_URL, echo=True)
     
     async with engine.begin() as conn:
+        # Add role column if it doesn't exist (migration from old schema)
+        try:
+            await conn.execute(
+                text("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'player'")
+            )
+            print("Added role column to users table")
+        except Exception as e:
+            print(f"Note: {e}")
+        
         # Check if admin user already exists
         result = await conn.execute(
             text("SELECT id FROM users WHERE email = :email"),
