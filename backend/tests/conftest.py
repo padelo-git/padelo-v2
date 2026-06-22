@@ -1,7 +1,13 @@
 import pytest
+import sys
+from pathlib import Path
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from main import app
 from core.database import Base, get_db
 
