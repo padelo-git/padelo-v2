@@ -55,9 +55,9 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           cd ~/padelo-v2
-          docker compose down
+          docker-compose down
           git pull origin main
-          docker compose up -d --build
+          docker-compose up -d --build
           
     - name: Notify deployment success
       if: success()
