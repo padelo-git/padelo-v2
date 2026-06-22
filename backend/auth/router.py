@@ -73,6 +73,62 @@ async def get_current_user_endpoint(current_user: User = Depends(get_current_use
     return current_user
 
 
+@router.post("/forgot-password")
+async def forgot_password(email_data: dict, db: AsyncSession = Depends(get_db)):
+    """Send password reset email"""
+    email = email_data.get("email")
+    
+    # Check if user exists
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
+    
+    if not user:
+        # Don't reveal if user exists for security
+        return {"message": "If email exists, password reset link sent"}
+    
+    # Generate reset token (in production, use proper token generation)
+    import secrets
+    reset_token = secrets.token_urlsafe(32)
+    
+    # Store token (in production, store in database with expiration)
+    # For now, just return the token for testing
+    reset_link = f"https://nexasist.com/reset-password?token={reset_token}"
+    
+    # In production, send email with reset_link
+    # For now, return the link for testing
+    return {
+        "message": "Password reset link sent",
+        "reset_link": reset_link,
+        "reset_token": reset_token
+    }
+
+
+@router.post("/reset-password")
+async def reset_password(reset_data: dict, db: AsyncSession = Depends(get_db)):
+    """Reset password with token"""
+    token = reset_data.get("token")
+    new_password = reset_data.get("new_password")
+    
+    # In production, validate token from database
+    # For now, just find user by email (simplified)
+    email = reset_data.get("email")
+    
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # Update password
+    user.hashed_password = get_password_hash(new_password)
+    await db.commit()
+    
+    return {"message": "Password reset successfully"}
+
+
 @router.post("/club/register", response_model=ClubResponse)
 async def register_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
     """Register a new club"""

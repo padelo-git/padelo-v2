@@ -4,7 +4,7 @@ from sqlalchemy import select, func
 from typing import List
 from core.database import get_db
 from core.security import get_current_user, get_current_club_admin
-from clubs.models import Club, Court, Reservation, Payment, Debt, CashRegister
+from clubs.models import Club, Court, Reservation, Payment, Debt, CashRegister, Penalty
 from clubs.schemas import (
     ClubCreate, ClubUpdate, ClubResponse, ClubWithCourts,
     CourtCreate, CourtUpdate, CourtResponse,
@@ -451,4 +451,161 @@ async def create_cash_register(club_id: int, register_data: dict, db: AsyncSessi
         "register_type": register.register_type,
         "balance": float(register.balance),
         "is_active": register.is_active
+    }
+
+
+# Penalty endpoints
+@router.post("/{club_id}/penalties/calculate")
+async def calculate_penalty(club_id: int, penalty_data: dict, db: AsyncSession = Depends(get_db)):
+    """Calculate penalty for cancelling a match or reservation"""
+    from datetime import datetime, timedelta
+    
+    match_id = penalty_data.get("match_id")
+    reservation_id = penalty_data.get("reservation_id")
+    user_id = penalty_data.get("user_id")
+    
+    # Get match or reservation date
+    if match_id:
+        from matches.models import Match
+        result = await db.execute(select(Match).where(Match.id == match_id))
+        match = result.scalar_one_or_none()
+        if not match:
+            raise HTTPException(status_code=404, detail="Match not found")
+        match_date = match.date
+    elif reservation_id:
+        result = await db.execute(select(Reservation).where(Reservation.id == reservation_id))
+        reservation = result.scalar_one_or_none()
+        if not reservation:
+            raise HTTPException(status_code=404, detail="Reservation not found")
+        match_date = reservation.date
+    else:
+        raise HTTPException(status_code=400, detail="match_id or reservation_id required")
+    
+    # Calculate hours before match
+    now = datetime.now()
+    hours_before = (match_date - now).total_seconds() / 3600
+    
+    # Calculate penalty percentage
+    if hours_before >= 12:
+        penalty_percentage = 0
+    elif hours_before >= 6:
+        penalty_percentage = 50  # 50% of user's share
+    else:
+        penalty_percentage = 100  # 100% of court cost
+    
+    # Calculate penalty amount
+    court_cost = penalty_data.get("court_cost", 0)
+    if penalty_percentage == 50:
+        penalty_amount = court_cost / 4  # User's share (1/4 of court)
+    else:
+        penalty_amount = court_cost * (penalty_percentage / 100)
+    
+    return {
+        "hours_before": round(hours_before, 2),
+        "penalty_percentage": penalty_percentage,
+        "penalty_amount": float(penalty_amount),
+        "penalty_type": "late_cancellation" if hours_before < 12 else "no_penalty"
+    }
+
+
+@router.post("/{club_id}/penalties")
+async def create_penalty(club_id: int, penalty_data: dict, db: AsyncSession = Depends(get_db)):
+    """Create a penalty record"""
+    penalty = Penalty(
+        club_id=club_id,
+        user_id=penalty_data.get("user_id"),
+        match_id=penalty_data.get("match_id"),
+        reservation_id=penalty_data.get("reservation_id"),
+        penalty_type=penalty_data.get("penalty_type", "late_cancellation"),
+        hours_before=penalty_data.get("hours_before"),
+        penalty_percentage=penalty_data.get("penalty_percentage"),
+        penalty_amount=penalty_data.get("penalty_amount"),
+        is_blocked=penalty_data.get("penalty_percentage", 0) > 0
+    )
+    
+    db.add(penalty)
+    await db.commit()
+    await db.refresh(penalty)
+    
+    return {
+        "id": penalty.id,
+        "user_id": penalty.user_id,
+        "penalty_type": penalty.penalty_type,
+        "hours_before": penalty.hours_before,
+        "penalty_percentage": penalty.penalty_percentage,
+        "penalty_amount": float(penalty.penalty_amount),
+        "is_paid": penalty.is_paid,
+        "is_blocked": penalty.is_blocked,
+        "created_at": penalty.created_at.isoformat()
+    }
+
+
+@router.get("/{club_id}/penalties/{user_id}")
+async def get_user_penalties(club_id: int, user_id: int, db: AsyncSession = Depends(get_db)):
+    """Get all penalties for a user"""
+    result = await db.execute(
+        select(Penalty).where(
+            Penalty.club_id == club_id,
+            Penalty.user_id == user_id
+        )
+    )
+    penalties = result.scalars().all()
+    
+    return [
+        {
+            "id": p.id,
+            "penalty_type": p.penalty_type,
+            "hours_before": p.hours_before,
+            "penalty_percentage": p.penalty_percentage,
+            "penalty_amount": float(p.penalty_amount),
+            "is_paid": p.is_paid,
+            "is_blocked": p.is_blocked,
+            "created_at": p.created_at.isoformat(),
+            "paid_at": p.paid_at.isoformat() if p.paid_at else None
+        }
+        for p in penalties
+    ]
+
+
+@router.put("/penalties/{penalty_id}/pay")
+async def pay_penalty(penalty_id: int, db: AsyncSession = Depends(get_db)):
+    """Mark a penalty as paid"""
+    result = await db.execute(select(Penalty).where(Penalty.id == penalty_id))
+    penalty = result.scalar_one_or_none()
+    
+    if not penalty:
+        raise HTTPException(status_code=404, detail="Penalty not found")
+    
+    penalty.is_paid = True
+    penalty.is_blocked = False
+    penalty.paid_at = func.now()
+    
+    await db.commit()
+    await db.refresh(penalty)
+    
+    return {
+        "id": penalty.id,
+        "is_paid": penalty.is_paid,
+        "is_blocked": penalty.is_blocked,
+        "paid_at": penalty.paid_at.isoformat()
+    }
+
+
+@router.get("/{club_id}/users/{user_id}/blocked")
+async def check_user_blocked(club_id: int, user_id: int, db: AsyncSession = Depends(get_db)):
+    """Check if a user is blocked due to unpaid penalties"""
+    result = await db.execute(
+        select(Penalty).where(
+            Penalty.club_id == club_id,
+            Penalty.user_id == user_id,
+            Penalty.is_blocked == True,
+            Penalty.is_paid == False
+        )
+    )
+    penalties = result.scalars().all()
+    
+    return {
+        "is_blocked": len(penalties) > 0,
+        "unpaid_penalties": len(penalties),
+        "total_owed": sum(float(p.penalty_amount) for p in penalties)
     }

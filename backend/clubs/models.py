@@ -114,3 +114,27 @@ class CashRegister(Base):
     
     # Relationships
     club = relationship("Club")
+
+
+class Penalty(Base):
+    __tablename__ = "penalties"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    club_id = Column(Integer, ForeignKey("clubs.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    match_id = Column(Integer, ForeignKey("matches.id"), nullable=True)
+    reservation_id = Column(Integer, ForeignKey("reservations.id"), nullable=True)
+    penalty_type = Column(String, nullable=False)  # "no_show", "late_cancellation"
+    hours_before = Column(Integer, nullable=False)  # hours before match
+    penalty_percentage = Column(Integer, nullable=False)  # 0, 50, 100
+    penalty_amount = Column(Numeric(10, 2), nullable=False)
+    is_paid = Column(Boolean, default=False)
+    is_blocked = Column(Boolean, default=False)  # user blocked until paid
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    paid_at = Column(DateTime(timezone=True))
+    
+    # Relationships
+    club = relationship("Club")
+    user = relationship("User")
+    match = relationship("Match", foreign_keys=[match_id])
+    reservation = relationship("Reservation", foreign_keys=[reservation_id])
