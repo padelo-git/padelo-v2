@@ -4,12 +4,17 @@ from sqlalchemy import select, func
 from clubs.models import Club
 from matches.models import Match
 from core.database import get_db
+from core.security import get_current_admin_user
+from auth.models import User
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
 @router.get("/system-metrics")
-async def get_system_metrics(db: AsyncSession = Depends(get_db)):
+async def get_system_metrics(
+    current_user: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db)
+):
     """Get system metrics (CPU, memory, requests, etc.)"""
     # For now, return mock data. In production, integrate with monitoring tools
     return {
@@ -23,7 +28,10 @@ async def get_system_metrics(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/business-metrics")
-async def get_business_metrics(db: AsyncSession = Depends(get_db)):
+async def get_business_metrics(
+    current_user: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db)
+):
     """Get business metrics (revenue, clubs, matches, fees)"""
     # Get total clubs
     clubs_result = await db.execute(select(func.count(Club.id)))
@@ -49,7 +57,10 @@ async def get_business_metrics(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/backups")
-async def create_backup(db: AsyncSession = Depends(get_db)):
+async def create_backup(
+    current_user: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db)
+):
     """Create a database backup"""
     # For now, return success. In production, integrate with AWS RDS backups
     return {
@@ -60,7 +71,10 @@ async def create_backup(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/backups")
-async def list_backups(db: AsyncSession = Depends(get_db)):
+async def list_backups(
+    current_user: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db)
+):
     """List all backups"""
     # For now, return mock data
     return {

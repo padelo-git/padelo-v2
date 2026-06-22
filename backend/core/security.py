@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from core.config import settings
 from core.database import get_db
-from auth.models import User
+from auth.models import User, UserRole
 
 
 security = HTTPBearer()
@@ -93,7 +93,21 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     return current_user
 
 
+async def get_current_admin_user(current_user: User = Depends(get_current_user)) -> User:
+    """Get current admin user - only ADMIN or OWNER roles can access"""
+    if current_user.role not in [UserRole.ADMIN, UserRole.OWNER]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to access admin panel"
+        )
+    return current_user
+
+
 async def get_current_club_admin(current_user: User = Depends(get_current_user)) -> User:
-    """Get current club admin user (simplified for now - just requires auth)"""
-    # TODO: Implement proper club admin permission check
+    """Get current club admin user - requires is_club_admin or admin role"""
+    if not (current_user.is_club_admin or current_user.role == UserRole.ADMIN):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to access club admin panel"
+        )
     return current_user
