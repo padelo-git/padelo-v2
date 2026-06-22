@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
@@ -30,13 +30,12 @@ class ClubUpdate(BaseModel):
 
 
 class ClubResponse(ClubBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
-    class Config:
-        from_attributes = True
 
 
 class CourtBase(BaseModel):
@@ -59,14 +58,13 @@ class CourtUpdate(BaseModel):
 
 
 class CourtResponse(CourtBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     club_id: int
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
-    class Config:
-        from_attributes = True
 
 
 class ReservationBase(BaseModel):
@@ -90,14 +88,13 @@ class ReservationUpdate(BaseModel):
 
 
 class ReservationResponse(ReservationBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     user_id: int
     status: str
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
-    class Config:
-        from_attributes = True
 
 
 class ClubWithCourts(ClubResponse):

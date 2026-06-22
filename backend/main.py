@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
@@ -8,11 +9,23 @@ from matches.router import router as matches_router
 from messaging.router import router as messaging_router
 from notifications.router import router as notifications_router
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup and shutdown events"""
+    # Startup
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    # Shutdown
+    pass
+
 # Create FastAPI app
 app = FastAPI(
     title="Padelo V2",
     description="Sistema de gestión de clubes de pádel - Versión 2",
-    version="2.0.0"
+    version="2.0.0",
+    lifespan=lifespan
 )
 
 # Configure CORS
@@ -30,13 +43,6 @@ app.include_router(clubs_router, prefix="/clubs", tags=["Clubs"])
 app.include_router(matches_router, prefix="/matches", tags=["Matches"])
 app.include_router(messaging_router, prefix="/messaging", tags=["Messaging"])
 app.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Create database tables on startup"""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
 
 
 @app.get("/")

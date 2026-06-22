@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional
 from datetime import datetime
 
@@ -18,14 +18,13 @@ class UserLogin(BaseModel):
 
 
 class UserResponse(UserBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     is_active: bool
     is_club_admin: bool
     club_id: Optional[int] = None
     created_at: datetime
-    
-    class Config:
-        from_attributes = True
 
 
 class Token(BaseModel):
@@ -53,9 +52,8 @@ class ClubLogin(BaseModel):
 
 
 class ClubResponse(ClubBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     is_active: bool
     created_at: datetime
-    
-    class Config:
-        from_attributes = True

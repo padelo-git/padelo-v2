@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 from matches.models import MatchStatus, InvitationStatus, Gender
@@ -25,14 +25,13 @@ class MatchUpdate(BaseModel):
 
 
 class MatchResponse(MatchBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     status: MatchStatus
     created_by: Optional[int] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
-    class Config:
-        from_attributes = True
 
 
 class MatchInvitationBase(BaseModel):
@@ -50,13 +49,12 @@ class MatchInvitationUpdate(BaseModel):
 
 
 class MatchInvitationResponse(MatchInvitationBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     status: InvitationStatus
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
-    class Config:
-        from_attributes = True
 
 
 class MatchRequestBase(BaseModel):
@@ -76,14 +74,13 @@ class MatchRequestUpdate(BaseModel):
 
 
 class MatchRequestResponse(MatchRequestBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     user_id: int
     status: str
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
-    class Config:
-        from_attributes = True
 
 
 class MatchWithInvitations(MatchResponse):

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
@@ -16,11 +16,10 @@ class MessageCreate(MessageBase):
 
 
 class MessageResponse(MessageBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     created_at: datetime
-    
-    class Config:
-        from_attributes = True
 
 
 class MessageReadBase(BaseModel):
@@ -33,11 +32,10 @@ class MessageReadCreate(MessageReadBase):
 
 
 class MessageReadResponse(MessageReadBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     read_at: datetime
-    
-    class Config:
-        from_attributes = True
 
 
 class ConversationBase(BaseModel):
@@ -54,13 +52,12 @@ class ConversationUpdate(BaseModel):
 
 
 class ConversationResponse(ConversationBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
-    class Config:
-        from_attributes = True
 
 
 class MessageWithReads(MessageResponse):
