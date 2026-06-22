@@ -1,9 +1,8 @@
 import asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import select
 from core.config import settings
-from core.database import Base
-from auth.models import User, UserRole
 from core.security import get_password_hash
 
 
@@ -12,10 +11,12 @@ async def create_admin_user():
     engine = create_async_engine(settings.DATABASE_URL, echo=True)
     async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
     
+    # Import models after engine is created to avoid circular imports
+    from auth.models import User, UserRole
+    
     async with async_session() as session:
         async with session.begin():
             # Check if admin user already exists
-            from sqlalchemy import select
             result = await session.execute(
                 select(User).where(User.email == "admin@nexasist.com")
             )
@@ -25,14 +26,15 @@ async def create_admin_user():
                 print("Admin user already exists!")
                 return
             
-            # Create admin user
+            # Create admin user (without club_id to avoid Club dependency)
             admin_user = User(
                 email="admin@nexasist.com",
                 hashed_password=get_password_hash("NexaSist2026!Admin"),
                 full_name="NexaSist Admin",
                 is_active=True,
                 role=UserRole.ADMIN,
-                is_club_admin=True
+                is_club_admin=True,
+                club_id=None
             )
             
             session.add(admin_user)
