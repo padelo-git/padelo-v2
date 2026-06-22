@@ -9,6 +9,7 @@ from notifications.schemas import (
     NotificationCreate, NotificationUpdate, NotificationResponse,
     DeviceTokenCreate, DeviceTokenUpdate, DeviceTokenResponse
 )
+from notifications.firebase_service import FirebaseService
 
 router = APIRouter()
 
@@ -32,8 +33,14 @@ async def create_notification(
     await db.commit()
     await db.refresh(db_notification)
     
-    # TODO: Send push notification via Firebase
-    # This would use the device tokens to send the notification
+    # Send push notification via Firebase
+    await FirebaseService.send_push_notification_to_user(
+        user_id=notification.user_id,
+        title=notification.title,
+        body=notification.body,
+        data=notification.data,
+        db_session=db
+    )
     
     return db_notification
 

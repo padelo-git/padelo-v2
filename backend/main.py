@@ -8,6 +8,7 @@ from clubs.router import router as clubs_router
 from matches.router import router as matches_router
 from messaging.router import router as messaging_router
 from notifications.router import router as notifications_router
+from notifications.firebase_service import FirebaseService
 
 
 @asynccontextmanager
@@ -16,6 +17,10 @@ async def lifespan(app: FastAPI):
     # Startup
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    
+    # Initialize Firebase
+    FirebaseService.initialize()
+    
     yield
     # Shutdown
     pass
