@@ -3,7 +3,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from datetime import datetime
 import logging
 from sqlalchemy.ext.asyncio import AsyncSession
-from database import get_db
+from core.database import get_db
 from matching.auto_matcher import AutoMatcher
 
 logger = logging.getLogger(__name__)
