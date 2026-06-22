@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from clubs.models import Club
 from matches.models import Match
-from database import get_db
+from core.database import get_db
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
