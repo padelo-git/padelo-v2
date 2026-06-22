@@ -149,7 +149,7 @@ class AutoMatcher:
             await FirebaseService.send_push_notification_to_user(
                 user_id=user_id,
                 title="Recordatorio de partido",
-                f"Tienes un partido en {time_until_match}",
+                body=f"Tienes un partido en {time_until_match}",
                 data={"match_id": match_id, "type": "match_reminder"},
                 db_session=self.db
             )
