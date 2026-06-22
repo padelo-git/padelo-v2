@@ -22,7 +22,7 @@ async def create_admin_user():
         # Check if admin user already exists
         result = await conn.execute(
             text("SELECT id FROM users WHERE email = :email"),
-            {"email": "admin@nexasist.com"}
+            {"email": "DavidGCTD@gmail.com"}
         )
         existing_user = result.fetchone()
         
@@ -31,7 +31,7 @@ async def create_admin_user():
             return
         
         # Create admin user using raw SQL
-        hashed_password = get_password_hash("NexaSist2026!Admin")
+        hashed_password = get_password_hash("Argentina2026")
         
         await conn.execute(
             text("""
@@ -39,9 +39,9 @@ async def create_admin_user():
                 VALUES (:email, :hashed_password, :full_name, :is_active, :role, :is_club_admin, NULL, NOW(), NOW())
             """),
             {
-                "email": "admin@nexasist.com",
+                "email": "DavidGCTD@gmail.com",
                 "hashed_password": hashed_password,
-                "full_name": "NexaSist Admin",
+                "full_name": "David Admin",
                 "is_active": True,
                 "role": "admin",
                 "is_club_admin": True
@@ -49,8 +49,8 @@ async def create_admin_user():
         )
         
         print("Admin user created successfully!")
-        print("Email: admin@nexasist.com")
-        print("Password: NexaSist2026!Admin")
+        print("Email: DavidGCTD@gmail.com")
+        print("Password: Argentina2026")
         print("IMPORTANT: Change this password after first login!")
 
 
