@@ -64,7 +64,7 @@ async def login_user(user_credentials: UserLogin, db: AsyncSession = Depends(get
         expires_delta=access_token_expires
     )
     
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "user": user}
 
 
 @router.get("/me", response_model=UserResponse)
