@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://padelo:padelo_secure_2026@db:5432/padelo_db
+      - DATABASE_URL=postgresql+asyncpg://padelo:padelo_secure_2026@db:5432/padelo_db
       - REDIS_URL=redis://redis:6379/0
     depends_on:
       - db
