@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
+from datetime import datetime
 from core.database import get_db
 from core.security import get_current_user
 from matches.models import Match, MatchInvitation, MatchRequest
@@ -10,6 +11,7 @@ from matches.schemas import (
     MatchInvitationCreate, MatchInvitationUpdate, MatchInvitationResponse,
     MatchRequestCreate, MatchRequestUpdate, MatchRequestResponse
 )
+from matches.service import MatchingService
 
 router = APIRouter()
 
@@ -227,3 +229,81 @@ async def update_match_request(request_id: int, request_update: MatchRequestUpda
     await db.refresh(request)
     
     return request
+
+
+# Matching endpoints
+@router.get("/matching/players")
+async def find_available_players(
+    club_id: int,
+    category: str = None,
+    gender: str = None,
+    preferred_time: str = None,
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Find available players for matching"""
+    players = await MatchingService.find_available_players(
+        db, club_id, category, gender, preferred_time
+    )
+    return {"players": players}
+
+
+@router.get("/matching/suggestions")
+async def get_match_suggestions(
+    club_id: int,
+    date: str,
+    category: str = None,
+    gender: str = None,
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Get match suggestions based on requests"""
+    try:
+        date_obj = datetime.fromisoformat(date)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid date format. Use ISO format (YYYY-MM-DD)"
+        )
+    
+    suggestions = await MatchingService.suggest_matches(
+        db, club_id, date_obj, category, gender
+    )
+    return {"suggestions": suggestions}
+
+
+@router.get("/matching/available-slots")
+async def get_available_slots(
+    club_id: int,
+    date: str,
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Get available time slots for a club on a specific date"""
+    try:
+        date_obj = datetime.fromisoformat(date)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid date format. Use ISO format (YYYY-MM-DD)"
+        )
+    
+    slots = await MatchingService.get_available_slots(db, club_id, date_obj)
+    return {"slots": slots}
+
+
+@router.post("/matching/create-from-request/{request_id}")
+async def create_match_from_request(
+    request_id: int,
+    court_id: int,
+    start_time: str,
+    end_time: str,
+    price: int = None,
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Create a match from a match request"""
+    match = await MatchingService.create_match_from_request(
+        db, request_id, court_id, start_time, end_time, price
+    )
+    return match
