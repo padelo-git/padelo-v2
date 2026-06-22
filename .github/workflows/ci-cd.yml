@@ -42,23 +42,5 @@ jobs:
     runs-on: ubuntu-latest
     needs: test  # Only run if tests pass
     if: github.ref == 'refs/heads/main'  # Only deploy on main branch
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-    
-    - name: Deploy to AWS
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.PRODUCTION_HOST }}
-        username: ${{ secrets.PRODUCTION_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          cd ~/padelo-v2
-          docker-compose down
-          git pull origin main
-          docker-compose up -d --build
-          
-    - name: Notify deployment success
-      if: success()
-      run: echo "Deployment completed successfully!"
+    # Disabled until AWS server is properly configured with Docker
+    if: false
