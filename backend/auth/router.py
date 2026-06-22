@@ -75,18 +75,23 @@ async def get_current_user_endpoint(current_user: User = Depends(get_current_use
 
 @router.get("/debug/admin-check")
 async def debug_admin_check(db: AsyncSession = Depends(get_db)):
-    """Debug endpoint to check if admin user exists"""
-    result = await db.execute(select(User).where(User.email == "DavidGCTD@gmail.com"))
-    admin_user = result.scalar_one_or_none()
+    """Debug endpoint to check if admin user exists using raw SQL"""
+    from sqlalchemy import text
+    
+    result = await db.execute(
+        text("SELECT id, email, is_active, role, is_club_admin, hashed_password FROM users WHERE email = :email"),
+        {"email": "DavidGCTD@gmail.com"}
+    )
+    admin_user = result.fetchone()
     
     if admin_user:
         return {
             "exists": True,
-            "email": admin_user.email,
-            "is_active": admin_user.is_active,
-            "role": admin_user.role if hasattr(admin_user, 'role') else "no_role",
-            "is_club_admin": admin_user.is_club_admin if hasattr(admin_user, 'is_club_admin') else False,
-            "has_password": bool(admin_user.hashed_password)
+            "email": admin_user[1],
+            "is_active": admin_user[2],
+            "role": admin_user[3] if admin_user[3] else "no_role",
+            "is_club_admin": admin_user[4] if admin_user[4] else False,
+            "has_password": bool(admin_user[5])
         }
     else:
         return {"exists": False}
