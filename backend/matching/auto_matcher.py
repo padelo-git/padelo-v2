@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from matches.models import Match, MatchInvitation
 from auth.models import User
 from notifications.firebase_service import FirebaseService
-from messaging.router import send_message
 import logging
 
 logger = logging.getLogger(__name__)

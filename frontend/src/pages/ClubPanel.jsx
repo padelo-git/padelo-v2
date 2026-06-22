@@ -10,6 +10,7 @@ function ClubPanel() {
   const [statistics, setStatistics] = useState(null)
   const [payments, setPayments] = useState([])
   const [debts, setDebts] = useState([])
+  const [cashRegisters, setCashRegisters] = useState([])
   const [showCreateCourt, setShowCreateCourt] = useState(false)
   const [showCreateReservation, setShowCreateReservation] = useState(false)
   const [showCalendar, setShowCalendar] = useState(false)
@@ -17,6 +18,7 @@ function ClubPanel() {
   const [showQRCode, setShowQRCode] = useState(false)
   const [showPayments, setShowPayments] = useState(false)
   const [showDebts, setShowDebts] = useState(false)
+  const [showCashRegisters, setShowCashRegisters] = useState(false)
   const [newCourt, setNewCourt] = useState({
     name: '',
     number: '',
@@ -196,6 +198,34 @@ function ClubPanel() {
     } catch (err) {
       console.error('Error marking debt as paid:', err)
       alert('Error al marcar deuda como pagada')
+    }
+  }
+
+  const fetchCashRegisters = async () => {
+    if (!club) return
+    try {
+      const response = await axios.get(`http://localhost:8000/clubs/${club.id}/cash-registers`)
+      setCashRegisters(response.data)
+    } catch (err) {
+      console.error('Error fetching cash registers:', err)
+    }
+  }
+
+  const handleCreateCashRegister = async (name, registerType) => {
+    if (!club) return
+    try {
+      const token = localStorage.getItem('token')
+      await axios.post(`http://localhost:8000/clubs/${club.id}/cash-registers`, {
+        name,
+        register_type: registerType,
+        balance: 0
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      fetchCashRegisters()
+    } catch (err) {
+      console.error('Error creating cash register:', err)
+      alert('Error al crear caja')
     }
   }
 
@@ -631,6 +661,53 @@ function ClubPanel() {
         </div>
       )}
 
+      {showCashRegisters && (
+        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ marginBottom: '15px' }}>Sistema de Cajas</h3>
+          
+          <div style={{ marginBottom: '20px' }}>
+            <button
+              onClick={() => handleCreateCashRegister('Caja Principal', 'main')}
+              style={{ padding: '8px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginRight: '10px' }}
+            >
+              + Caja Principal
+            </button>
+            <button
+              onClick={() => handleCreateCashRegister('Caja Efectivo', 'cash')}
+              style={{ padding: '8px 16px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginRight: '10px' }}
+            >
+              + Caja Efectivo
+            </button>
+            <button
+              onClick={() => handleCreateCashRegister('Caja Tarjeta', 'card')}
+              style={{ padding: '8px 16px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginRight: '10px' }}
+            >
+              + Caja Tarjeta
+            </button>
+            <button
+              onClick={() => handleCreateCashRegister('Caja Transferencia', 'transfer')}
+              style={{ padding: '8px 16px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+            >
+              + Caja Transferencia
+            </button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+            {cashRegisters.length === 0 ? (
+              <p style={{ color: '#666' }}>No hay cajas registradas</p>
+            ) : (
+              cashRegisters.map(register => (
+                <div key={register.id} style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px', border: '2px solid #ddd' }}>
+                  <h4 style={{ marginBottom: '10px' }}>{register.name}</h4>
+                  <p style={{ fontSize: '24px', color: '#007bff', fontWeight: 'bold', marginBottom: '5px' }}>${register.balance}</p>
+                  <p style={{ fontSize: '12px', color: '#666' }}>Tipo: {register.register_type}</p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
         <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           <h3 style={{ marginBottom: '15px' }}>Canchas ({courts.length})</h3>
@@ -712,6 +789,12 @@ function ClubPanel() {
             style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
           >
             Deudas
+          </button>
+          <button
+            onClick={() => { setShowCashRegisters(true); fetchCashRegisters(); }}
+            style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+          >
+            Cajas
           </button>
           <button style={{ padding: '10px 20px', backgroundColor: '#343a40', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
             Editar Perfil

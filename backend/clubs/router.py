@@ -4,7 +4,7 @@ from sqlalchemy import select, func
 from typing import List
 from core.database import get_db
 from core.security import get_current_user, get_current_club_admin
-from clubs.models import Club, Court, Reservation, Payment, Debt
+from clubs.models import Club, Court, Reservation, Payment, Debt, CashRegister
 from clubs.schemas import (
     ClubCreate, ClubUpdate, ClubResponse, ClubWithCourts,
     CourtCreate, CourtUpdate, CourtResponse,
@@ -362,4 +362,46 @@ async def mark_debt_paid(club_id: int, debt_id: int, db: AsyncSession = Depends(
         "amount": float(debt.amount),
         "paid": debt.paid,
         "paid_at": debt.paid_at.isoformat() if debt.paid_at else None
+    }
+
+
+# Cash Register endpoints
+@router.get("/{club_id}/cash-registers")
+async def get_cash_registers(club_id: int, db: AsyncSession = Depends(get_db)):
+    """Get all cash registers for a club"""
+    result = await db.execute(select(CashRegister).where(CashRegister.club_id == club_id, CashRegister.is_active == True))
+    registers = result.scalars().all()
+    
+    return [
+        {
+            "id": r.id,
+            "name": r.name,
+            "register_type": r.register_type,
+            "balance": float(r.balance),
+            "is_active": r.is_active
+        }
+        for r in registers
+    ]
+
+
+@router.post("/{club_id}/cash-registers")
+async def create_cash_register(club_id: int, register_data: dict, db: AsyncSession = Depends(get_db)):
+    """Create a new cash register"""
+    register = CashRegister(
+        club_id=club_id,
+        name=register_data.get("name"),
+        register_type=register_data.get("register_type"),
+        balance=register_data.get("balance", 0)
+    )
+    
+    db.add(register)
+    await db.commit()
+    await db.refresh(register)
+    
+    return {
+        "id": register.id,
+        "name": register.name,
+        "register_type": register.register_type,
+        "balance": float(register.balance),
+        "is_active": register.is_active
     }

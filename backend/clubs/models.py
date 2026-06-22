@@ -98,3 +98,19 @@ class Debt(Base):
     # Relationships
     club = relationship("Club")
     user = relationship("User")
+
+
+class CashRegister(Base):
+    __tablename__ = "cash_registers"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    club_id = Column(Integer, ForeignKey("clubs.id"), nullable=False)
+    name = Column(String, nullable=False)  # "Caja Principal", "Caja Efectivo", "Caja Tarjeta", etc.
+    register_type = Column(String, nullable=False)  # main, cash, card, transfer
+    balance = Column(Numeric(10, 2), default=0)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationships
+    club = relationship("Club")
