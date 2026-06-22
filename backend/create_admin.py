@@ -1,49 +1,48 @@
 import asyncio
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import select
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy import text
 from core.config import settings
 from core.security import get_password_hash
 
 
 async def create_admin_user():
-    """Create initial admin user"""
+    """Create initial admin user using raw SQL to avoid circular dependencies"""
     engine = create_async_engine(settings.DATABASE_URL, echo=True)
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
     
-    # Import models after engine is created to avoid circular imports
-    from auth.models import User, UserRole
-    
-    async with async_session() as session:
-        async with session.begin():
-            # Check if admin user already exists
-            result = await session.execute(
-                select(User).where(User.email == "admin@nexasist.com")
-            )
-            existing_user = result.scalar_one_or_none()
-            
-            if existing_user:
-                print("Admin user already exists!")
-                return
-            
-            # Create admin user (without club_id to avoid Club dependency)
-            admin_user = User(
-                email="admin@nexasist.com",
-                hashed_password=get_password_hash("NexaSist2026!Admin"),
-                full_name="NexaSist Admin",
-                is_active=True,
-                role=UserRole.ADMIN,
-                is_club_admin=True,
-                club_id=None
-            )
-            
-            session.add(admin_user)
-            await session.commit()
-            
-            print("Admin user created successfully!")
-            print("Email: admin@nexasist.com")
-            print("Password: NexaSist2026!Admin")
-            print("IMPORTANT: Change this password after first login!")
+    async with engine.begin() as conn:
+        # Check if admin user already exists
+        result = await conn.execute(
+            text("SELECT id FROM users WHERE email = :email"),
+            {"email": "admin@nexasist.com"}
+        )
+        existing_user = result.fetchone()
+        
+        if existing_user:
+            print("Admin user already exists!")
+            return
+        
+        # Create admin user using raw SQL
+        hashed_password = get_password_hash("NexaSist2026!Admin")
+        
+        await conn.execute(
+            text("""
+                INSERT INTO users (email, hashed_password, full_name, is_active, role, is_club_admin, club_id, created_at, updated_at)
+                VALUES (:email, :hashed_password, :full_name, :is_active, :role, :is_club_admin, NULL, NOW(), NOW())
+            """),
+            {
+                "email": "admin@nexasist.com",
+                "hashed_password": hashed_password,
+                "full_name": "NexaSist Admin",
+                "is_active": True,
+                "role": "admin",
+                "is_club_admin": True
+            }
+        )
+        
+        print("Admin user created successfully!")
+        print("Email: admin@nexasist.com")
+        print("Password: NexaSist2026!Admin")
+        print("IMPORTANT: Change this password after first login!")
 
 
 if __name__ == "__main__":
