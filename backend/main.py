@@ -11,6 +11,7 @@ from notifications.router import router as notifications_router
 from notifications.firebase_service import FirebaseService
 from admin.router import router as admin_router
 from matching.scheduler import start_scheduler, stop_scheduler
+from payments.stripe_service import initialize_stripe
 
 
 @asynccontextmanager
@@ -22,6 +23,10 @@ async def lifespan(app: FastAPI):
     
     # Initialize Firebase
     FirebaseService.initialize()
+    
+    # Initialize Stripe
+    if settings.STRIPE_SECRET_KEY:
+        initialize_stripe(settings.STRIPE_SECRET_KEY)
     
     # Start background scheduler for automated matching
     start_scheduler()

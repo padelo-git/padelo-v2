@@ -25,6 +25,14 @@ class Settings(BaseSettings):
     FIREBASE_CREDENTIALS_PATH: Optional[str] = None
     FIREBASE_PROJECT_ID: Optional[str] = None
     
+    # Stripe
+    STRIPE_API_KEY: Optional[str] = None
+    STRIPE_SECRET_KEY: Optional[str] = None
+    STRIPE_WEBHOOK_SECRET: Optional[str] = None
+    
+    # Transaction Fee
+    TRANSACTION_FEE_PERCENTAGE: float = 0.05  # 5%
+    
     class Config:
         env_file = ".env"
 

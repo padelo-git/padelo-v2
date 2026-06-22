@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import QRCode from 'qrcode.react'
 
 function ClubPanel() {
   const [club, setClub] = useState(null)
@@ -11,6 +12,7 @@ function ClubPanel() {
   const [showCreateReservation, setShowCreateReservation] = useState(false)
   const [showCalendar, setShowCalendar] = useState(false)
   const [showStatistics, setShowStatistics] = useState(false)
+  const [showQRCode, setShowQRCode] = useState(false)
   const [newCourt, setNewCourt] = useState({
     name: '',
     number: '',
@@ -381,6 +383,50 @@ function ClubPanel() {
         </div>
       )}
 
+      {showQRCode && club && (
+        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ marginBottom: '15px' }}>Código QR del Club</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+            <div style={{ padding: '20px', backgroundColor: 'white', border: '2px solid #ddd', borderRadius: '10px' }}>
+              <QRCode 
+                value={`https://nexasist.com/club/${club.slug}`}
+                size={200}
+                level="H"
+              />
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <h4 style={{ marginBottom: '10px' }}>{club.name}</h4>
+              <p style={{ fontSize: '14px', color: '#666', marginBottom: '15px' }}>
+                Escanea este código QR para registrarte como socio
+              </p>
+              <button
+                onClick={() => {
+                  const canvas = document.querySelector('canvas')
+                  if (canvas) {
+                    const link = document.createElement('a')
+                    link.download = `qr-${club.slug}.png`
+                    link.href = canvas.toDataURL()
+                    link.click()
+                  }
+                }}
+                style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+              >
+                Descargar QR
+              </button>
+            </div>
+            <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '5px', fontSize: '14px', color: '#666' }}>
+              <p><strong>Instrucciones:</strong></p>
+              <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
+                <li>Imprime este código QR</li>
+                <li>Ponlo en la recepción del club</li>
+                <li>Los jugadores pueden escanearlo para registrarse</li>
+                <li>El código enlaza a: https://nexasist.com/club/{club.slug}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
         <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           <h3 style={{ marginBottom: '15px' }}>Canchas ({courts.length})</h3>
@@ -445,7 +491,13 @@ function ClubPanel() {
           >
             Ver Estadísticas
           </button>
-          <button style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+          <button
+            onClick={() => setShowQRCode(true)}
+            style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+          >
+            Generar QR
+          </button>
+          <button style={{ padding: '10px 20px', backgroundColor: '#343a40', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
             Editar Perfil
           </button>
         </div>
