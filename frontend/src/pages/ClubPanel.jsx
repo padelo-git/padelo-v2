@@ -6,9 +6,11 @@ function ClubPanel() {
   const [club, setClub] = useState(null)
   const [courts, setCourts] = useState([])
   const [reservations, setReservations] = useState([])
+  const [statistics, setStatistics] = useState(null)
   const [showCreateCourt, setShowCreateCourt] = useState(false)
   const [showCreateReservation, setShowCreateReservation] = useState(false)
   const [showCalendar, setShowCalendar] = useState(false)
+  const [showStatistics, setShowStatistics] = useState(false)
   const [newCourt, setNewCourt] = useState({
     name: '',
     number: '',
@@ -113,6 +115,16 @@ function ClubPanel() {
       setReservations(response.data)
     } catch (err) {
       console.error('Error fetching reservations:', err)
+    }
+  }
+
+  const fetchStatistics = async () => {
+    if (!club) return
+    try {
+      const response = await axios.get(`http://localhost:8000/clubs/${club.id}/statistics`)
+      setStatistics(response.data)
+    } catch (err) {
+      console.error('Error fetching statistics:', err)
     }
   }
 
@@ -332,6 +344,43 @@ function ClubPanel() {
         </div>
       )}
 
+      {showStatistics && (
+        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ marginBottom: '15px' }}>Estadísticas del Club</h3>
+          {!statistics ? (
+            <button
+              onClick={fetchStatistics}
+              style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+            >
+              Cargar Estadísticas
+            </button>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+              <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+                <h4 style={{ fontSize: '32px', color: '#007bff', marginBottom: '10px' }}>{statistics.total_courts}</h4>
+                <p style={{ fontSize: '14px', color: '#666' }}>Total Canchas</p>
+              </div>
+              <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+                <h4 style={{ fontSize: '32px', color: '#28a745', marginBottom: '10px' }}>{statistics.total_matches}</h4>
+                <p style={{ fontSize: '14px', color: '#666' }}>Total Partidos</p>
+              </div>
+              <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+                <h4 style={{ fontSize: '32px', color: '#17a2b8', marginBottom: '10px' }}>{statistics.completed_matches}</h4>
+                <p style={{ fontSize: '14px', color: '#666' }}>Partidos Completados</p>
+              </div>
+              <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+                <h4 style={{ fontSize: '32px', color: '#ffc107', marginBottom: '10px' }}>{statistics.pending_matches}</h4>
+                <p style={{ fontSize: '14px', color: '#666' }}>Partidos Pendientes</p>
+              </div>
+              <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+                <h4 style={{ fontSize: '32px', color: '#6c757d', marginBottom: '10px' }}>{statistics.completion_rate}%</h4>
+                <p style={{ fontSize: '14px', color: '#666' }}>Tasa de Completitud</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
         <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           <h3 style={{ marginBottom: '15px' }}>Canchas ({courts.length})</h3>
@@ -390,8 +439,11 @@ function ClubPanel() {
           >
             Ver Calendario
           </button>
-          <button style={{ padding: '10px 20px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-            Ver Reportes
+          <button
+            onClick={() => setShowStatistics(true)}
+            style={{ padding: '10px 20px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+          >
+            Ver Estadísticas
           </button>
           <button style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
             Editar Perfil

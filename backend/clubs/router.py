@@ -148,6 +148,35 @@ async def get_courts(club_id: int, db: AsyncSession = Depends(get_db)):
     return courts
 
 
+@router.get("/{club_id}/statistics")
+async def get_club_statistics(club_id: int, db: AsyncSession = Depends(get_db)):
+    """Get statistics for a club"""
+    # Get total courts
+    courts_result = await db.execute(select(Court).where(Court.club_id == club_id))
+    courts = courts_result.scalars().all()
+    total_courts = len(courts)
+    
+    # Get total matches
+    from matches.models import Match
+    matches_result = await db.execute(select(Match).where(Match.club_id == club_id))
+    matches = matches_result.scalars().all()
+    total_matches = len(matches)
+    
+    # Get completed matches
+    completed_matches = len([m for m in matches if m.status == "completed"])
+    
+    # Get pending matches
+    pending_matches = len([m for m in matches if m.status == "pending"])
+    
+    return {
+        "total_courts": total_courts,
+        "total_matches": total_matches,
+        "completed_matches": completed_matches,
+        "pending_matches": pending_matches,
+        "completion_rate": round(completed_matches / total_matches * 100, 1) if total_matches > 0 else 0
+    }
+
+
 @router.put("/courts/{court_id}", response_model=CourtResponse)
 async def update_court(court_id: int, court_update: CourtUpdate, db: AsyncSession = Depends(get_db)):
     """Update court"""
