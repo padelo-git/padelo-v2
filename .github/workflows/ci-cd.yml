@@ -71,6 +71,19 @@ jobs:
           cd ~/padelo-v2/backend
           docker-compose exec -T backend python create_admin.py
           
+    - name: Configure nginx for Docker
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          sudo cp ~/padelo-v2/frontend/nginx.conf /etc/nginx/sites-available/padelo
+          sudo ln -sf /etc/nginx/sites-available/padelo /etc/nginx/sites-enabled/padelo
+          sudo rm -f /etc/nginx/sites-enabled/default
+          sudo systemctl enable nginx
+          sudo systemctl restart nginx
+          
     - name: Notify deployment success
       if: success()
       run: echo "Deployment completed successfully!"
