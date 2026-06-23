@@ -308,7 +308,10 @@ function OwnerPanel() {
         return (
           <div style={{ padding: '20px', backgroundColor: '#2c3e50', borderRadius: '5px', border: '1px solid #34495e' }}>
             <h3 style={{ marginBottom: '20px' }}>Configuración</h3>
-            <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
+            
+            {/* Zona Horaria */}
+            <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f', marginBottom: '20px' }}>
+              <h4 style={{ marginBottom: '15px', color: 'white' }}>Zona Horaria</h4>
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', color: '#bdc3c7' }}>Zona Horaria</label>
                 <select
@@ -346,6 +349,138 @@ function OwnerPanel() {
               >
                 Guardar Configuración
               </button>
+            </div>
+
+            {/* Planes */}
+            <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f', marginBottom: '20px' }}>
+              <h4 style={{ marginBottom: '15px', color: 'white' }}>Planes</h4>
+              <p style={{ color: '#bdc3c7', marginBottom: '15px' }}>Crear y editar planes, precios y límites.</p>
+              <button
+                onClick={() => alert('Crear Plan')}
+                style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginBottom: '15px' }}
+              >
+                Crear Plan
+              </button>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #4a5f7f' }}>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Nombre</th>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Precio</th>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Límite Canchas</th>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>WhatsApp Premium</th>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style={{ borderBottom: '1px solid #4a5f7f' }}>
+                    <td style={{ padding: '10px', color: 'white' }}>Basic</td>
+                    <td style={{ padding: '10px', color: 'white' }}>$49.00</td>
+                    <td style={{ padding: '10px', color: 'white' }}>5</td>
+                    <td style={{ padding: '10px', color: 'white' }}>No</td>
+                    <td style={{ padding: '10px' }}>
+                      <button style={{ padding: '6px 12px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}>Editar</button>
+                    </td>
+                  </tr>
+                  <tr style={{ borderBottom: '1px solid #4a5f7f' }}>
+                    <td style={{ padding: '10px', color: 'white' }}>Pro</td>
+                    <td style={{ padding: '10px', color: 'white' }}>$99.00</td>
+                    <td style={{ padding: '10px', color: 'white' }}>15</td>
+                    <td style={{ padding: '10px', color: 'white' }}>Sí</td>
+                    <td style={{ padding: '10px' }}>
+                      <button style={{ padding: '6px 12px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}>Editar</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '10px', color: 'white' }}>Enterprise</td>
+                    <td style={{ padding: '10px', color: 'white' }}>$199.00</td>
+                    <td style={{ padding: '10px', color: 'white' }}>Ilimitado</td>
+                    <td style={{ padding: '10px', color: 'white' }}>Sí</td>
+                    <td style={{ padding: '10px' }}>
+                      <button style={{ padding: '6px 12px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}>Editar</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagos */}
+            <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f', marginBottom: '20px' }}>
+              <h4 style={{ marginBottom: '15px', color: 'white' }}>Pagos</h4>
+              <p style={{ color: '#bdc3c7', marginBottom: '15px' }}>Métodos de pago e integraciones.</p>
+              <div style={{ marginBottom: '20px' }}>
+                <h5 style={{ marginBottom: '10px', color: 'white' }}>Métodos de Pago</h5>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', color: '#bdc3c7' }}>
+                    <input type="checkbox" checked style={{ marginRight: '10px' }} /> Tarjeta de crédito/débito
+                  </label>
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', color: '#bdc3c7' }}>
+                    <input type="checkbox" checked style={{ marginRight: '10px' }} /> MercadoPago
+                  </label>
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', color: '#bdc3c7' }}>
+                    <input type="checkbox" style={{ marginRight: '10px' }} /> Transferencia bancaria
+                  </label>
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', color: '#bdc3c7' }}>
+                    <input type="checkbox" style={{ marginRight: '10px' }} /> Efectivo
+                  </label>
+                </div>
+              </div>
+              <div>
+                <h5 style={{ marginBottom: '10px', color: 'white' }}>Integraciones</h5>
+                <div style={{ marginBottom: '10px' }}>
+                  <span style={{ color: 'white', fontWeight: 'bold' }}>Stripe</span>
+                  <span style={{ color: '#22c55e', marginLeft: '10px' }}> - Configurado</span>
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <span style={{ color: 'white', fontWeight: 'bold' }}>MercadoPago</span>
+                  <span style={{ color: '#f59e0b', marginLeft: '10px' }}> - No configurado</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Administración */}
+            <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
+              <h4 style={{ marginBottom: '15px', color: 'white' }}>Administración</h4>
+              <p style={{ color: '#bdc3c7', marginBottom: '15px' }}>Usuarios internos y roles.</p>
+              <button
+                onClick={() => alert('Agregar Usuario')}
+                style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginBottom: '15px' }}
+              >
+                Agregar Usuario
+              </button>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #4a5f7f' }}>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Email</th>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Rol</th>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Fecha Creación</th>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style={{ borderBottom: '1px solid #4a5f7f' }}>
+                    <td style={{ padding: '10px', color: 'white' }}>davidgctd@gmail.com</td>
+                    <td style={{ padding: '10px', color: 'white' }}>Owner</td>
+                    <td style={{ padding: '10px', color: 'white' }}>2024-01-01</td>
+                    <td style={{ padding: '10px' }}>
+                      <button style={{ padding: '6px 12px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}>Editar</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '10px', color: 'white' }}>lucianaliriarte@gmail.com</td>
+                    <td style={{ padding: '10px', color: 'white' }}>Owner</td>
+                    <td style={{ padding: '10px', color: 'white' }}>2024-01-01</td>
+                    <td style={{ padding: '10px' }}>
+                      <button style={{ padding: '6px 12px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}>Editar</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         )
