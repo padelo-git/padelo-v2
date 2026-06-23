@@ -114,6 +114,29 @@ async def debug_admin_check(db: AsyncSession = Depends(get_db)):
         return {"exists": False}
 
 
+@router.get("/debug/list-admins")
+async def debug_list_admins(db: AsyncSession = Depends(get_db)):
+    """Debug endpoint to list all admin users"""
+    from sqlalchemy import text
+    
+    result = await db.execute(
+        text("SELECT id, email, is_active, role, is_club_admin FROM users WHERE role = 'admin' OR is_club_admin = true")
+    )
+    admin_users = result.fetchall()
+    
+    admins = []
+    for user in admin_users:
+        admins.append({
+            "id": user[0],
+            "email": user[1],
+            "is_active": user[2],
+            "role": user[3] if user[3] else "no_role",
+            "is_club_admin": user[4] if user[4] else False
+        })
+    
+    return {"admins": admins, "count": len(admins)}
+
+
 @router.post("/forgot-password")
 async def forgot_password(email_data: dict, db: AsyncSession = Depends(get_db)):
     """Send password reset email"""
