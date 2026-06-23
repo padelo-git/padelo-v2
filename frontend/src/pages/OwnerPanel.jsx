@@ -14,6 +14,7 @@ function OwnerPanel() {
   const [alerts, setAlerts] = useState([])
   const [backups, setBackups] = useState([])
   const [healthStatus, setHealthStatus] = useState(null)
+  const [currentTime, setCurrentTime] = useState(new Date())
   const [newClub, setNewClub] = useState({
     name: '',
     slug: '',
@@ -47,7 +48,15 @@ function OwnerPanel() {
       fetchHealthStatus()
     }, 5000)
     
-    return () => clearInterval(interval)
+    // Update clock every second
+    const clockInterval = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000)
+    
+    return () => {
+      clearInterval(interval)
+      clearInterval(clockInterval)
+    }
   }, [navigate])
 
   const fetchUserData = async () => {
@@ -719,12 +728,25 @@ function OwnerPanel() {
       <header style={{ padding: '20px 30px', backgroundColor: '#2c3e50', borderBottom: '1px solid #34495e' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h1 style={{ fontSize: '24px', margin: 0 }}>Padelo V2 - Panel del Owner</h1>
-          <button
-            onClick={handleLogout}
-            style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-          >
-            🚪 Cerrar Sesión
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#34495e', 
+              borderRadius: '5px', 
+              border: '1px solid #4a5f7f',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              color: '#fff'
+            }}>
+              🕐 {currentTime.toLocaleTimeString('es-ES', { timeZone: timezone })}
+            </div>
+            <button
+              onClick={handleLogout}
+              style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+            >
+              🚪 Cerrar Sesión
+            </button>
+          </div>
         </div>
         {user && (
           <p style={{ marginTop: '10px', color: '#bdc3c7', fontSize: '14px' }}>Bienvenido, {user.full_name || user.email}</p>
