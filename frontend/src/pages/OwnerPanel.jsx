@@ -10,6 +10,7 @@ function OwnerPanel() {
   const [activeView, setActiveView] = useState('monitoring')
   const [showCreateClub, setShowCreateClub] = useState(false)
   const [showBackups, setShowBackups] = useState(false)
+  const [timezone, setTimezone] = useState('UTC')
   const [newClub, setNewClub] = useState({
     name: '',
     slug: '',
@@ -303,6 +304,51 @@ function OwnerPanel() {
             </div>
           </div>
         )
+      case 'settings':
+        return (
+          <div style={{ padding: '20px', backgroundColor: '#2c3e50', borderRadius: '5px', border: '1px solid #34495e' }}>
+            <h3 style={{ marginBottom: '20px' }}>Configuración</h3>
+            <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', color: '#bdc3c7' }}>Zona Horaria</label>
+                <select
+                  value={timezone}
+                  onChange={(e) => setTimezone(e.target.value)}
+                  style={{ 
+                    width: '100%', 
+                    padding: '10px', 
+                    border: '1px solid #4a5f7f', 
+                    borderRadius: '5px', 
+                    backgroundColor: '#2c3e50', 
+                    color: 'white',
+                    fontSize: '14px'
+                  }}
+                >
+                  <option value="UTC">UTC (Coordinated Universal Time)</option>
+                  <option value="America/Argentina/Buenos_Aires">Argentina (Buenos Aires)</option>
+                  <option value="America/Mexico_City">México (Ciudad de México)</option>
+                  <option value="America/New_York">Estados Unidos (New York)</option>
+                  <option value="America/Los_Angeles">Estados Unidos (Los Angeles)</option>
+                  <option value="Europe/Madrid">España (Madrid)</option>
+                  <option value="Europe/Paris">Francia (París)</option>
+                  <option value="Europe/London">Reino Unido (Londres)</option>
+                  <option value="Asia/Tokyo">Japón (Tokio)</option>
+                  <option value="Australia/Sydney">Australia (Sydney)</option>
+                  <option value="America/Sao_Paulo">Brasil (São Paulo)</option>
+                  <option value="America/Lima">Perú (Lima)</option>
+                  <option value="America/Bogota">Colombia (Bogotá)</option>
+                  <option value="America/Santiago">Chile (Santiago)</option>
+                </select>
+              </div>
+              <button
+                onClick={() => alert('Configuración guardada')}
+                style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+              >
+                Guardar Configuración
+              </button>
+            </div>
+          </div>
+        )
       default:
         return (
           <div style={{ padding: '20px', backgroundColor: '#2c3e50', borderRadius: '5px', border: '1px solid #34495e' }}>
@@ -418,6 +464,20 @@ function OwnerPanel() {
             }}>
               0
             </span>
+          </button>
+          <button
+            onClick={() => setActiveView('settings')}
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: activeView === 'settings' ? '#34495e' : 'transparent', 
+              color: 'white', 
+              border: '1px solid #34495e', 
+              borderRadius: '5px', 
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            ⚙️ Configuración
           </button>
         </div>
       </nav>
