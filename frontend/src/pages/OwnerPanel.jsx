@@ -199,28 +199,32 @@ function OwnerPanel() {
               <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
                 <h4 style={{ fontSize: '32px', color: '#007bff', marginBottom: '5px' }}>{systemMetrics?.cpu_percent?.toFixed(1) || '--'}%</h4>
                 <p style={{ fontSize: '14px', color: '#bdc3c7' }}>CPU</p>
+                <p style={{ fontSize: '11px', color: '#6c757d' }}>Uso del procesador</p>
               </div>
               <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
                 <h4 style={{ fontSize: '32px', color: '#28a745', marginBottom: '5px' }}>{systemMetrics?.memory_percent?.toFixed(1) || '--'}%</h4>
                 <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Memoria</p>
-                <p style={{ fontSize: '12px', color: '#6c757d' }}>{systemMetrics?.memory_used || '--'} / {systemMetrics?.memory_total || '--'}</p>
+                <p style={{ fontSize: '11px', color: '#6c757d' }}>{systemMetrics?.memory_used || '--'} / {systemMetrics?.memory_total || '--'}</p>
               </div>
               <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
                 <h4 style={{ fontSize: '32px', color: '#ffc107', marginBottom: '5px' }}>{systemMetrics?.connections || '--'}</h4>
                 <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Conexiones</p>
+                <p style={{ fontSize: '11px', color: '#6c757d' }}>Conexiones de red activas</p>
               </div>
               <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
                 <h4 style={{ fontSize: '32px', color: '#e74c3c', marginBottom: '5px' }}>{systemMetrics?.disk_percent?.toFixed(1) || '--'}%</h4>
                 <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Disco</p>
-                <p style={{ fontSize: '12px', color: '#6c757d' }}>{systemMetrics?.disk_used || '--'} / {systemMetrics?.disk_total || '--'}</p>
+                <p style={{ fontSize: '11px', color: '#6c757d' }}>{systemMetrics?.disk_used || '--'} / {systemMetrics?.disk_total || '--'}</p>
               </div>
               <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
                 <h4 style={{ fontSize: '32px', color: '#9b59b6', marginBottom: '5px' }}>{systemMetrics?.uptime || '--'}</h4>
                 <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Uptime</p>
+                <p style={{ fontSize: '11px', color: '#6c757d' }}>Tiempo encendido</p>
               </div>
               <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
                 <h4 style={{ fontSize: '32px', color: '#17a2b8', marginBottom: '5px' }}>{systemMetrics?.network_io?.bytes_sent || '--'}</h4>
                 <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Red (enviado)</p>
+                <p style={{ fontSize: '11px', color: '#6c757d' }}>Datos enviados</p>
               </div>
             </div>
             <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f', marginBottom: '20px' }}>
