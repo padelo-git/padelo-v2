@@ -56,8 +56,11 @@ jobs:
         script: |
           cd ~/padelo-v2
           docker-compose down --remove-orphans
-          docker network prune -f
-          docker system prune -f
+          # Safe Docker cleanup - only removes unused resources
+          docker container prune -f  # Remove stopped containers
+          docker image prune -a -f  # Remove unused images (keep only current)
+          docker volume prune -f  # Remove unused volumes (keeps named volumes)
+          docker network prune -f  # Remove unused networks
           git pull origin main
           docker-compose up -d --build
           
