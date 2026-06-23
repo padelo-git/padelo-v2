@@ -420,9 +420,36 @@ function OwnerPanel() {
         return (
           <div style={{ padding: '20px', backgroundColor: '#2c3e50', borderRadius: '5px', border: '1px solid #34495e' }}>
             <h3 style={{ marginBottom: '20px' }}>Alertas del Sistema</h3>
-            <div style={{ padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
-              <p style={{ color: '#bdc3c7' }}>No hay alertas activas en este momento.</p>
-            </div>
+            {alerts.length === 0 ? (
+              <div style={{ padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
+                <p style={{ color: '#bdc3c7' }}>No hay alertas activas en este momento.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {alerts.map((alert) => (
+                  <div
+                    key={alert.id}
+                    style={{
+                      padding: '15px',
+                      backgroundColor: alert.severity === 'high' ? '#e74c3c' : alert.severity === 'warning' ? '#ffc107' : '#34495e',
+                      borderRadius: '5px',
+                      border: '1px solid #4a5f7f',
+                      color: alert.severity === 'high' || alert.severity === 'warning' ? '#000' : '#fff'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                      <span style={{ fontWeight: 'bold', fontSize: '14px' }}>
+                        {alert.type === 'github' ? '🔧 GitHub' : '⚙️ Sistema'}
+                      </span>
+                      <span style={{ fontSize: '12px', opacity: 0.8 }}>
+                        {new Date(alert.created_at).toLocaleString()}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: '14px', margin: 0 }}>{alert.message}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )
       case 'settings':
