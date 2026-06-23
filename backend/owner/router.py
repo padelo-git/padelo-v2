@@ -213,37 +213,12 @@ async def create_backup(current_user: dict = Depends(get_current_user)):
         if not os.path.exists(backups_dir):
             os.makedirs(backups_dir)
         
-        # Create backup using pg_dump
-        from core.config import settings
-        db_url = settings.DATABASE_URL
-        
-        # Extract connection details
-        # Format: postgresql+asyncpg://user:password@host:port/database
-        parts = db_url.replace("postgresql+asyncpg://", "").split("@")
-        user_pass = parts[0].split(":")
-        host_db = parts[1].split("/")
-        host_port = host_db[0].split(":")
-        
-        user = user_pass[0]
-        password = user_pass[1]
-        host = host_port[0]
-        port = host_port[1] if len(host_port) > 1 else "5432"
-        database = host_db[0]
-        
-        # Set PGPASSWORD environment variable
-        env = os.environ.copy()
-        env["PGPASSWORD"] = password
-        
-        # Run pg_dump
+        # Create backup using docker exec with pg_dump
         filepath = os.path.join(backups_dir, filename)
         subprocess.run([
-            "pg_dump",
-            f"-h{host}",
-            f"-p{port}",
-            f"-U{user}",
-            f"-d{database}",
-            "-f", filepath
-        ], env=env, check=True)
+            "docker", "exec", "padelo-v2-db-1",
+            "pg_dump", "-U", "padelo", "padelo"
+        ], stdout=open(filepath, 'w'), check=True)
         
         return {"message": "Backup created successfully", "filename": filename}
     except Exception as e:
