@@ -68,8 +68,8 @@ def format_bytes(bytes_value: int) -> str:
 async def get_system_metrics(current_user: dict = Depends(get_current_user)):
     """Get real-time system metrics"""
     try:
-        # CPU
-        cpu_percent = psutil.cpu_percent(interval=1)
+        # CPU - without interval to be faster
+        cpu_percent = psutil.cpu_percent(interval=0.1)
         
         # Memory
         memory = psutil.virtual_memory()
@@ -86,17 +86,28 @@ async def get_system_metrics(current_user: dict = Depends(get_current_user)):
         # Uptime
         uptime = get_uptime()
         
-        # Network connections
-        connections = len(psutil.net_connections())
+        # Network connections - skip if permission error
+        try:
+            connections = len(psutil.net_connections())
+        except (psutil.AccessDenied, PermissionError):
+            connections = 0
         
         # Network I/O
-        net_io = psutil.net_io_counters()
-        network_io = {
-            "bytes_sent": format_bytes(net_io.bytes_sent),
-            "bytes_recv": format_bytes(net_io.bytes_recv),
-            "packets_sent": net_io.packets_sent,
-            "packets_recv": net_io.packets_recv
-        }
+        try:
+            net_io = psutil.net_io_counters()
+            network_io = {
+                "bytes_sent": format_bytes(net_io.bytes_sent),
+                "bytes_recv": format_bytes(net_io.bytes_recv),
+                "packets_sent": net_io.packets_sent,
+                "packets_recv": net_io.packets_recv
+            }
+        except Exception:
+            network_io = {
+                "bytes_sent": "N/A",
+                "bytes_recv": "N/A",
+                "packets_sent": 0,
+                "packets_recv": 0
+            }
         
         return SystemMetrics(
             cpu_percent=cpu_percent,
@@ -112,6 +123,27 @@ async def get_system_metrics(current_user: dict = Depends(get_current_user)):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting metrics: {str(e)}")
+
+
+@router.get("/owner/metrics/debug")
+async def get_system_metrics_debug():
+    """Debug endpoint for metrics without authentication"""
+    try:
+        cpu_percent = psutil.cpu_percent(interval=0.1)
+        memory = psutil.virtual_memory()
+        disk = psutil.disk_usage('/')
+        
+        return {
+            "cpu_percent": cpu_percent,
+            "memory_percent": memory.percent,
+            "disk_percent": disk.percent,
+            "psutil_installed": True
+        }
+    except Exception as e:
+        return {
+            "error": str(e),
+            "psutil_installed": False
+        }
 
 
 @router.post("/owner/restart")
