@@ -10,6 +10,7 @@ from messaging.router import router as messaging_router
 from notifications.router import router as notifications_router
 from notifications.firebase_service import FirebaseService
 from admin.router import router as admin_router
+from owner.router import router as owner_router
 from matching.scheduler import start_scheduler, stop_scheduler
 from payments.stripe_service import initialize_stripe
 
@@ -59,6 +60,7 @@ app.include_router(matches_router, prefix="/matches", tags=["Matches"])
 app.include_router(messaging_router, prefix="/messaging", tags=["Messaging"])
 app.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
 app.include_router(admin_router, tags=["Admin"])
+app.include_router(owner_router, tags=["Owner"])
 
 
 @app.get("/")

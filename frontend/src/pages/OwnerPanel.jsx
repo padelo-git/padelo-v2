@@ -11,6 +11,9 @@ function OwnerPanel() {
   const [showCreateClub, setShowCreateClub] = useState(false)
   const [showBackups, setShowBackups] = useState(false)
   const [timezone, setTimezone] = useState('UTC')
+  const [alerts, setAlerts] = useState([])
+  const [backups, setBackups] = useState([])
+  const [healthStatus, setHealthStatus] = useState(null)
   const [newClub, setNewClub] = useState({
     name: '',
     slug: '',
@@ -34,6 +37,17 @@ function OwnerPanel() {
     fetchClubs()
     fetchSystemMetrics()
     fetchBusinessMetrics()
+    fetchAlerts()
+    fetchBackups()
+    fetchHealthStatus()
+    
+    // Refresh metrics every 5 seconds
+    const interval = setInterval(() => {
+      fetchSystemMetrics()
+      fetchHealthStatus()
+    }, 5000)
+    
+    return () => clearInterval(interval)
   }, [navigate])
 
   const fetchUserData = async () => {
@@ -59,7 +73,10 @@ function OwnerPanel() {
 
   const fetchSystemMetrics = async () => {
     try {
-      const response = await axios.get('http://18.212.126.125:8000/admin/system-metrics')
+      const token = localStorage.getItem('token')
+      const response = await axios.get('http://18.212.126.125:8000/owner/metrics', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       setSystemMetrics(response.data)
     } catch (err) {
       console.error('Error fetching system metrics:', err)
@@ -72,6 +89,42 @@ function OwnerPanel() {
       setBusinessMetrics(response.data)
     } catch (err) {
       console.error('Error fetching business metrics:', err)
+    }
+  }
+
+  const fetchAlerts = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await axios.get('http://18.212.126.125:8000/owner/alerts', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      setAlerts(response.data)
+    } catch (err) {
+      console.error('Error fetching alerts:', err)
+    }
+  }
+
+  const fetchBackups = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await axios.get('http://18.212.126.125:8000/owner/backups', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      setBackups(response.data)
+    } catch (err) {
+      console.error('Error fetching backups:', err)
+    }
+  }
+
+  const fetchHealthStatus = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await axios.get('http://18.212.126.125:8000/owner/health', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      setHealthStatus(response.data)
+    } catch (err) {
+      console.error('Error fetching health status:', err)
     }
   }
 
@@ -99,11 +152,28 @@ function OwnerPanel() {
 
   const handleCreateBackup = async () => {
     try {
-      await axios.post('http://18.212.126.125:8000/admin/backups')
+      const token = localStorage.getItem('token')
+      await axios.post('http://18.212.126.125:8000/owner/backups/create', {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       alert('Backup creado exitosamente')
+      fetchBackups()
     } catch (err) {
       console.error('Error creating backup:', err)
       alert('Error al crear backup')
+    }
+  }
+
+  const handleRestart = async (service) => {
+    try {
+      const token = localStorage.getItem('token')
+      await axios.post('http://18.212.126.125:8000/owner/restart', { service }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      alert(`${service} reiniciado exitosamente`)
+    } catch (err) {
+      console.error('Error restarting service:', err)
+      alert('Error al reiniciar servicio')
     }
   }
 
@@ -121,28 +191,30 @@ function OwnerPanel() {
             <h3 style={{ marginBottom: '20px' }}>Monitoreo en Vivo</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px' }}>
               <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
-                <h4 style={{ fontSize: '32px', color: '#007bff', marginBottom: '5px' }}>{systemMetrics?.cpu_usage || '--'}%</h4>
+                <h4 style={{ fontSize: '32px', color: '#007bff', marginBottom: '5px' }}>{systemMetrics?.cpu_percent?.toFixed(1) || '--'}%</h4>
                 <p style={{ fontSize: '14px', color: '#bdc3c7' }}>CPU</p>
               </div>
               <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
-                <h4 style={{ fontSize: '32px', color: '#28a745', marginBottom: '5px' }}>{systemMetrics?.memory_usage || '--'}%</h4>
+                <h4 style={{ fontSize: '32px', color: '#28a745', marginBottom: '5px' }}>{systemMetrics?.memory_percent?.toFixed(1) || '--'}%</h4>
                 <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Memoria</p>
+                <p style={{ fontSize: '12px', color: '#6c757d' }}>{systemMetrics?.memory_used || '--'} / {systemMetrics?.memory_total || '--'}</p>
               </div>
               <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
-                <h4 style={{ fontSize: '32px', color: '#17a2b8', marginBottom: '5px' }}>{systemMetrics?.requests_per_sec || '--'}</h4>
-                <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Req/seg</p>
-              </div>
-              <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
-                <h4 style={{ fontSize: '32px', color: '#ffc107', marginBottom: '5px' }}>{systemMetrics?.active_connections || '--'}</h4>
+                <h4 style={{ fontSize: '32px', color: '#ffc107', marginBottom: '5px' }}>{systemMetrics?.connections || '--'}</h4>
                 <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Conexiones</p>
               </div>
               <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
-                <h4 style={{ fontSize: '32px', color: '#e74c3c', marginBottom: '5px' }}>{systemMetrics?.disk_usage || '--'}%</h4>
+                <h4 style={{ fontSize: '32px', color: '#e74c3c', marginBottom: '5px' }}>{systemMetrics?.disk_percent?.toFixed(1) || '--'}%</h4>
                 <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Disco</p>
+                <p style={{ fontSize: '12px', color: '#6c757d' }}>{systemMetrics?.disk_used || '--'} / {systemMetrics?.disk_total || '--'}</p>
               </div>
               <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
-                <h4 style={{ fontSize: '32px', color: '#9b59b6', marginBottom: '5px' }}>{systemMetrics?.network_io || '--'}</h4>
-                <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Red I/O</p>
+                <h4 style={{ fontSize: '32px', color: '#9b59b6', marginBottom: '5px' }}>{systemMetrics?.uptime || '--'}</h4>
+                <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Uptime</p>
+              </div>
+              <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
+                <h4 style={{ fontSize: '32px', color: '#17a2b8', marginBottom: '5px' }}>{systemMetrics?.network_io?.bytes_sent || '--'}</h4>
+                <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Red (enviado)</p>
               </div>
             </div>
             <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f', marginBottom: '20px' }}>
@@ -160,16 +232,19 @@ function OwnerPanel() {
               <h4 style={{ marginBottom: '15px' }}>Acciones de Reinicio</h4>
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 <button
+                  onClick={() => handleRestart('server')}
                   style={{ padding: '10px 20px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                 >
                   Reiniciar Servidor
                 </button>
                 <button
+                  onClick={() => handleRestart('database')}
                   style={{ padding: '10px 20px', backgroundColor: '#e67e22', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                 >
                   Reiniciar Base de Datos
                 </button>
                 <button
+                  onClick={() => handleRestart('all')}
                   style={{ padding: '10px 20px', backgroundColor: '#c0392b', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                 >
                   Reiniciar Todo
@@ -290,9 +365,37 @@ function OwnerPanel() {
               </button>
             </div>
             <div style={{ padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
-              <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>Último backup: Hace 2 horas</p>
-              <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Próximo backup automático: En 22 horas</p>
+              <h4 style={{ marginBottom: '15px', color: 'white' }}>Backups Disponibles</h4>
+              {backups.length === 0 ? (
+                <p style={{ color: '#bdc3c7' }}>No hay backups disponibles</p>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid #4a5f7f' }}>
+                      <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Archivo</th>
+                      <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Tamaño</th>
+                      <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Fecha</th>
+                      <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {backups.map((backup) => (
+                      <tr key={backup.id} style={{ borderBottom: '1px solid #4a5f7f' }}>
+                        <td style={{ padding: '10px', color: 'white' }}>{backup.filename}</td>
+                        <td style={{ padding: '10px', color: 'white' }}>{backup.size}</td>
+                        <td style={{ padding: '10px', color: 'white' }}>{new Date(backup.created_at).toLocaleString()}</td>
+                        <td style={{ padding: '10px', color: '#22c55e' }}>{backup.status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
+            {healthStatus?.last_backup && (
+              <div style={{ marginTop: '15px', padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
+                <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Último backup: {healthStatus.last_backup}</p>
+              </div>
+            )}
           </div>
         )
       case 'alerts':
@@ -663,22 +766,24 @@ function OwnerPanel() {
             }}
           >
             🔔 Alertas
-            <span style={{ 
-              position: 'absolute', 
-              top: '-5px', 
-              right: '-5px', 
-              width: '20px', 
-              height: '20px', 
-              backgroundColor: '#e74c3c', 
-              borderRadius: '50%', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              fontSize: '12px',
-              fontWeight: 'bold'
-            }}>
-              0
-            </span>
+            {alerts.length > 0 && (
+              <span style={{ 
+                position: 'absolute', 
+                top: '-5px', 
+                right: '-5px', 
+                width: '20px', 
+                height: '20px', 
+                backgroundColor: '#e74c3c', 
+                borderRadius: '50%', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                fontSize: '12px',
+                fontWeight: 'bold'
+              }}>
+                {alerts.length}
+              </span>
+            )}
           </button>
           <button
             onClick={() => setActiveView('settings')}
