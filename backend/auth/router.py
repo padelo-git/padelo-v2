@@ -42,9 +42,9 @@ async def login_user(user_credentials: UserLogin, db: AsyncSession = Depends(get
     """Login user and return access token using raw SQL to avoid ORM issues"""
     from sqlalchemy import text
     
-    # Get user using raw SQL
+    # Get user using raw SQL (case-insensitive email comparison)
     result = await db.execute(
-        text("SELECT id, email, hashed_password, is_active, full_name, role, is_club_admin, club_id, created_at FROM users WHERE email = :email"),
+        text("SELECT id, email, hashed_password, is_active, full_name, role, is_club_admin, club_id, created_at FROM users WHERE LOWER(email) = LOWER(:email)"),
         {"email": user_credentials.email}
     )
     user_row = result.fetchone()
