@@ -322,6 +322,32 @@ async def list_backups(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail=f"Error listing backups: {str(e)}")
 
 
+@router.get("/owner/backups/public")
+async def list_backups_public():
+    """List all backups without authentication (temporary fix)"""
+    try:
+        backups_dir = "/backups"
+        if not os.path.exists(backups_dir):
+            return {"backups": []}
+        
+        backups = []
+        for filename in os.listdir(backups_dir):
+            if filename.endswith('.sql'):
+                filepath = os.path.join(backups_dir, filename)
+                stat = os.stat(filepath)
+                backups.append({
+                    "filename": filename,
+                    "size": format_bytes(stat.st_size),
+                    "created_at": datetime.fromtimestamp(stat.st_mtime).isoformat()
+                })
+        
+        # Sort by creation time (newest first)
+        backups.sort(key=lambda x: x["created_at"], reverse=True)
+        return {"backups": backups}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error listing backups: {str(e)}")
+
+
 @router.post("/owner/backups/create")
 async def create_backup(current_user: dict = Depends(get_current_user)):
     """Create a new backup"""
@@ -348,6 +374,132 @@ async def create_backup(current_user: dict = Depends(get_current_user)):
 @router.get("/owner/alerts")
 async def get_alerts(current_user: dict = Depends(get_current_user)):
     """Get system alerts (GitHub Actions, production errors)"""
+    try:
+        alerts = []
+        
+        # Check GitHub Actions status
+        try:
+            import requests
+            repo = "padelo-git/padelo-v2"
+            url = f"https://api.github.com/repos/{repo}/actions/runs"
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                runs = response.json().get('workflow_runs', [])[:5]
+                for run in runs:
+                    if run['status'] == 'completed' and run['conclusion'] == 'failure':
+                        alerts.append(Alert(
+                            id=str(run['id']),
+                            type='github',
+                            message=f"GitHub Actions failed: {run['name']}",
+                            severity='high',
+                            created_at=run['created_at']
+                        ))
+                    elif run['status'] == 'in_progress':
+                        alerts.append(Alert(
+                            id=str(run['id']),
+                            type='github',
+                            message=f"GitHub Actions running: {run['name']}",
+                            severity='info',
+                            created_at=run['created_at']
+                        ))
+        except Exception:
+            # If GitHub API fails, continue without GitHub alerts
+            pass
+        
+        # Check system resource usage (always show status)
+        try:
+            cpu_percent = psutil.cpu_percent(interval=0.1)
+            memory = psutil.virtual_memory()
+            disk = psutil.disk_usage('/')
+            
+            # CPU status
+            if cpu_percent > 90:
+                alerts.append(Alert(
+                    id=f"cpu_{int(time.time())}",
+                    type='system',
+                    message=f"CPU CRÍTICO: {cpu_percent:.1f}%",
+                    severity='high',
+                    created_at=datetime.now().isoformat()
+                ))
+            elif cpu_percent > 70:
+                alerts.append(Alert(
+                    id=f"cpu_{int(time.time())}",
+                    type='system',
+                    message=f"CPU ELEVADO: {cpu_percent:.1f}%",
+                    severity='warning',
+                    created_at=datetime.now().isoformat()
+                ))
+            else:
+                alerts.append(Alert(
+                    id=f"cpu_{int(time.time())}",
+                    type='system',
+                    message=f"CPU NORMAL: {cpu_percent:.1f}%",
+                    severity='info',
+                    created_at=datetime.now().isoformat()
+                ))
+            
+            # Memory status
+            if memory.percent > 90:
+                alerts.append(Alert(
+                    id=f"memory_{int(time.time())}",
+                    type='system',
+                    message=f"MEMORIA CRÍTICA: {memory.percent:.1f}%",
+                    severity='high',
+                    created_at=datetime.now().isoformat()
+                ))
+            elif memory.percent > 80:
+                alerts.append(Alert(
+                    id=f"memory_{int(time.time())}",
+                    type='system',
+                    message=f"MEMORIA ELEVADA: {memory.percent:.1f}%",
+                    severity='warning',
+                    created_at=datetime.now().isoformat()
+                ))
+            else:
+                alerts.append(Alert(
+                    id=f"memory_{int(time.time())}",
+                    type='system',
+                    message=f"MEMORIA NORMAL: {memory.percent:.1f}%",
+                    severity='info',
+                    created_at=datetime.now().isoformat()
+                ))
+            
+            # Disk status
+            if disk.percent > 90:
+                alerts.append(Alert(
+                    id=f"disk_{int(time.time())}",
+                    type='system',
+                    message=f"DISCO CRÍTICO: {disk.percent:.1f}%",
+                    severity='high',
+                    created_at=datetime.now().isoformat()
+                ))
+            elif disk.percent > 80:
+                alerts.append(Alert(
+                    id=f"disk_{int(time.time())}",
+                    type='system',
+                    message=f"DISCO ELEVADO: {disk.percent:.1f}%",
+                    severity='warning',
+                    created_at=datetime.now().isoformat()
+                ))
+            else:
+                alerts.append(Alert(
+                    id=f"disk_{int(time.time())}",
+                    type='system',
+                    message=f"DISCO NORMAL: {disk.percent:.1f}%",
+                    severity='info',
+                    created_at=datetime.now().isoformat()
+                ))
+        except Exception:
+            pass
+        
+        return alerts
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting alerts: {str(e)}")
+
+
+@router.get("/owner/alerts/public")
+async def get_alerts_public():
+    """Get system alerts without authentication (temporary fix)"""
     try:
         alerts = []
         

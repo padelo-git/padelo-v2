@@ -107,21 +107,21 @@ function OwnerPanel() {
   const fetchAlerts = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.get('http://18.212.126.125:8000/owner/alerts', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      // Try public endpoint first (temporary fix)
+      const response = await axios.get('http://18.212.126.125:8000/owner/alerts/public')
+      console.log('Alerts response:', response.data)
       setAlerts(response.data)
     } catch (err) {
       console.error('Error fetching alerts:', err)
+      console.error('Error response:', err.response?.data)
     }
   }
 
   const fetchBackups = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.get('http://18.212.126.125:8000/owner/backups', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      // Try public endpoint first (temporary fix)
+      const response = await axios.get('http://18.212.126.125:8000/owner/backups/public')
       console.log('Backups response:', response.data)
       setBackups(response.data.backups || [])
     } catch (err) {
