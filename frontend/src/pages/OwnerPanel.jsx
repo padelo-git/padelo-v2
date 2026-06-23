@@ -432,18 +432,55 @@ function OwnerPanel() {
                 >
                   <option value="UTC">UTC (Coordinated Universal Time)</option>
                   <option value="America/Argentina/Buenos_Aires">Argentina (Buenos Aires)</option>
+                  <option value="America/Argentina/Cordoba">Argentina (Córdoba)</option>
+                  <option value="America/Argentina/Mendoza">Argentina (Mendoza)</option>
                   <option value="America/Mexico_City">México (Ciudad de México)</option>
+                  <option value="America/Hermosillo">México (Hermosillo)</option>
+                  <option value="America/Monterrey">México (Monterrey)</option>
+                  <option value="America/Tijuana">México (Tijuana)</option>
+                  <option value="America/Mazatlan">México (Mazatlán)</option>
+                  <option value="America/Chihuahua">México (Chihuahua)</option>
+                  <option value="America/Merida">México (Mérida)</option>
+                  <option value="America/Cancun">México (Cancún)</option>
                   <option value="America/New_York">Estados Unidos (New York)</option>
                   <option value="America/Los_Angeles">Estados Unidos (Los Angeles)</option>
+                  <option value="America/Chicago">Estados Unidos (Chicago)</option>
+                  <option value="America/Denver">Estados Unidos (Denver)</option>
+                  <option value="America/Phoenix">Estados Unidos (Phoenix)</option>
                   <option value="Europe/Madrid">España (Madrid)</option>
                   <option value="Europe/Paris">Francia (París)</option>
                   <option value="Europe/London">Reino Unido (Londres)</option>
-                  <option value="Asia/Tokyo">Japón (Tokio)</option>
+                  <option value="Europe/Berlin">Alemania (Berlín)</option>
+                  <option value="Europe/Rome">Italia (Roma)</option>
+                  <option value="Asia/Tokio">Japón (Tokio)</option>
+                  <option value="Asia/Shanghai">China (Shanghai)</option>
+                  <option value="Asia/Seoul">Corea del Sur (Seúl)</option>
+                  <option value="Asia/Singapore">Singapur</option>
+                  <option value="Asia/Dubai">Emiratos Árabes (Dubai)</option>
                   <option value="Australia/Sydney">Australia (Sydney)</option>
+                  <option value="Australia/Melbourne">Australia (Melbourne)</option>
+                  <option value="Pacific/Auckland">Nueva Zelanda (Auckland)</option>
                   <option value="America/Sao_Paulo">Brasil (São Paulo)</option>
+                  <option value="America/Rio_Branco">Brasil (Rio Branco)</option>
+                  <option value="America/Manaus">Brasil (Manaus)</option>
                   <option value="America/Lima">Perú (Lima)</option>
                   <option value="America/Bogota">Colombia (Bogotá)</option>
                   <option value="America/Santiago">Chile (Santiago)</option>
+                  <option value="America/Caracas">Venezuela (Caracas)</option>
+                  <option value="America/Quito">Ecuador (Quito)</option>
+                  <option value="America/La_Paz">Bolivia (La Paz)</option>
+                  <option value="America/Montevideo">Uruguay (Montevideo)</option>
+                  <option value="America/Asuncion">Paraguay (Asunción)</option>
+                  <option value="America/Panama">Panamá (Panamá)</option>
+                  <option value="America/Costa_Rica">Costa Rica (San José)</option>
+                  <option value="America/El_Salvador">El Salvador (San Salvador)</option>
+                  <option value="America/Guatemala">Guatemala (Ciudad de Guatemala)</option>
+                  <option value="America/Managua">Nicaragua (Managua)</option>
+                  <option value="America/Tegucigalpa">Honduras (Tegucigalpa)</option>
+                  <option value="America/Santo_Domingo">República Dominicana (Santo Domingo)</option>
+                  <option value="America/Havana">Cuba (La Habana)</option>
+                  <option value="America/Jamaica">Jamaica (Kingston)</option>
+                  <option value="America/Port-au-Prince">Haití (Puerto Príncipe)</option>
                 </select>
               </div>
               <button
