@@ -10,7 +10,7 @@ function OwnerPanel() {
   const [activeView, setActiveView] = useState('monitoring')
   const [showCreateClub, setShowCreateClub] = useState(false)
   const [showBackups, setShowBackups] = useState(false)
-  const [timezone, setTimezone] = useState('UTC')
+  const [timezone, setTimezone] = useState(localStorage.getItem('timezone') || 'UTC')
   const [alerts, setAlerts] = useState([])
   const [backups, setBackups] = useState([])
   const [healthStatus, setHealthStatus] = useState(null)
@@ -428,7 +428,10 @@ function OwnerPanel() {
                 <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', color: '#bdc3c7' }}>Zona Horaria</label>
                 <select
                   value={timezone}
-                  onChange={(e) => setTimezone(e.target.value)}
+                  onChange={(e) => {
+                    setTimezone(e.target.value)
+                    localStorage.setItem('timezone', e.target.value)
+                  }}
                   style={{ 
                     width: '100%', 
                     padding: '10px', 
