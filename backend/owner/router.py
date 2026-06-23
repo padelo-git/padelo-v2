@@ -136,11 +136,40 @@ async def get_system_metrics_debug():
         cpu_percent = psutil.cpu_percent(interval=0.1)
         memory = psutil.virtual_memory()
         disk = psutil.disk_usage('/')
+        uptime = get_uptime()
+        
+        try:
+            connections = len(psutil.net_connections())
+        except (psutil.AccessDenied, PermissionError):
+            connections = 0
+        
+        try:
+            net_io = psutil.net_io_counters()
+            network_io = {
+                "bytes_sent": format_bytes(net_io.bytes_sent),
+                "bytes_recv": format_bytes(net_io.bytes_recv),
+                "packets_sent": net_io.packets_sent,
+                "packets_recv": net_io.packets_recv
+            }
+        except Exception:
+            network_io = {
+                "bytes_sent": "N/A",
+                "bytes_recv": "N/A",
+                "packets_sent": 0,
+                "packets_recv": 0
+            }
         
         return {
             "cpu_percent": cpu_percent,
             "memory_percent": memory.percent,
+            "memory_used": format_bytes(memory.used),
+            "memory_total": format_bytes(memory.total),
             "disk_percent": disk.percent,
+            "disk_used": format_bytes(disk.used),
+            "disk_total": format_bytes(disk.total),
+            "uptime": uptime,
+            "connections": connections,
+            "network_io": network_io,
             "psutil_installed": True
         }
     except Exception as e:
