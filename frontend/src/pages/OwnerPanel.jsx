@@ -349,6 +349,86 @@ function OwnerPanel() {
             </div>
           </div>
         )
+      case 'subscriptions':
+        return (
+          <div style={{ padding: '20px', backgroundColor: '#2c3e50', borderRadius: '5px', border: '1px solid #34495e' }}>
+            <h3 style={{ marginBottom: '20px' }}>Suscripciones</h3>
+            <div style={{ padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
+              <p style={{ color: '#bdc3c7' }}>Vista global de todas las suscripciones.</p>
+            </div>
+            <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #4a5f7f' }}>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Club</th>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Plan</th>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Precio mensual</th>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Facturación total</th>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Próximo cobro</th>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Estado</th>
+                    <th style={{ padding: '10px', textAlign: 'left', color: '#bdc3c7' }}>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style={{ borderBottom: '1px solid #4a5f7f' }}>
+                    <td style={{ padding: '10px', color: 'white' }}>Club Ejemplo (ID: 1)</td>
+                    <td style={{ padding: '10px', color: 'white' }}>Basic</td>
+                    <td style={{ padding: '10px', color: 'white' }}>ARS $49.00</td>
+                    <td style={{ padding: '10px', color: '#22c55e', fontWeight: 'bold' }}>ARS $147.00</td>
+                    <td style={{ padding: '10px', color: 'white' }}>2024-07-01</td>
+                    <td style={{ padding: '10px', color: '#22c55e' }}>Active</td>
+                    <td style={{ padding: '10px' }}>
+                      <button style={{ padding: '6px 12px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px', marginRight: '5px' }}>Cambiar plan</button>
+                      <button style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}>Suspender</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )
+      case 'activity':
+        return (
+          <div style={{ padding: '20px', backgroundColor: '#2c3e50', borderRadius: '5px', border: '1px solid #34495e' }}>
+            <h3 style={{ marginBottom: '20px' }}>Actividad</h3>
+            <div style={{ padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
+              <p style={{ color: '#bdc3c7' }}>Actividad reciente del sistema.</p>
+            </div>
+            <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
+              <div style={{ marginBottom: '15px', paddingBottom: '15px', borderBottom: '1px solid #4a5f7f' }}>
+                <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>2024-06-22 14:30</p>
+                <p style={{ color: 'white' }}>Club "Padelo Buenos Aires" creado</p>
+              </div>
+              <div style={{ marginBottom: '15px', paddingBottom: '15px', borderBottom: '1px solid #4a5f7f' }}>
+                <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>2024-06-22 12:15</p>
+                <p style={{ color: 'white' }}>Backup de base de datos completado</p>
+              </div>
+              <div>
+                <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>2024-06-22 10:00</p>
+                <p style={{ color: 'white' }}>Suscripción de Club "Padelo México" renovada</p>
+              </div>
+            </div>
+          </div>
+        )
+      case 'support':
+        return (
+          <div style={{ padding: '20px', backgroundColor: '#2c3e50', borderRadius: '5px', border: '1px solid #34495e' }}>
+            <h3 style={{ marginBottom: '20px' }}>Soporte</h3>
+            <div style={{ padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
+              <p style={{ color: '#bdc3c7' }}>Centro de soporte y ayuda.</p>
+            </div>
+            <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
+              <h4 style={{ marginBottom: '15px', color: 'white' }}>Contacto</h4>
+              <p style={{ color: '#bdc3c7', marginBottom: '10px' }}>Email: support@nexasist.com</p>
+              <p style={{ color: '#bdc3c7', marginBottom: '20px' }}>Teléfono: +54 11 1234-5678</p>
+              <button
+                style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+              >
+                Enviar mensaje de soporte
+              </button>
+            </div>
+          </div>
+        )
       default:
         return (
           <div style={{ padding: '20px', backgroundColor: '#2c3e50', borderRadius: '5px', border: '1px solid #34495e' }}>
@@ -478,6 +558,48 @@ function OwnerPanel() {
             }}
           >
             ⚙️ Configuración
+          </button>
+          <button
+            onClick={() => setActiveView('subscriptions')}
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: activeView === 'subscriptions' ? '#34495e' : 'transparent', 
+              color: 'white', 
+              border: '1px solid #34495e', 
+              borderRadius: '5px', 
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            💳 Suscripciones
+          </button>
+          <button
+            onClick={() => setActiveView('activity')}
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: activeView === 'activity' ? '#34495e' : 'transparent', 
+              color: 'white', 
+              border: '1px solid #34495e', 
+              borderRadius: '5px', 
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            📈 Actividad
+          </button>
+          <button
+            onClick={() => setActiveView('support')}
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: activeView === 'support' ? '#34495e' : 'transparent', 
+              color: 'white', 
+              border: '1px solid #34495e', 
+              borderRadius: '5px', 
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            🎧 Soporte
           </button>
         </div>
       </nav>
