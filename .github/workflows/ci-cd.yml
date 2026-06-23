@@ -55,12 +55,9 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           cd ~/padelo-v2
-          docker-compose down --remove-orphans
-          # Safe Docker cleanup - only removes unused resources
-          docker container prune -f  # Remove stopped containers
-          docker image prune -a -f  # Remove unused images (keep only current)
-          docker volume prune -f  # Remove unused volumes (keeps named volumes)
-          docker network prune -f  # Remove unused networks
+          docker-compose down --remove-orphans --volumes
+          # Aggressive Docker cleanup to fix corrupted state
+          docker system prune -a -f --volumes
           git pull origin main
           docker-compose up -d --build
           
