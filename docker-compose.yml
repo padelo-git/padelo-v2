@@ -13,6 +13,7 @@ services:
       - redis
     volumes:
       - ./backend:/app
+      - backups_data:/backups
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
   frontend:
@@ -43,3 +44,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  backups_data:
