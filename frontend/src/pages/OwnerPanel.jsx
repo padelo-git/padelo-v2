@@ -212,7 +212,7 @@ function OwnerPanel() {
                 <p style={{ fontSize: '11px', color: '#6c757d' }}>Conexiones de red activas</p>
               </div>
               <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
-                <h4 style={{ fontSize: '32px', color: '#e74c3c', marginBottom: '5px' }}>{systemMetrics?.disk_percent?.toFixed(1) || '--'}%</h4>
+                <h4 style={{ fontSize: '32px', color: (systemMetrics?.disk_percent || 0) > 80 ? '#e74c3c' : (systemMetrics?.disk_percent || 0) > 60 ? '#ffc107' : '#28a745', marginBottom: '5px' }}>{systemMetrics?.disk_percent?.toFixed(1) || '--'}%</h4>
                 <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Disco</p>
                 <p style={{ fontSize: '11px', color: '#6c757d' }}>{systemMetrics?.disk_used || '--'} / {systemMetrics?.disk_total || '--'}</p>
               </div>
