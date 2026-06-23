@@ -123,9 +123,11 @@ function OwnerPanel() {
       const response = await axios.get('http://18.212.126.125:8000/owner/backups', {
         headers: { Authorization: `Bearer ${token}` }
       })
-      setBackups(response.data)
+      console.log('Backups response:', response.data)
+      setBackups(response.data.backups || [])
     } catch (err) {
       console.error('Error fetching backups:', err)
+      console.error('Error response:', err.response?.data)
     }
   }
 
