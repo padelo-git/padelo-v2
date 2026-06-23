@@ -10,7 +10,7 @@ function OwnerPanel() {
   const [activeView, setActiveView] = useState('monitoring')
   const [showCreateClub, setShowCreateClub] = useState(false)
   const [showBackups, setShowBackups] = useState(false)
-  const [timezone, setTimezone] = useState(localStorage.getItem('timezone') || 'UTC')
+  const [timezone, setTimezone] = useState(() => localStorage.getItem('timezone') || 'UTC')
   const [alerts, setAlerts] = useState([])
   const [backups, setBackups] = useState([])
   const [healthStatus, setHealthStatus] = useState(null)
