@@ -155,16 +155,16 @@ async def restart_service(request: RestartRequest, current_user: dict = Depends(
     """Restart services (database, server, or all)"""
     try:
         if request.service == "database":
-            # Restart PostgreSQL
-            subprocess.run(["docker-compose", "restart", "db"], check=True)
+            # Restart PostgreSQL - use docker command directly
+            subprocess.run(["docker", "restart", "padelo-v2-db-1"], check=True)
             return {"message": "Database restarted successfully"}
         elif request.service == "server":
-            # Restart backend
-            subprocess.run(["docker-compose", "restart", "backend"], check=True)
+            # Restart backend - use docker command directly
+            subprocess.run(["docker", "restart", "padelo-v2-backend-1"], check=True)
             return {"message": "Server restarted successfully"}
         elif request.service == "all":
             # Restart all services
-            subprocess.run(["docker-compose", "restart"], check=True)
+            subprocess.run(["docker", "restart", "padelo-v2-backend-1", "padelo-v2-db-1", "padelo-v2-frontend-1"], check=True)
             return {"message": "All services restarted successfully"}
         else:
             raise HTTPException(status_code=400, detail="Invalid service")
