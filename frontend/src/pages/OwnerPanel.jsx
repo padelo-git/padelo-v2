@@ -7,7 +7,7 @@ function OwnerPanel() {
   const [clubs, setClubs] = useState([])
   const [systemMetrics, setSystemMetrics] = useState(null)
   const [businessMetrics, setBusinessMetrics] = useState(null)
-  const [activeView, setActiveView] = useState('dashboard')
+  const [activeView, setActiveView] = useState('monitoring')
   const [showCreateClub, setShowCreateClub] = useState(false)
   const [showBackups, setShowBackups] = useState(false)
   const [newClub, setNewClub] = useState({
@@ -114,6 +114,69 @@ function OwnerPanel() {
 
   const renderContent = () => {
     switch(activeView) {
+      case 'monitoring':
+        return (
+          <div style={{ padding: '20px', backgroundColor: '#2c3e50', borderRadius: '5px', border: '1px solid #34495e' }}>
+            <h3 style={{ marginBottom: '20px' }}>Monitoreo en Vivo</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px' }}>
+              <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
+                <h4 style={{ fontSize: '32px', color: '#007bff', marginBottom: '5px' }}>{systemMetrics?.cpu_usage || '--'}%</h4>
+                <p style={{ fontSize: '14px', color: '#bdc3c7' }}>CPU</p>
+              </div>
+              <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
+                <h4 style={{ fontSize: '32px', color: '#28a745', marginBottom: '5px' }}>{systemMetrics?.memory_usage || '--'}%</h4>
+                <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Memoria</p>
+              </div>
+              <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
+                <h4 style={{ fontSize: '32px', color: '#17a2b8', marginBottom: '5px' }}>{systemMetrics?.requests_per_sec || '--'}</h4>
+                <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Req/seg</p>
+              </div>
+              <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
+                <h4 style={{ fontSize: '32px', color: '#ffc107', marginBottom: '5px' }}>{systemMetrics?.active_connections || '--'}</h4>
+                <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Conexiones</p>
+              </div>
+              <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
+                <h4 style={{ fontSize: '32px', color: '#e74c3c', marginBottom: '5px' }}>{systemMetrics?.disk_usage || '--'}%</h4>
+                <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Disco</p>
+              </div>
+              <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', textAlign: 'center', border: '1px solid #4a5f7f' }}>
+                <h4 style={{ fontSize: '32px', color: '#9b59b6', marginBottom: '5px' }}>{systemMetrics?.network_io || '--'}</h4>
+                <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Red I/O</p>
+              </div>
+            </div>
+            <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f', marginBottom: '20px' }}>
+              <h4 style={{ marginBottom: '15px' }}>Estado del Servidor</h4>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                <div style={{ width: '12px', height: '12px', backgroundColor: '#28a745', borderRadius: '50%' }}></div>
+                <span style={{ fontSize: '16px' }}>Online</span>
+              </div>
+              <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>Uptime: 99.9%</p>
+              <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>Último deploy: Hace 2 horas</p>
+              <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>Versión: v2.0.1</p>
+              <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Base de datos: PostgreSQL (AWS RDS)</p>
+            </div>
+            <div style={{ padding: '20px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
+              <h4 style={{ marginBottom: '15px' }}>Acciones de Reinicio</h4>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <button
+                  style={{ padding: '10px 20px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                >
+                  Reiniciar Servidor
+                </button>
+                <button
+                  style={{ padding: '10px 20px', backgroundColor: '#e67e22', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                >
+                  Reiniciar Base de Datos
+                </button>
+                <button
+                  style={{ padding: '10px 20px', backgroundColor: '#c0392b', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                >
+                  Reiniciar Todo
+                </button>
+              </div>
+            </div>
+          </div>
+        )
       case 'clubs':
         return (
           <div style={{ padding: '20px', backgroundColor: '#2c3e50', borderRadius: '5px', border: '1px solid #34495e' }}>
@@ -231,10 +294,19 @@ function OwnerPanel() {
             </div>
           </div>
         )
+      case 'alerts':
+        return (
+          <div style={{ padding: '20px', backgroundColor: '#2c3e50', borderRadius: '5px', border: '1px solid #34495e' }}>
+            <h3 style={{ marginBottom: '20px' }}>Alertas del Sistema</h3>
+            <div style={{ padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
+              <p style={{ color: '#bdc3c7' }}>No hay alertas activas en este momento.</p>
+            </div>
+          </div>
+        )
       default:
         return (
           <div style={{ padding: '20px', backgroundColor: '#2c3e50', borderRadius: '5px', border: '1px solid #34495e' }}>
-            <h3 style={{ marginBottom: '20px' }}>Dashboard</h3>
+            <h3 style={{ marginBottom: '20px' }}>Monitoreo en Vivo</h3>
             <p style={{ color: '#bdc3c7' }}>Selecciona una opción del menú para ver los detalles.</p>
           </div>
         )
@@ -261,10 +333,10 @@ function OwnerPanel() {
       <nav style={{ padding: '20px 30px', backgroundColor: '#2c3e50', borderBottom: '1px solid #34495e' }}>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <button
-            onClick={() => setActiveView('dashboard')}
+            onClick={() => setActiveView('monitoring')}
             style={{ 
               padding: '10px 20px', 
-              backgroundColor: activeView === 'dashboard' ? '#34495e' : 'transparent', 
+              backgroundColor: activeView === 'monitoring' ? '#34495e' : 'transparent', 
               color: 'white', 
               border: '1px solid #34495e', 
               borderRadius: '5px', 
@@ -272,7 +344,7 @@ function OwnerPanel() {
               fontSize: '14px'
             }}
           >
-            📊 Dashboard
+            📊 Monitoreo en Vivo
           </button>
           <button
             onClick={() => setActiveView('clubs')}
@@ -289,20 +361,6 @@ function OwnerPanel() {
             🏟️ Clubes
           </button>
           <button
-            onClick={() => setActiveView('system')}
-            style={{ 
-              padding: '10px 20px', 
-              backgroundColor: activeView === 'system' ? '#34495e' : 'transparent', 
-              color: 'white', 
-              border: '1px solid #34495e', 
-              borderRadius: '5px', 
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
-          >
-            ⚙️ Sistema
-          </button>
-          <button
             onClick={() => setActiveView('business')}
             style={{ 
               padding: '10px 20px', 
@@ -314,7 +372,7 @@ function OwnerPanel() {
               fontSize: '14px'
             }}
           >
-            � Negocio
+            💰 Negocio
           </button>
           <button
             onClick={() => setActiveView('backups')}
@@ -328,7 +386,38 @@ function OwnerPanel() {
               fontSize: '14px'
             }}
           >
-            � Backups
+            💾 Backups
+          </button>
+          <button
+            onClick={() => setActiveView('alerts')}
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: activeView === 'alerts' ? '#34495e' : 'transparent', 
+              color: 'white', 
+              border: '1px solid #34495e', 
+              borderRadius: '5px', 
+              cursor: 'pointer',
+              fontSize: '14px',
+              position: 'relative'
+            }}
+          >
+            🔔 Alertas
+            <span style={{ 
+              position: 'absolute', 
+              top: '-5px', 
+              right: '-5px', 
+              width: '20px', 
+              height: '20px', 
+              backgroundColor: '#e74c3c', 
+              borderRadius: '50%', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              fontSize: '12px',
+              fontWeight: 'bold'
+            }}>
+              0
+            </span>
           </button>
         </div>
       </nav>
