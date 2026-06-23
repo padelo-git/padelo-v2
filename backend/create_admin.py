@@ -19,16 +19,12 @@ async def create_admin_user():
         except Exception as e:
             print(f"Note: {e}")
         
-        # Check if admin user already exists
-        result = await conn.execute(
-            text("SELECT id FROM users WHERE email = :email"),
+        # Delete any existing admin user (case-insensitive)
+        await conn.execute(
+            text("DELETE FROM users WHERE LOWER(email) = LOWER(:email)"),
             {"email": "davidgctd@gmail.com"}
         )
-        existing_user = result.fetchone()
-        
-        if existing_user:
-            print("Admin user already exists!")
-            return
+        print("Deleted any existing admin user")
         
         # Create admin user using raw SQL
         hashed_password = get_password_hash("Argentina2026")
