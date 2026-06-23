@@ -28,7 +28,10 @@ function AdminLogin() {
       
       navigate('/owner')
     } catch (err) {
-      setError('Credenciales inválidas')
+      console.error('Login error:', err)
+      console.error('Error response:', err.response)
+      console.error('Error message:', err.message)
+      setError(`Error: ${err.response?.data?.detail || err.message}`)
     } finally {
       setLoading(false)
     }
