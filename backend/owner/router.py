@@ -231,11 +231,93 @@ async def get_alerts(current_user: dict = Depends(get_current_user)):
     try:
         alerts = []
         
-        # Check GitHub Actions status (placeholder - would need GitHub API integration)
-        # For now, return empty list
+        # Check GitHub Actions status
+        try:
+            import requests
+            repo = "padelo-git/padelo-v2"
+            url = f"https://api.github.com/repos/{repo}/actions/runs"
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                runs = response.json().get('workflow_runs', [])[:5]
+                for run in runs:
+                    if run['status'] == 'completed' and run['conclusion'] == 'failure':
+                        alerts.append(Alert(
+                            id=str(run['id']),
+                            type='github',
+                            message=f"GitHub Actions failed: {run['name']}",
+                            severity='high',
+                            created_at=run['created_at']
+                        ))
+                    elif run['status'] == 'in_progress':
+                        alerts.append(Alert(
+                            id=str(run['id']),
+                            type='github',
+                            message=f"GitHub Actions running: {run['name']}",
+                            severity='info',
+                            created_at=run['created_at']
+                        ))
+        except Exception:
+            # If GitHub API fails, continue without GitHub alerts
+            pass
         
-        # Check for production errors (placeholder - would need error logging integration)
-        # For now, return empty list
+        # Check for high system resource usage
+        try:
+            cpu_percent = psutil.cpu_percent(interval=0.1)
+            memory = psutil.virtual_memory()
+            disk = psutil.disk_usage('/')
+            
+            if cpu_percent > 90:
+                alerts.append(Alert(
+                    id=f"cpu_{int(time.time())}",
+                    type='system',
+                    message=f"High CPU usage: {cpu_percent:.1f}%",
+                    severity='high',
+                    created_at=datetime.now().isoformat()
+                ))
+            elif cpu_percent > 70:
+                alerts.append(Alert(
+                    id=f"cpu_{int(time.time())}",
+                    type='system',
+                    message=f"Elevated CPU usage: {cpu_percent:.1f}%",
+                    severity='warning',
+                    created_at=datetime.now().isoformat()
+                ))
+            
+            if memory.percent > 90:
+                alerts.append(Alert(
+                    id=f"memory_{int(time.time())}",
+                    type='system',
+                    message=f"High memory usage: {memory.percent:.1f}%",
+                    severity='high',
+                    created_at=datetime.now().isoformat()
+                ))
+            elif memory.percent > 80:
+                alerts.append(Alert(
+                    id=f"memory_{int(time.time())}",
+                    type='system',
+                    message=f"Elevated memory usage: {memory.percent:.1f}%",
+                    severity='warning',
+                    created_at=datetime.now().isoformat()
+                ))
+            
+            if disk.percent > 90:
+                alerts.append(Alert(
+                    id=f"disk_{int(time.time())}",
+                    type='system',
+                    message=f"High disk usage: {disk.percent:.1f}%",
+                    severity='high',
+                    created_at=datetime.now().isoformat()
+                ))
+            elif disk.percent > 80:
+                alerts.append(Alert(
+                    id=f"disk_{int(time.time())}",
+                    type='system',
+                    message=f"Elevated disk usage: {disk.percent:.1f}%",
+                    severity='warning',
+                    created_at=datetime.now().isoformat()
+                ))
+        except Exception:
+            pass
         
         return alerts
     except Exception as e:
