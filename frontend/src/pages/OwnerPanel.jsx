@@ -82,10 +82,7 @@ function OwnerPanel() {
 
   const fetchSystemMetrics = async () => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await axios.get('http://18.212.126.125:8000/owner/metrics', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      const response = await axios.get('http://18.212.126.125:8000/owner/metrics')
       setSystemMetrics(response.data)
     } catch (err) {
       console.error('Error fetching system metrics:', err)

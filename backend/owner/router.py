@@ -65,8 +65,8 @@ def format_bytes(bytes_value: int) -> str:
 
 
 @router.get("/owner/metrics")
-async def get_system_metrics(current_user: dict = Depends(get_current_user)):
-    """Get real-time system metrics"""
+async def get_system_metrics():
+    """Get real-time system metrics - no auth for debug"""
     try:
         # Try to get real metrics
         cpu_percent = psutil.cpu_percent(interval=0.1)
