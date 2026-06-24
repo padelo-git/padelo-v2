@@ -17,7 +17,7 @@ function AdminLogin() {
     setLoading(true)
 
     try {
-      const response = await axios.post('https://nexasist.com/auth/login', {
+      const response = await axios.post('http://nexasist.com/auth/login', {
         email,
         password
       })
