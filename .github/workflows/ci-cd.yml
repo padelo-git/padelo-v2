@@ -139,6 +139,17 @@ jobs:
           sudo pkill -9 nginx
           echo "Nginx stopped, disabled and killed"
           
+    - name: Open port 8080 in firewall
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          sudo ufw allow 8080/tcp
+          sudo ufw allow 8000/tcp
+          echo "Ports 8080 and 8000 opened in firewall"
+          
     - name: Notify deployment success
       if: success()
       run: echo "Deployment completed successfully!"
