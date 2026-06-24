@@ -107,6 +107,10 @@ jobs:
           sudo rm -f /etc/nginx/sites-enabled/default
           sudo systemctl enable nginx
           sudo systemctl restart nginx
+          # Test nginx configuration
+          sudo nginx -t
+          # Test if backend is accessible through nginx
+          curl -s https://nexasist.com/auth/login -X POST -H "Content-Type: application/json" -d '{"email":"test@test.com","password":"test"}' || echo "Backend not accessible through nginx"
           
     - name: Check backend logs
       uses: appleboy/ssh-action@master
