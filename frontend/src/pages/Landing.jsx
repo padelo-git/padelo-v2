@@ -23,13 +23,16 @@ function Landing() {
   const handleClubRegister = async (e) => {
     e.preventDefault()
     setError('')
+    console.log('Starting club registration:', clubForm)
 
     try {
       const response = await axios.post('http://18.212.126.125:8000/clubs/', clubForm)
+      console.log('Registration successful:', response.data)
       setShowClubModal(false)
       setShowSuccessMessage(true)
     } catch (err) {
       console.error('Registration error:', err)
+      console.error('Error response:', err.response?.data)
       setError(err.response?.data?.detail || 'Error al registrar el club')
     }
   }
@@ -40,7 +43,10 @@ function Landing() {
         <div className="nav-container">
           <h1 className="logo">NexaSist</h1>
           <div className="nav-buttons">
-            <button onClick={() => setShowClubModal(true)} className="btn btn-outline">
+            <button onClick={() => {
+              console.log('Registrar mi Club button clicked')
+              setShowClubModal(true)
+            }} className="btn btn-outline">
               Registrar mi Club
             </button>
             <button onClick={() => navigate('/club-login')} className="btn btn-outline">
