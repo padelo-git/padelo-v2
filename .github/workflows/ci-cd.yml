@@ -95,22 +95,6 @@ jobs:
           " || echo "Could not check admin user"
           curl -s http://localhost:8000/auth/login -X POST -H "Content-Type: application/json" -d '{"email":"davidgctd@gmail.com","password":"Argentina2026"}' || echo "Admin login test failed"
           
-    - name: Configure nginx for Docker
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.PRODUCTION_HOST }}
-        username: ${{ secrets.PRODUCTION_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          sudo cp ~/padelo-v2/frontend/nginx.conf /etc/nginx/sites-available/padelo
-          sudo ln -sf /etc/nginx/sites-available/padelo /etc/nginx/sites-enabled/padelo
-          sudo rm -f /etc/nginx/sites-enabled/default
-          sudo systemctl enable nginx
-          sudo systemctl restart nginx
-          # Test nginx configuration
-          sudo nginx -t
-          # Test if backend is accessible through nginx
-          curl -s https://nexasist.com/auth/login -X POST -H "Content-Type: application/json" -d '{"email":"test@test.com","password":"test"}' || echo "Backend not accessible through nginx"
           
     - name: Check backend logs
       uses: appleboy/ssh-action@master
