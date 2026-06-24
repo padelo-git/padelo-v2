@@ -56,8 +56,11 @@ jobs:
         script: |
           cd ~/padelo-v2
           docker-compose down --remove-orphans
-          # Docker cleanup - preserve data volumes
-          docker system prune -a -f
+          # Force remove any remaining containers
+          docker rm -f $(docker ps -aq) 2>/dev/null || true
+          # Docker cleanup - preserve data volumes and recent images
+          docker image prune -a -f --filter "until=24h"
+          docker container prune -f
           git pull origin main
           docker-compose up -d --build
           
