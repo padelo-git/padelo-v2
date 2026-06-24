@@ -28,12 +28,11 @@ function OwnerPanel() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    // TEMPORARY: Disable authentication for direct access
-    // const token = localStorage.getItem('token')
-    // if (!token) {
-    //   navigate('/login')
-    //   return
-    // }
+    const token = localStorage.getItem('token')
+    if (!token) {
+      navigate('/admin-login')
+      return
+    }
 
     fetchUserData()
     fetchClubs()
