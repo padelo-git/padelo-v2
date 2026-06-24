@@ -106,6 +106,27 @@ jobs:
           cd ~/padelo-v2/backend
           docker-compose logs backend --tail 50
           
+    - name: Diagnose server state
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          echo "=== Docker containers ==="
+          docker ps
+          echo "=== Docker compose status ==="
+          cd ~/padelo-v2
+          docker-compose ps
+          echo "=== Backend port check ==="
+          netstat -tlnp | grep 8000 || echo "Port 8000 not listening"
+          echo "=== Frontend port check ==="
+          netstat -tlnp | grep 3000 || echo "Port 3000 not listening"
+          echo "=== Nginx status ==="
+          sudo systemctl status nginx || echo "Nginx not running"
+          echo "=== Test backend directly ==="
+          curl -s http://localhost:8000/health || echo "Backend health check failed"
+          
     - name: Notify deployment success
       if: success()
       run: echo "Deployment completed successfully!"
