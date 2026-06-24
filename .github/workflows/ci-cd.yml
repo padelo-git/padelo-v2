@@ -177,11 +177,15 @@ jobs:
           echo "=== Backend port check ==="
           netstat -tlnp | grep 8000 || echo "Port 8000 not listening"
           echo "=== Frontend port check ==="
-          netstat -tlnp | grep 3000 || echo "Port 3000 not listening"
+          netstat -tlnp | grep 80 || echo "Port 80 not listening"
           echo "=== Nginx status ==="
           sudo systemctl status nginx || echo "Nginx not running"
           echo "=== Test backend directly ==="
           curl -s http://localhost:8000/health || echo "Backend health check failed"
+          echo "=== Test frontend directly ==="
+          curl -s http://localhost:80/ || echo "Frontend health check failed"
+          echo "=== Frontend logs ==="
+          docker-compose logs frontend --tail 20
           
     - name: Stop nginx to allow direct access
       uses: appleboy/ssh-action@master
