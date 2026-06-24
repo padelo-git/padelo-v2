@@ -71,6 +71,30 @@ jobs:
           cd ~/padelo-v2/backend
           docker-compose exec -T backend python create_admin.py || echo "Admin user creation skipped (may already exist)"
           
+    - name: Check admin user and test login
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd ~/padelo-v2/backend
+          docker-compose exec -T backend python -c "
+          import asyncio
+          from sqlalchemy import text
+          from core.database import engine
+          async def check_admin():
+              async with engine.begin() as conn:
+                  result = await conn.execute(text('SELECT id, email, is_active, role FROM users WHERE email = :email'), {'email': 'davidgctd@gmail.com'})
+                  user = result.fetchone()
+                  if user:
+                      print(f'Admin exists: id={user[0]}, email={user[1]}, is_active={user[2]}, role={user[3]}')
+                  else:
+                      print('Admin user does not exist')
+          asyncio.run(check_admin())
+          " || echo "Could not check admin user"
+          curl -s http://localhost:8000/auth/login -X POST -H "Content-Type: application/json" -d '{"email":"davidgctd@gmail.com","password":"Argentina2026"}' || echo "Admin login test failed"
+          
     - name: Configure nginx for Docker
       uses: appleboy/ssh-action@master
       with:
