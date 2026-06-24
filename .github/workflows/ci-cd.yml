@@ -136,7 +136,8 @@ jobs:
         script: |
           sudo systemctl stop nginx
           sudo systemctl disable nginx
-          echo "Nginx stopped and disabled"
+          sudo pkill -9 nginx
+          echo "Nginx stopped, disabled and killed"
           
     - name: Notify deployment success
       if: success()
