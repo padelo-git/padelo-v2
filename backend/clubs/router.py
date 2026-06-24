@@ -31,49 +31,58 @@ class ClubLoginResponse(BaseModel):
 async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
     """Create a new club"""
     import logging
+    import traceback
     logger = logging.getLogger(__name__)
     
-    # Check if email already exists
-    result = await db.execute(select(Club).where(Club.email == club.email))
-    if result.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
+    try:
+        # Check if email already exists
+        result = await db.execute(select(Club).where(Club.email == club.email))
+        if result.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+
+        # Check if slug already exists
+        result = await db.execute(select(Club).where(Club.slug == club.slug))
+        if result.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Slug already taken"
+            )
+
+        # Create club (password should be hashed by auth module)
+        from core.security import get_password_hash
+        hashed_password = get_password_hash(club.password)
+
+        logger.info(f"Creating club: {club.name}")
+
+        db_club = Club(
+            name=club.name,
+            slug=club.slug,
+            email=club.email,
+            phone=club.phone,
+            address=club.address,
+            city=club.city,
+            country=club.country,
+            description=club.description,
+            logo_url=club.logo_url,
+            hashed_password=hashed_password,
+            is_active=False  # Requires owner activation
         )
+        db.add(db_club)
+        await db.commit()
+        await db.refresh(db_club)
 
-    # Check if slug already exists
-    result = await db.execute(select(Club).where(Club.slug == club.slug))
-    if result.scalar_one_or_none():
+        logger.info(f"Club created successfully: {db_club.id}")
+        return db_club
+    except Exception as e:
+        logger.error(f"Error creating club: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Slug already taken"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error creating club: {str(e)}"
         )
-
-    # Create club (password should be hashed by auth module)
-    from core.security import get_password_hash
-    hashed_password = get_password_hash(club.password)
-
-    logger.info(f"Creating club: {club.name}")
-
-    db_club = Club(
-        name=club.name,
-        slug=club.slug,
-        email=club.email,
-        phone=club.phone,
-        address=club.address,
-        city=club.city,
-        country=club.country,
-        description=club.description,
-        logo_url=club.logo_url,
-        hashed_password=hashed_password,
-        is_active=False  # Requires owner activation
-    )
-    db.add(db_club)
-    await db.commit()
-    await db.refresh(db_club)
-
-    logger.info(f"Club created successfully: {db_club.id}")
-    return db_club
 
 
 @router.post("/login", response_model=ClubLoginResponse)
