@@ -51,15 +51,9 @@ async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
 
     # Create club (password should be hashed by auth module)
     from core.security import get_password_hash
-    from datetime import datetime, timedelta
     hashed_password = get_password_hash(club.password)
 
-    # Set trial dates
-    trial_start = datetime.now()
-    trial_end = trial_start + timedelta(days=30)
-    grace_period_end = trial_end + timedelta(days=5)
-
-    logger.info(f"Creating club: {club.name}, trial_start: {trial_start}, trial_end: {trial_end}")
+    logger.info(f"Creating club: {club.name}")
 
     db_club = Club(
         name=club.name,
@@ -72,10 +66,7 @@ async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
         description=club.description,
         logo_url=club.logo_url,
         hashed_password=hashed_password,
-        is_active=False,  # Requires owner activation
-        trial_start_date=trial_start,
-        trial_end_date=trial_end,
-        grace_period_end_date=grace_period_end
+        is_active=False  # Requires owner activation
     )
     db.add(db_club)
     await db.commit()
