@@ -70,7 +70,7 @@ async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
         is_active=False,  # Requires owner activation
         trial_start_date=trial_start,
         trial_end_date=trial_end,
-        grace_period_end_date=grace_period_end_date
+        grace_period_end_date=grace_period_end
     )
     db.add(db_club)
     await db.commit()

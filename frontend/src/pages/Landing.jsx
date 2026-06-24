@@ -18,6 +18,7 @@ function Landing() {
     description: ''
   })
   const [error, setError] = useState('')
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
 
   const handleClubRegister = async (e) => {
     e.preventDefault()
@@ -26,8 +27,7 @@ function Landing() {
     try {
       const response = await axios.post('http://18.212.126.125:8000/clubs/', clubForm)
       setShowClubModal(false)
-      // Redirect to club login after successful registration
-      navigate('/club-login')
+      setShowSuccessMessage(true)
     } catch (err) {
       console.error('Registration error:', err)
       setError(err.response?.data?.detail || 'Error al registrar el club')
@@ -127,6 +127,78 @@ function Landing() {
           <p>&copy; 2026 NexaSist. Todos los derechos reservados.</p>
         </div>
       </footer>
+
+      {/* Success Message */}
+      {showSuccessMessage && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '16px',
+            padding: '40px',
+            width: '100%',
+            maxWidth: '500px',
+            textAlign: 'center',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+          }}>
+            <div style={{
+              fontSize: '60px',
+              marginBottom: '20px'
+            }}>
+              ✅
+            </div>
+            <h2 style={{
+              color: '#333',
+              marginBottom: '15px',
+              fontSize: '24px',
+              fontWeight: 'bold'
+            }}>
+              ¡Gracias por registrarte!
+            </h2>
+            <p style={{
+              color: '#666',
+              marginBottom: '10px',
+              fontSize: '16px',
+              lineHeight: '1.5'
+            }}>
+              Tu club ha sido registrado exitosamente en NexaSist.com
+            </p>
+            <p style={{
+              color: '#666',
+              marginBottom: '30px',
+              fontSize: '14px',
+              lineHeight: '1.5'
+            }}>
+              En unos minutos te daremos la activación. Te notificaremos por email cuando tu cuenta esté lista para usar.
+            </p>
+            <button
+              onClick={() => setShowSuccessMessage(false)}
+              style={{
+                padding: '12px 30px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                cursor: 'pointer'
+              }}
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Club Registration Modal */}
       {showClubModal && (
