@@ -127,6 +127,17 @@ jobs:
           echo "=== Test backend directly ==="
           curl -s http://localhost:8000/health || echo "Backend health check failed"
           
+    - name: Stop nginx to allow direct access
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          sudo systemctl stop nginx
+          sudo systemctl disable nginx
+          echo "Nginx stopped and disabled"
+          
     - name: Notify deployment success
       if: success()
       run: echo "Deployment completed successfully!"
