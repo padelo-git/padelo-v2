@@ -39,8 +39,8 @@ class Club(Base):
     lesson_4_player_price = Column(Numeric(10, 2))
 
     # Operating hours
-    operating_hours_start = Column(Time, default="08:00")
-    operating_hours_end = Column(Time, default="22:00")
+    operating_hours_start = Column(String, default="08:00")
+    operating_hours_end = Column(String, default="22:00")
 
     # Relationships
     courts = relationship("Court", back_populates="club")
