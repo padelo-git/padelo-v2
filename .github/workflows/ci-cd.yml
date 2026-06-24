@@ -166,6 +166,38 @@ jobs:
           aws ec2 authorize-security-group-ingress --group-id $SG_ID --protocol tcp --port 8080 --cidr 0.0.0.0/0 || echo "Rule may already exist"
           echo "Port 8080 opened in AWS security group"
           
+    - name: Check Docker containers status
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          echo "=== Docker Containers Status ==="
+          docker ps -a
+          echo ""
+          echo "=== Frontend Container Logs ==="
+          docker logs padelo-v2-frontend-1 --tail 50
+          echo ""
+          echo "=== Backend Container Logs ==="
+          docker logs padelo-v2-backend-1 --tail 50
+          echo ""
+          echo "=== Network Status ==="
+          docker network ls
+          echo ""
+          echo "=== Port Listening Status ==="
+          sudo netstat -tlnp | grep -E ':(8080|8000)' || echo "No ports 8080 or 8000 listening"
+          
+    - name: Add SSH key for direct access
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDEG4i/YSuyMi/IfuCwpiar6uExBZbU+/QiecQWGA3DT6VKMnDP6JVclijzy0k6B+qRKCEPgbLPyj+h3YNm2QNRRn7gV0Dny79o9in8JraL+T+HuZxN5DwIloeIR/ASEfSiwt6xtWR27tj4A+fksz6ZpR9OYZFGFc/o8dKEkj4TQ4Ho91JbySgOJd++q2BGskGWb5JFpi+blRJntl7avLyhWdkBn/l/o1nmfNhJE9PRWdLbuchB9kGtXbtzn7c4afpXl/PO/7EqHT7vUvIphr572Y/BuXFjWFKYgNkWq/n+iwqs5Wsdq6yjC0tyunxFrJyl28tnojv8A1f24Dlt0y1EOI6Sweh2ItzxgK7iyNzkTRPUBkfLUdDIu9K/8XiKSIq0asn1k2RQwCGKo923qzRkES2PEawi+MGn5hdHRp1mqBB/8g+u0VWggEjvRuDkR+rNMWY1J6SEQh+QjVP4Rn2lsqvmBdkveMgJYi08oKTJ/Eg7H4DBUlQpBNJsQPSisGrp27sNo1yB5QYdN6jC1flX9ZXfZ4I1RVcTqzhe7bnDSDkR9+PtXeLK3bZHvNJgDsrNXx/UovQT44MfG1xpHnSHEs8c9w6UkshP00wW26rSPcPBbrCOPdnuJQ4xhBGwrgi5vpxe3xE1PX3x0ogXFZpNtNI3aoOVNsPHqq9HI6W/DQ== lucianalujaniriarte@MacBook-Air-de-Luciana-3.local" >> ~/.ssh/authorized_keys
+          echo "SSH key added for direct access"
+          
     - name: Notify deployment success
       if: success()
       run: echo "Deployment completed successfully!"
