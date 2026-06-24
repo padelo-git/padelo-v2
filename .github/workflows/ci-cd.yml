@@ -150,7 +150,7 @@ jobs:
           sudo ufw allow 8000/tcp
           echo "Ports 8080 and 8000 opened in firewall"
           
-    - name: Open port 8080 in AWS security group
+    - name: Open port 80 in AWS security group
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.PRODUCTION_HOST }}
@@ -162,9 +162,9 @@ jobs:
           SG_ID=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].SecurityGroups[0].GroupId' --output text)
           echo "Security Group ID: $SG_ID"
           
-          # Add rule to allow port 8080
-          aws ec2 authorize-security-group-ingress --group-id $SG_ID --protocol tcp --port 8080 --cidr 0.0.0.0/0 || echo "Rule may already exist"
-          echo "Port 8080 opened in AWS security group"
+          # Add rule to allow port 80
+          aws ec2 authorize-security-group-ingress --group-id $SG_ID --protocol tcp --port 80 --cidr 0.0.0.0/0 || echo "Rule may already exist"
+          echo "Port 80 opened in AWS security group"
           
     - name: Check Docker containers status
       uses: appleboy/ssh-action@master
