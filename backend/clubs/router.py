@@ -30,6 +30,9 @@ class ClubLoginResponse(BaseModel):
 @router.post("/", response_model=ClubResponse)
 async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
     """Create a new club"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     # Check if email already exists
     result = await db.execute(select(Club).where(Club.email == club.email))
     if result.scalar_one_or_none():
@@ -56,6 +59,8 @@ async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
     trial_end = trial_start + timedelta(days=30)
     grace_period_end = trial_end + timedelta(days=5)
 
+    logger.info(f"Creating club: {club.name}, trial_start: {trial_start}, trial_end: {trial_end}")
+
     db_club = Club(
         name=club.name,
         slug=club.slug,
@@ -76,6 +81,7 @@ async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
     await db.commit()
     await db.refresh(db_club)
 
+    logger.info(f"Club created successfully: {db_club.id}")
     return db_club
 
 
