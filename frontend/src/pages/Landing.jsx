@@ -10,6 +10,9 @@ function Landing() {
         <div className="nav-container">
           <h1 className="logo">NexaSist</h1>
           <div className="nav-buttons">
+            <button onClick={() => navigate('/club-login')} className="btn btn-outline">
+              Acceso Clubes
+            </button>
             <button onClick={() => navigate('/login')} className="btn btn-outline">
               Iniciar Sesión
             </button>
