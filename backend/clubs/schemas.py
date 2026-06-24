@@ -31,11 +31,23 @@ class ClubUpdate(BaseModel):
 
 class ClubResponse(ClubBase):
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: int
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
+    trial_start_date: Optional[datetime] = None
+    trial_end_date: Optional[datetime] = None
+    grace_period_end_date: Optional[datetime] = None
+    currency: Optional[str] = None
+    timezone: Optional[str] = None
+    hourly_price: Optional[float] = None
+    lesson_1_player_price: Optional[float] = None
+    lesson_2_player_price: Optional[float] = None
+    lesson_3_player_price: Optional[float] = None
+    lesson_4_player_price: Optional[float] = None
+    operating_hours_start: Optional[str] = None
+    operating_hours_end: Optional[str] = None
 
 
 class CourtBase(BaseModel):

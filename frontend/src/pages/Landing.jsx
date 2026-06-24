@@ -1,8 +1,38 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import './Landing.css'
 
 function Landing() {
   const navigate = useNavigate()
+  const [showClubModal, setShowClubModal] = useState(false)
+  const [clubForm, setClubForm] = useState({
+    name: '',
+    slug: '',
+    email: '',
+    password: '',
+    phone: '',
+    address: '',
+    city: '',
+    country: 'Argentina',
+    description: ''
+  })
+  const [error, setError] = useState('')
+
+  const handleClubRegister = async (e) => {
+    e.preventDefault()
+    setError('')
+
+    try {
+      const response = await axios.post('http://18.212.126.125:8000/clubs/', clubForm)
+      setShowClubModal(false)
+      // Redirect to club login after successful registration
+      navigate('/club-login')
+    } catch (err) {
+      console.error('Registration error:', err)
+      setError(err.response?.data?.detail || 'Error al registrar el club')
+    }
+  }
 
   return (
     <div className="landing">
@@ -10,6 +40,9 @@ function Landing() {
         <div className="nav-container">
           <h1 className="logo">NexaSist</h1>
           <div className="nav-buttons">
+            <button onClick={() => setShowClubModal(true)} className="btn btn-outline">
+              Registrar mi Club
+            </button>
             <button onClick={() => navigate('/club-login')} className="btn btn-outline">
               Acceso Clubes
             </button>
@@ -94,6 +127,343 @@ function Landing() {
           <p>&copy; 2026 NexaSist. Todos los derechos reservados.</p>
         </div>
       </footer>
+
+      {/* Club Registration Modal */}
+      {showClubModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '16px',
+            padding: '40px',
+            width: '100%',
+            maxWidth: '500px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+          }}>
+            <h2 style={{
+              textAlign: 'center',
+              color: '#333',
+              marginBottom: '10px',
+              fontSize: '24px',
+              fontWeight: 'bold'
+            }}>
+              Registrar mi Club
+            </h2>
+            <p style={{
+              textAlign: 'center',
+              color: '#666',
+              marginBottom: '30px',
+              fontSize: '14px'
+            }}>
+              Comienza tu prueba gratuita de 30 días
+            </p>
+
+            {error && (
+              <div style={{
+                background: '#fee',
+                color: '#c33',
+                padding: '12px',
+                borderRadius: '8px',
+                marginBottom: '20px',
+                fontSize: '14px',
+                textAlign: 'center'
+              }}>
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleClubRegister}>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '5px',
+                  color: '#333',
+                  fontSize: '13px',
+                  fontWeight: '500'
+                }}>
+                  Nombre del Club *
+                </label>
+                <input
+                  type="text"
+                  value={clubForm.name}
+                  onChange={(e) => setClubForm({...clubForm, name: e.target.value})}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '2px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '5px',
+                  color: '#333',
+                  fontSize: '13px',
+                  fontWeight: '500'
+                }}>
+                  Slug (URL) *
+                </label>
+                <input
+                  type="text"
+                  value={clubForm.slug}
+                  onChange={(e) => setClubForm({...clubForm, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-')})}
+                  required
+                  placeholder="mi-club-padel"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '2px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                <small style={{ color: '#666', fontSize: '11px' }}>Solo letras, números y guiones</small>
+              </div>
+
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '5px',
+                  color: '#333',
+                  fontSize: '13px',
+                  fontWeight: '500'
+                }}>
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  value={clubForm.email}
+                  onChange={(e) => setClubForm({...clubForm, email: e.target.value})}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '2px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '5px',
+                  color: '#333',
+                  fontSize: '13px',
+                  fontWeight: '500'
+                }}>
+                  Contraseña *
+                </label>
+                <input
+                  type="password"
+                  value={clubForm.password}
+                  onChange={(e) => setClubForm({...clubForm, password: e.target.value})}
+                  required
+                  minLength="6"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '2px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '5px',
+                  color: '#333',
+                  fontSize: '13px',
+                  fontWeight: '500'
+                }}>
+                  Teléfono
+                </label>
+                <input
+                  type="tel"
+                  value={clubForm.phone}
+                  onChange={(e) => setClubForm({...clubForm, phone: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '2px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '5px',
+                  color: '#333',
+                  fontSize: '13px',
+                  fontWeight: '500'
+                }}>
+                  Dirección
+                </label>
+                <input
+                  type="text"
+                  value={clubForm.address}
+                  onChange={(e) => setClubForm({...clubForm, address: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '2px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '5px',
+                  color: '#333',
+                  fontSize: '13px',
+                  fontWeight: '500'
+                }}>
+                  Ciudad
+                </label>
+                <input
+                  type="text"
+                  value={clubForm.city}
+                  onChange={(e) => setClubForm({...clubForm, city: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '2px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '5px',
+                  color: '#333',
+                  fontSize: '13px',
+                  fontWeight: '500'
+                }}>
+                  País
+                </label>
+                <select
+                  value={clubForm.country}
+                  onChange={(e) => setClubForm({...clubForm, country: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '2px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  <option value="Argentina">Argentina</option>
+                  <option value="México">México</option>
+                  <option value="España">España</option>
+                  <option value="Brasil">Brasil</option>
+                  <option value="Chile">Chile</option>
+                  <option value="Colombia">Colombia</option>
+                  <option value="Uruguay">Uruguay</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '5px',
+                  color: '#333',
+                  fontSize: '13px',
+                  fontWeight: '500'
+                }}>
+                  Descripción
+                </label>
+                <textarea
+                  value={clubForm.description}
+                  onChange={(e) => setClubForm({...clubForm, description: e.target.value})}
+                  rows="3"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    border: '2px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                <button
+                  type="submit"
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Registrar Club
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowClubModal(false)}
+                  style={{
+                    padding: '12px 20px',
+                    background: '#e0e0e0',
+                    color: '#333',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

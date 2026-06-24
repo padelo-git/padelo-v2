@@ -14,20 +14,20 @@ function ClubLogin() {
     setError('')
 
     try {
-      const response = await axios.post('http://18.212.126.125:8000/auth/login', {
+      const response = await axios.post('http://18.212.126.125:8000/clubs/login', {
         email,
         password
       })
 
-      // Store token
+      // Store token and club data
       localStorage.setItem('token', response.data.access_token)
-      localStorage.setItem('user', JSON.stringify(response.data.user))
+      localStorage.setItem('club', JSON.stringify(response.data.club))
 
       // Navigate to club panel
       navigate('/club')
     } catch (err) {
       console.error('Login error:', err)
-      setError('Email o contraseña incorrectos')
+      setError(err.response?.data?.detail || 'Email o contraseña incorrectos')
     }
   }
 

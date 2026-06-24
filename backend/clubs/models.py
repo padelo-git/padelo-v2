@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey, Numeric
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey, Numeric, Time
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from core.database import Base
@@ -6,7 +6,7 @@ from core.database import Base
 
 class Club(Base):
     __tablename__ = "clubs"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     slug = Column(String, unique=True, index=True, nullable=False)
@@ -18,10 +18,30 @@ class Club(Base):
     country = Column(String, default="Argentina")
     description = Column(Text)
     logo_url = Column(String)
-    is_active = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=False)  # Changed to False - requires owner activation
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
+
+    # Trial period fields
+    trial_start_date = Column(DateTime(timezone=True), server_default=func.now())
+    trial_end_date = Column(DateTime(timezone=True))  # 30 days after start
+    grace_period_end_date = Column(DateTime(timezone=True))  # 5 days after trial_end_date
+
+    # Configuration fields
+    currency = Column(String, default="USD")
+    timezone = Column(String, default="America/Argentina/Buenos_Aires")
+
+    # Pricing fields
+    hourly_price = Column(Numeric(10, 2), default=200.00)
+    lesson_1_player_price = Column(Numeric(10, 2))
+    lesson_2_player_price = Column(Numeric(10, 2))
+    lesson_3_player_price = Column(Numeric(10, 2))
+    lesson_4_player_price = Column(Numeric(10, 2))
+
+    # Operating hours
+    operating_hours_start = Column(Time, default="08:00")
+    operating_hours_end = Column(Time, default="22:00")
+
     # Relationships
     courts = relationship("Court", back_populates="club")
     users = relationship("User", back_populates="club")

@@ -3,15 +3,27 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from typing import List
 from core.database import get_db
-from core.security import get_current_user, get_current_club_admin
+from core.security import get_current_user, get_current_club_admin, verify_password, create_access_token
 from clubs.models import Club, Court, Reservation, Payment, Debt, CashRegister, Penalty
 from clubs.schemas import (
     ClubCreate, ClubUpdate, ClubResponse, ClubWithCourts,
     CourtCreate, CourtUpdate, CourtResponse,
     ReservationCreate, ReservationUpdate, ReservationResponse
 )
+from pydantic import BaseModel, EmailStr
 
 router = APIRouter()
+
+
+class ClubLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class ClubLoginResponse(BaseModel):
+    access_token: str
+    token_type: str
+    club: ClubResponse
 
 
 # Club endpoints
@@ -25,7 +37,7 @@ async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
         )
-    
+
     # Check if slug already exists
     result = await db.execute(select(Club).where(Club.slug == club.slug))
     if result.scalar_one_or_none():
@@ -33,11 +45,17 @@ async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Slug already taken"
         )
-    
+
     # Create club (password should be hashed by auth module)
     from core.security import get_password_hash
+    from datetime import datetime, timedelta
     hashed_password = get_password_hash(club.password)
-    
+
+    # Set trial dates
+    trial_start = datetime.now()
+    trial_end = trial_start + timedelta(days=30)
+    grace_period_end = trial_end + timedelta(days=5)
+
     db_club = Club(
         name=club.name,
         slug=club.slug,
@@ -48,13 +66,54 @@ async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
         country=club.country,
         description=club.description,
         logo_url=club.logo_url,
-        hashed_password=hashed_password
+        hashed_password=hashed_password,
+        is_active=False,  # Requires owner activation
+        trial_start_date=trial_start,
+        trial_end_date=trial_end,
+        grace_period_end_date=grace_period_end_date
     )
     db.add(db_club)
     await db.commit()
     await db.refresh(db_club)
-    
+
     return db_club
+
+
+@router.post("/login", response_model=ClubLoginResponse)
+async def login_club(credentials: ClubLogin, db: AsyncSession = Depends(get_db)):
+    """Login for club administrators"""
+    # Find club by email (case-insensitive)
+    result = await db.execute(select(Club).where(func.lower(Club.email) == credentials.email.lower()))
+    club = result.scalar_one_or_none()
+
+    if not club:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+
+    # Verify password
+    if not verify_password(credentials.password, club.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+
+    # Check if club is active
+    if not club.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Club account is not active. Please contact support."
+        )
+
+    # Create access token
+    access_token = create_access_token(data={"sub": str(club.id), "type": "club"})
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "club": club
+    }
 
 
 @router.get("/", response_model=List[ClubResponse])
