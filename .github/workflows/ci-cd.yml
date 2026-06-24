@@ -206,12 +206,11 @@ jobs:
         username: ${{ secrets.PRODUCTION_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          sudo ufw allow 80/tcp
-          sudo ufw allow 8080/tcp
+          sudo ufw allow 3000/tcp
           sudo ufw allow 8000/tcp
-          echo "Ports 80, 8080 and 8000 opened in firewall"
+          echo "Ports 3000 and 8000 opened in firewall"
           
-    - name: Open port 80 in AWS security group
+    - name: Open port 3000 in AWS security group
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.PRODUCTION_HOST }}
@@ -222,10 +221,10 @@ jobs:
           INSTANCE_ID=$(ec2-metadata -i | cut -d " " -f 2)
           SG_ID=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].SecurityGroups[0].GroupId' --output text)
           echo "Security Group ID: $SG_ID"
-          
-          # Add rule to allow port 80
-          aws ec2 authorize-security-group-ingress --group-id $SG_ID --protocol tcp --port 80 --cidr 0.0.0.0/0 || echo "Rule may already exist"
-          echo "Port 80 opened in AWS security group"
+
+          # Add rule to allow port 3000
+          aws ec2 authorize-security-group-ingress --group-id $SG_ID --protocol tcp --port 3000 --cidr 0.0.0.0/0 || echo "Rule may already exist"
+          echo "Port 3000 opened in AWS security group"
           
     - name: Check Docker containers status
       uses: appleboy/ssh-action@master
