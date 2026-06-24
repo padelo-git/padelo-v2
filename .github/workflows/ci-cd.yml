@@ -109,6 +109,20 @@ jobs:
           cd ~/padelo-v2/backend
           docker-compose logs backend --tail 50
           
+    - name: Test club creation endpoint
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          echo "=== Testing club creation endpoint ==="
+          curl -X POST http://localhost:8000/clubs/ -H "Content-Type: application/json" -d '{"name":"Test Club","slug":"test-club-$(date +%s)","email":"testclub@example.com","password":"Test123!","phone":"1234567890","address":"Test Address","city":"Test City","country":"Argentina","description":"Test description"}' -v
+          echo ""
+          echo "=== Backend logs after test ==="
+          cd ~/padelo-v2/backend
+          docker-compose logs backend --tail 20
+          
     - name: Diagnose server state
       uses: appleboy/ssh-action@master
       with:
