@@ -109,6 +109,16 @@ jobs:
           cd ~/padelo-v2/backend
           docker-compose logs backend --tail 50
           
+    - name: Run migration to add missing club columns
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd ~/padelo-v2/backend
+          docker-compose exec backend python migrate_add_club_columns.py
+          
     - name: Test club creation endpoint
       uses: appleboy/ssh-action@master
       with:
