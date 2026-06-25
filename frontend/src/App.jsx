@@ -16,7 +16,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/club-login" element={<ClubLogin />} />
-        <Route path="/owner" element={<OwnerPanel />} />
+        <Route path="/admin-panel" element={<OwnerPanel />} />
         <Route path="/club" element={<ClubPanel />} />
       </Routes>
     </BrowserRouter>

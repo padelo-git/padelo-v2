@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../config/axios'
 
 function OwnerPanel() {
   const [user, setUser] = useState(null)
@@ -64,7 +64,7 @@ function OwnerPanel() {
   const fetchUserData = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.get('http://18.212.126.125:8000/auth/me', {
+      const response = await axios.get('/auth/me', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setUser(response.data)
@@ -75,7 +75,7 @@ function OwnerPanel() {
 
   const fetchClubs = async () => {
     try {
-      const response = await axios.get('http://18.212.126.125:8000/clubs/')
+      const response = await axios.get('/clubs/')
       setClubs(response.data)
     } catch (err) {
       console.error('Error fetching clubs:', err)
@@ -87,7 +87,7 @@ function OwnerPanel() {
       const token = localStorage.getItem('token')
       console.log('Fetching system metrics with token:', token ? 'present' : 'missing')
       // Try public endpoint first (temporary fix)
-      const response = await axios.get('http://18.212.126.125:8000/owner/metrics/public')
+      const response = await axios.get('/admin-panel/metrics/public')
       console.log('System metrics response:', response.data)
       setSystemMetrics(response.data)
     } catch (err) {
@@ -99,7 +99,7 @@ function OwnerPanel() {
 
   const fetchBusinessMetrics = async () => {
     try {
-      const response = await axios.get('http://18.212.126.125:8000/admin/business-metrics')
+      const response = await axios.get('/admin/business-metrics')
       setBusinessMetrics(response.data)
     } catch (err) {
       console.error('Error fetching business metrics:', err)
@@ -110,7 +110,7 @@ function OwnerPanel() {
     try {
       const token = localStorage.getItem('token')
       // Try public endpoint first (temporary fix)
-      const response = await axios.get('http://18.212.126.125:8000/owner/alerts/public')
+      const response = await axios.get('/admin-panel/alerts/public')
       console.log('Alerts response:', response.data)
       setAlerts(response.data)
     } catch (err) {
@@ -123,7 +123,7 @@ function OwnerPanel() {
     try {
       const token = localStorage.getItem('token')
       // Try public endpoint first (temporary fix)
-      const response = await axios.get('http://18.212.126.125:8000/owner/backups/public')
+      const response = await axios.get('/admin-panel/backups/public')
       console.log('Backups response:', response.data)
       setBackups(response.data.backups || [])
     } catch (err) {
@@ -135,7 +135,7 @@ function OwnerPanel() {
   const fetchHealthStatus = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.get('http://18.212.126.125:8000/owner/health', {
+      const response = await axios.get('/admin-panel/health', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setHealthStatus(response.data)
@@ -146,7 +146,7 @@ function OwnerPanel() {
 
   const fetchPendingClubsCount = async () => {
     try {
-      const response = await axios.get('http://18.212.126.125:8000/clubs/pending/count')
+      const response = await axios.get('/clubs/pending/count')
       setPendingClubsCount(response.data.pending_count || 0)
     } catch (err) {
       console.error('Error fetching pending clubs count:', err)
@@ -156,7 +156,7 @@ function OwnerPanel() {
   const handleCreateClub = async (e) => {
     e.preventDefault()
     try {
-      await axios.post('http://18.212.126.125:8000/clubs/', newClub)
+      await axios.post('/clubs/', newClub)
       setShowCreateClub(false)
       setNewClub({
         name: '',
@@ -178,7 +178,7 @@ function OwnerPanel() {
   const handleCreateBackup = async () => {
     try {
       const token = localStorage.getItem('token')
-      await axios.post('http://18.212.126.125:8000/owner/backups/create', {}, {
+      await axios.post('/admin-panel/backups/create', {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       alert('Backup creado exitosamente')
@@ -192,7 +192,7 @@ function OwnerPanel() {
   const handleRestart = async (service) => {
     try {
       const token = localStorage.getItem('token')
-      await axios.post('http://18.212.126.125:8000/owner/restart', { service }, {
+      await axios.post('/admin-panel/restart', { service }, {
         headers: { Authorization: `Bearer ${token}` }
       })
       alert(`${service} reiniciado exitosamente`)

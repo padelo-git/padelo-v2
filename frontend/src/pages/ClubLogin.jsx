@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../config/axios'
 
 function ClubLogin() {
   const [email, setEmail] = useState('')
@@ -14,7 +14,7 @@ function ClubLogin() {
     setError('')
 
     try {
-      const response = await axios.post('http://18.212.126.125:8000/clubs/login', {
+      const response = await api.post('/clubs/login', {
         email,
         password
       })

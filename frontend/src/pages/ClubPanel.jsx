@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../config/axios'
 import { QRCodeSVG } from 'qrcode.react'
 
 function ClubPanel() {
@@ -55,13 +55,13 @@ function ClubPanel() {
       const token = localStorage.getItem('token')
       
       // Fetch clubs (using first club for demo)
-      const clubsResponse = await axios.get('http://18.212.126.125:8000/clubs/')
+      const clubsResponse = await api.get('/clubs/')
       if (clubsResponse.data.length > 0) {
         const clubId = clubsResponse.data[0].id
         setClub(clubsResponse.data[0])
         
         // Fetch courts for this club
-        const courtsResponse = await axios.get(`http://18.212.126.125:8000/clubs/${clubId}/courts`)
+        const courtsResponse = await api.get(`/clubs/${clubId}/courts`)
         setCourts(courtsResponse.data)
         
         // Fetch reservations (mock for now)
@@ -77,7 +77,7 @@ function ClubPanel() {
     if (!club) return
     
     try {
-      await axios.post(`http://18.212.126.125:8000/clubs/${club.id}/courts`, {
+      await api.post(`/clubs/${club.id}/courts`, {
         ...newCourt,
         number: parseInt(newCourt.number)
       })
@@ -101,7 +101,7 @@ function ClubPanel() {
     
     try {
       const token = localStorage.getItem('token')
-      await axios.post(`http://18.212.126.125:8000/clubs/${club.id}/reservations`, {
+      await api.post(`/clubs/${club.id}/reservations`, {
         ...newReservation,
         court_id: parseInt(newReservation.court_id),
         price: newReservation.price ? parseInt(newReservation.price) : null
@@ -125,7 +125,7 @@ function ClubPanel() {
 
   const fetchReservationsForDate = async (date) => {
     try {
-      const response = await axios.get(`http://18.212.126.125:8000/clubs/${club.id}/reservations?date=${date}`)
+      const response = await api.get(`/clubs/${club.id}/reservations?date=${date}`)
       setReservations(response.data)
     } catch (err) {
       console.error('Error fetching reservations:', err)
@@ -135,7 +135,7 @@ function ClubPanel() {
   const fetchStatistics = async () => {
     if (!club) return
     try {
-      const response = await axios.get(`http://18.212.126.125:8000/clubs/${club.id}/statistics`)
+      const response = await api.get(`/clubs/${club.id}/statistics`)
       setStatistics(response.data)
     } catch (err) {
       console.error('Error fetching statistics:', err)
@@ -145,7 +145,7 @@ function ClubPanel() {
   const fetchPayments = async () => {
     if (!club) return
     try {
-      const response = await axios.get(`http://18.212.126.125:8000/clubs/${club.id}/payments`)
+      const response = await api.get(`/clubs/${club.id}/payments`)
       setPayments(response.data)
     } catch (err) {
       console.error('Error fetching payments:', err)
@@ -155,7 +155,7 @@ function ClubPanel() {
   const fetchDebts = async () => {
     if (!club) return
     try {
-      const response = await axios.get(`http://18.212.126.125:8000/clubs/${club.id}/debts`)
+      const response = await api.get(`/clubs/${club.id}/debts`)
       setDebts(response.data)
     } catch (err) {
       console.error('Error fetching debts:', err)
@@ -168,7 +168,7 @@ function ClubPanel() {
     
     try {
       const token = localStorage.getItem('token')
-      await axios.post(`http://18.212.126.125:8000/clubs/${club.id}/payments`, {
+      await api.post(`/clubs/${club.id}/payments`, {
         ...newPayment,
         amount: parseFloat(newPayment.amount)
       }, {

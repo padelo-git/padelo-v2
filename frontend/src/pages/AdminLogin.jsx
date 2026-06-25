@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../config/axios'
 import './AdminLogin.css'
 
 function AdminLogin() {
@@ -26,7 +26,7 @@ function AdminLogin() {
       localStorage.setItem('token', access_token)
       localStorage.setItem('user', JSON.stringify(response.data.user))
       
-      navigate('/owner')
+      navigate('/admin-panel')
     } catch (err) {
       console.error('Login error:', err)
       console.error('Error response:', err.response)

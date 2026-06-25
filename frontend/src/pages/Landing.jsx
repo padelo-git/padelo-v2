@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../config/axios'
 import './Landing.css'
 
 function Landing() {
@@ -26,7 +26,7 @@ function Landing() {
     console.log('Starting club registration:', clubForm)
 
     try {
-      const response = await axios.post('http://18.212.126.125:8000/clubs/', clubForm)
+      const response = await api.post('/clubs/', clubForm)
       console.log('Registration successful:', response.data)
       setShowClubModal(false)
       setShowSuccessMessage(true)

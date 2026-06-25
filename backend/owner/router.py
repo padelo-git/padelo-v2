@@ -64,7 +64,7 @@ def format_bytes(bytes_value: int) -> str:
     return f"{bytes_value:.2f} PB"
 
 
-@router.get("/owner/metrics")
+@router.get("/admin-panel/metrics")
 async def get_system_metrics(current_user: dict = Depends(get_current_user)):
     """Get real-time system metrics"""
     try:
@@ -129,7 +129,7 @@ async def get_system_metrics(current_user: dict = Depends(get_current_user)):
         )
 
 
-@router.get("/owner/metrics/public")
+@router.get("/admin-panel/metrics/public")
 async def get_system_metrics_public():
     """Get real-time system metrics without authentication (temporary fix)"""
     try:
@@ -194,7 +194,7 @@ async def get_system_metrics_public():
         )
 
 
-@router.get("/owner/metrics/debug")
+@router.get("/admin-panel/metrics/debug")
 async def get_system_metrics_debug():
     """Debug endpoint for metrics without authentication"""
     try:
@@ -244,7 +244,7 @@ async def get_system_metrics_debug():
         }
 
 
-@router.post("/owner/restart")
+@router.post("/admin-panel/restart")
 async def restart_service(request: RestartRequest, current_user: dict = Depends(get_current_user)):
     """Restart services (database, server, or all)"""
     try:
@@ -268,35 +268,7 @@ async def restart_service(request: RestartRequest, current_user: dict = Depends(
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 
-@router.get("/owner/backups")
-async def list_backups(current_user: dict = Depends(get_current_user)):
-    """List all backups"""
-    try:
-        backups_dir = "/backups"
-        if not os.path.exists(backups_dir):
-            return []
-        
-        backups = []
-        for filename in os.listdir(backups_dir):
-            if filename.endswith(".sql") or filename.endswith(".dump"):
-                filepath = os.path.join(backups_dir, filename)
-                stat = os.stat(filepath)
-                size = format_bytes(stat.st_size)
-                created_at = datetime.fromtimestamp(stat.st_mtime).isoformat()
-                backups.append(BackupInfo(
-                    id=filename,
-                    filename=filename,
-                    size=size,
-                    created_at=created_at,
-                    status="completed"
-                ))
-        
-        return sorted(backups, key=lambda x: x.created_at, reverse=True)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error listing backups: {str(e)}")
-
-
-@router.get("/owner/backups")
+@router.get("/admin-panel/backups")
 async def list_backups(current_user: dict = Depends(get_current_user)):
     """List all backups"""
     try:
@@ -322,7 +294,7 @@ async def list_backups(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail=f"Error listing backups: {str(e)}")
 
 
-@router.get("/owner/backups/public")
+@router.get("/admin-panel/backups/public")
 async def list_backups_public():
     """List all backups without authentication (temporary fix)"""
     try:
@@ -361,7 +333,7 @@ async def list_backups_public():
         raise HTTPException(status_code=500, detail=f"Error listing backups: {str(e)}")
 
 
-@router.post("/owner/backups/create")
+@router.post("/admin-panel/backups/create")
 async def create_backup(current_user: dict = Depends(get_current_user)):
     """Create a new backup"""
     try:
@@ -384,7 +356,7 @@ async def create_backup(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail=f"Error creating backup: {str(e)}")
 
 
-@router.get("/owner/alerts")
+@router.get("/admin-panel/alerts")
 async def get_alerts(current_user: dict = Depends(get_current_user)):
     """Get system alerts (GitHub Actions, production errors)"""
     try:
@@ -510,7 +482,7 @@ async def get_alerts(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail=f"Error getting alerts: {str(e)}")
 
 
-@router.get("/owner/alerts/public")
+@router.get("/admin-panel/alerts/public")
 async def get_alerts_public():
     """Get system alerts without authentication (temporary fix)"""
     try:
@@ -564,7 +536,7 @@ async def get_alerts_public():
         raise HTTPException(status_code=500, detail=f"Error getting alerts: {str(e)}")
 
 
-@router.get("/owner/health")
+@router.get("/admin-panel/health")
 async def get_health_status(current_user: dict = Depends(get_current_user)):
     """Get health status of all services"""
     try:
