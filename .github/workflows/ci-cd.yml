@@ -460,6 +460,21 @@ jobs:
           echo "=== Restarting nginx ==="
           sudo systemctl restart nginx
           
+          echo "=== Checking nginx status ==="
+          sudo systemctl status nginx
+          
+          echo "=== Checking nginx error logs ==="
+          sudo tail -20 /var/log/nginx/error.log
+          
+          echo "=== Checking nginx access logs ==="
+          sudo tail -20 /var/log/nginx/access.log
+          
+          echo "=== Testing backend auth endpoint directly ==="
+          curl -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" -d '{"email":"davidgctd@gmail.com","password":"Argentina2026"}' -v
+          
+          echo "=== Testing auth through nginx ==="
+          curl -X POST http://localhost/auth/login -H "Content-Type: application/json" -d '{"email":"davidgctd@gmail.com","password":"Argentina2026"}' -v
+          
     - name: Add SSH key for direct access
       uses: appleboy/ssh-action@master
       with:
