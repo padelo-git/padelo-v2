@@ -393,11 +393,11 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           echo "=== Installing certbot ==="
-          sudo apt-get update
-          sudo apt-get install -y certbot python3-certbot-nginx
+          sudo yum update -y
+          sudo yum install -y certbot python3-certbot-nginx
           
           echo "=== Obtaining SSL certificate ==="
-          sudo certbot --nginx -d nexasist.com -d www.nexasist.com --non-interactive --agree-tos --email davidgctd@gmail.com
+          sudo certbot --nginx -d nexasist.com -d www.nexasist.com --expand --non-interactive --agree-tos --email davidgctd@gmail.com
           
           echo "=== SSL certificate obtained ==="
           
