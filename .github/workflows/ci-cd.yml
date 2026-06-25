@@ -278,6 +278,25 @@ jobs:
           curl -I http://localhost:3000 || echo "Frontend not accessible on localhost:3000"
           curl -I http://localhost:80 || echo "Frontend not accessible on localhost:80"
           
+    - name: Check nginx status
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          echo "=== Nginx Status ==="
+          sudo systemctl status nginx || echo "Nginx not running as service"
+          echo ""
+          echo "=== Nginx Process ==="
+          ps aux | grep nginx || echo "No nginx process found"
+          echo ""
+          echo "=== Port 80 Listening ==="
+          sudo netstat -tlnp | grep :80 || echo "Port 80 not listening"
+          echo ""
+          echo "=== Nginx Config Test ==="
+          sudo nginx -t || echo "Nginx config test failed"
+          
     - name: Add SSH key for direct access
       uses: appleboy/ssh-action@master
       with:
