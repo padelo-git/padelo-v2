@@ -397,7 +397,7 @@ jobs:
           sudo yum install -y certbot python3-certbot-nginx
           
           echo "=== Obtaining SSL certificate ==="
-          sudo certbot --nginx -d nexasist.com -d www.nexasist.com --expand --non-interactive --agree-tos --email davidgctd@gmail.com
+          sudo certbot --nginx -d nexasist.com --non-interactive --agree-tos --email davidgctd@gmail.com
           
           echo "=== SSL certificate obtained ==="
           
@@ -412,13 +412,13 @@ jobs:
           sudo tee /etc/nginx/sites-available/nexasist > /dev/null <<EOF
           server {
               listen 80;
-              server_name nexasist.com www.nexasist.com;
+              server_name nexasist.com;
               return 301 https://\$server_name\$request_uri;
           }
           
           server {
               listen 443 ssl;
-              server_name nexasist.com www.nexasist.com;
+              server_name nexasist.com;
               
               ssl_certificate /etc/letsencrypt/live/nexasist.com/fullchain.pem;
               ssl_certificate_key /etc/letsencrypt/live/nexasist.com/privkey.pem;
