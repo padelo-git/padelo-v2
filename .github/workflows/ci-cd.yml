@@ -297,6 +297,23 @@ jobs:
           echo "=== Nginx Config Test ==="
           sudo nginx -t || echo "Nginx config test failed"
           
+    - name: Check Docker containers and ports
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          echo "=== Docker Containers ==="
+          docker ps -a
+          echo ""
+          echo "=== Docker Network ==="
+          docker network ls
+          echo ""
+          echo "=== Docker Port Mappings ==="
+          docker port padelo-v2-frontend-1 || echo "Frontend container not found"
+          docker port padelo-v2-backend-1 || echo "Backend container not found"
+          
     - name: Add SSH key for direct access
       uses: appleboy/ssh-action@master
       with:
