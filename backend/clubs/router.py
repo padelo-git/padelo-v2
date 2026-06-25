@@ -130,6 +130,14 @@ async def get_clubs(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(
     return clubs
 
 
+@router.get("/pending/count")
+async def get_pending_clubs_count(db: AsyncSession = Depends(get_db)):
+    """Get count of clubs pending activation (is_active=False)"""
+    result = await db.execute(select(func.count()).where(Club.is_active == False))
+    count = result.scalar()
+    return {"pending_count": count}
+
+
 @router.get("/{club_id}", response_model=ClubWithCourts)
 async def get_club(club_id: int, db: AsyncSession = Depends(get_db)):
     """Get club by ID with courts"""

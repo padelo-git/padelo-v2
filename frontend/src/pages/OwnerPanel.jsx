@@ -15,6 +15,7 @@ function OwnerPanel() {
   const [backups, setBackups] = useState([])
   const [healthStatus, setHealthStatus] = useState(null)
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [pendingClubsCount, setPendingClubsCount] = useState(0)
   const [newClub, setNewClub] = useState({
     name: '',
     slug: '',
@@ -41,6 +42,7 @@ function OwnerPanel() {
     fetchAlerts()
     fetchBackups()
     fetchHealthStatus()
+    fetchPendingClubsCount()
     
     // Refresh metrics every 5 seconds
     const interval = setInterval(() => {
@@ -139,6 +141,15 @@ function OwnerPanel() {
       setHealthStatus(response.data)
     } catch (err) {
       console.error('Error fetching health status:', err)
+    }
+  }
+
+  const fetchPendingClubsCount = async () => {
+    try {
+      const response = await axios.get('http://18.212.126.125:8000/clubs/pending/count')
+      setPendingClubsCount(response.data.pending_count || 0)
+    } catch (err) {
+      console.error('Error fetching pending clubs count:', err)
     }
   }
 
@@ -817,10 +828,30 @@ function OwnerPanel() {
               border: '1px solid #34495e', 
               borderRadius: '5px', 
               cursor: 'pointer',
-              fontSize: '14px'
+              fontSize: '14px',
+              position: 'relative'
             }}
           >
             🏟️ Clubes
+            {pendingClubsCount > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '-5px',
+                right: '-5px',
+                backgroundColor: '#e74c3c',
+                color: 'white',
+                borderRadius: '50%',
+                width: '20px',
+                height: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '12px',
+                fontWeight: 'bold'
+              }}>
+                {pendingClubsCount}
+              </span>
+            )}
           </button>
           <button
             onClick={() => setActiveView('business')}
