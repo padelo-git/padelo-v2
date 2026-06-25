@@ -254,6 +254,19 @@ jobs:
           echo "=== Port Listening Status ==="
           sudo netstat -tlnp | grep -E ':(8080|8000)' || echo "No ports 8080 or 8000 listening"
           
+    - name: Restart frontend if exited
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd ~/padelo-v2
+          docker-compose restart frontend
+          echo "Frontend restarted"
+          sleep 5
+          docker ps
+          
     - name: Add SSH key for direct access
       uses: appleboy/ssh-action@master
       with:
