@@ -333,6 +333,58 @@ jobs:
           echo "=== Check if nginx is running on port 80 ==="
           sudo netstat -tlnp | grep :80 || echo "Port 80 not listening"
           
+    - name: Configure nginx to proxy to port 3000
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          echo "=== Creating nginx configuration ==="
+          sudo tee /etc/nginx/sites-available/nexasist > /dev/null <<EOF
+          server {
+              listen 80;
+              server_name nexasist.com www.nexasist.com;
+              
+              location / {
+                  proxy_pass http://localhost:3000;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade \$http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host \$host;
+                  proxy_cache_bypass \$http_upgrade;
+              }
+              
+              location /api/ {
+                  proxy_pass http://localhost:8000/api/;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade \$http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host \$host;
+                  proxy_cache_bypass \$http_upgrade;
+              }
+              
+              location /auth/ {
+                  proxy_pass http://localhost:8000/auth/;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade \$http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host \$host;
+                  proxy_cache_bypass \$http_upgrade;
+              }
+          }
+          EOF
+          
+          echo "=== Enabling nginx configuration ==="
+          sudo ln -sf /etc/nginx/sites-available/nexasist /etc/nginx/sites-enabled/
+          sudo rm -f /etc/nginx/sites-enabled/default
+          
+          echo "=== Testing nginx configuration ==="
+          sudo nginx -t
+          
+          echo "=== Restarting nginx ==="
+          sudo systemctl restart nginx
+          
     - name: Add SSH key for direct access
       uses: appleboy/ssh-action@master
       with:
