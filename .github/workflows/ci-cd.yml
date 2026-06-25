@@ -314,6 +314,25 @@ jobs:
           docker port padelo-v2-frontend-1 || echo "Frontend container not found"
           docker port padelo-v2-backend-1 || echo "Backend container not found"
           
+    - name: Check if port 3000 is accessible from server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          echo "=== Testing port 3000 from server ==="
+          curl -I http://localhost:3000 || echo "Frontend not accessible on localhost:3000"
+          echo ""
+          echo "=== Testing port 3000 from external IP ==="
+          curl -I http://18.212.126.125:3000 || echo "Frontend not accessible from external IP"
+          echo ""
+          echo "=== Check if nginx is blocking ==="
+          sudo netstat -tlnp | grep :3000 || echo "Port 3000 not listening"
+          echo ""
+          echo "=== Check if nginx is running on port 80 ==="
+          sudo netstat -tlnp | grep :80 || echo "Port 80 not listening"
+          
     - name: Add SSH key for direct access
       uses: appleboy/ssh-action@master
       with:
