@@ -27,6 +27,14 @@ async def migrate():
             ADD COLUMN IF NOT EXISTS monthly_price NUMERIC(10, 2) DEFAULT 200.00
         """))
         
+        # Add trial columns
+        await conn.execute(text("""
+            ALTER TABLE clubs 
+            ADD COLUMN IF NOT EXISTS trial_start_date TIMESTAMP,
+            ADD COLUMN IF NOT EXISTS trial_end_date TIMESTAMP,
+            ADD COLUMN IF NOT EXISTS grace_period_end_date TIMESTAMP
+        """))
+        
         # Add configuration columns
         await conn.execute(text("""
             ALTER TABLE clubs 
