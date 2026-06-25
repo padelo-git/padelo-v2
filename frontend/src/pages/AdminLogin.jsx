@@ -41,7 +41,7 @@ function AdminLogin() {
     <div className="admin-login">
       <div className="login-container">
         <h1 className="login-title">NexaSist Admin</h1>
-        <p className="login-subtitle">Panel de Administración</p>
+        <p className="login-subtitle">Panel de Administración v2</p>
         
         <form onSubmit={handleLogin} className="login-form">
           <div className="form-group">
