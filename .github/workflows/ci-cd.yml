@@ -385,6 +385,81 @@ jobs:
           echo "=== Restarting nginx ==="
           sudo systemctl restart nginx
           
+    - name: Obtain SSL certificate with Let's Encrypt
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          echo "=== Installing certbot ==="
+          sudo apt-get update
+          sudo apt-get install -y certbot python3-certbot-nginx
+          
+          echo "=== Obtaining SSL certificate ==="
+          sudo certbot --nginx -d nexasist.com -d www.nexasist.com --non-interactive --agree-tos --email davidgctd@gmail.com
+          
+          echo "=== SSL certificate obtained ==="
+          
+    - name: Configure nginx for HTTPS with HTTP to HTTPS redirect
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          echo "=== Creating HTTPS nginx configuration ==="
+          sudo tee /etc/nginx/sites-available/nexasist > /dev/null <<EOF
+          server {
+              listen 80;
+              server_name nexasist.com www.nexasist.com;
+              return 301 https://\$server_name\$request_uri;
+          }
+          
+          server {
+              listen 443 ssl;
+              server_name nexasist.com www.nexasist.com;
+              
+              ssl_certificate /etc/letsencrypt/live/nexasist.com/fullchain.pem;
+              ssl_certificate_key /etc/letsencrypt/live/nexasist.com/privkey.pem;
+              ssl_protocols TLSv1.2 TLSv1.3;
+              ssl_ciphers HIGH:!aNULL:!MD5;
+              
+              location / {
+                  proxy_pass http://localhost:3000;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade \$http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host \$host;
+                  proxy_cache_bypass \$http_upgrade;
+              }
+              
+              location /api/ {
+                  proxy_pass http://localhost:8000/api/;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade \$http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host \$host;
+                  proxy_cache_bypass \$http_upgrade;
+              }
+              
+              location /auth/ {
+                  proxy_pass http://localhost:8000/auth/;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade \$http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host \$host;
+                  proxy_cache_bypass \$http_upgrade;
+              }
+          }
+          EOF
+          
+          echo "=== Testing nginx configuration ==="
+          sudo nginx -t
+          
+          echo "=== Restarting nginx ==="
+          sudo systemctl restart nginx
+          
     - name: Add SSH key for direct access
       uses: appleboy/ssh-action@master
       with:
