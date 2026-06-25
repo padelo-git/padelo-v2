@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     PORT: int = 8000
     
     # CORS
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8080", "http://18.212.126.125", "http://18.212.126.125:3000", "http://18.212.126.125:8000", "http://18.212.126.125:8080", "http://18.212.126.125:80"]
+    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8080", "http://18.212.126.125", "http://18.212.126.125:3000", "http://18.212.126.125:8000", "http://18.212.126.125:8080", "http://18.212.126.125:80", "https://nexasist.com"]
     
     # Firebase
     FIREBASE_CREDENTIALS_PATH: Optional[str] = None
