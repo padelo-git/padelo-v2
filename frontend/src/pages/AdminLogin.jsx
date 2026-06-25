@@ -17,7 +17,7 @@ function AdminLogin() {
     setLoading(true)
 
     try {
-      const response = await axios.post('http://18.212.126.125:8000/auth/login', {
+      const response = await axios.post('/auth/login', {
         email,
         password
       })
