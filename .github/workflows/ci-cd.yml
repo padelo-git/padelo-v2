@@ -267,6 +267,17 @@ jobs:
           sleep 5
           docker ps
           
+    - name: Verify frontend is accessible
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          echo "=== Testing frontend accessibility ==="
+          curl -I http://localhost:3000 || echo "Frontend not accessible on localhost:3000"
+          curl -I http://localhost:80 || echo "Frontend not accessible on localhost:80"
+          
     - name: Add SSH key for direct access
       uses: appleboy/ssh-action@master
       with:
