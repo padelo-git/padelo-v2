@@ -131,6 +131,12 @@ jobs:
           "
           docker-compose exec -T db psql -U padelo -d padelo_db -c "
             ALTER TABLE clubs 
+            ADD COLUMN IF NOT EXISTS trial_start_date TIMESTAMP,
+            ADD COLUMN IF NOT EXISTS trial_end_date TIMESTAMP,
+            ADD COLUMN IF NOT EXISTS grace_period_end_date TIMESTAMP;
+          "
+          docker-compose exec -T db psql -U padelo -d padelo_db -c "
+            ALTER TABLE clubs 
             ADD COLUMN IF NOT EXISTS currency VARCHAR(10) DEFAULT 'USD',
             ADD COLUMN IF NOT EXISTS timezone VARCHAR(100) DEFAULT 'America/Argentina/Buenos_Aires';
           "
