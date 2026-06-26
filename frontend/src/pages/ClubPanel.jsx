@@ -19,6 +19,17 @@ function ClubPanel() {
   const [showPayments, setShowPayments] = useState(false)
   const [showDebts, setShowDebts] = useState(false)
   const [showCashRegisters, setShowCashRegisters] = useState(false)
+  const [showConfig, setShowConfig] = useState(false)
+  const [config, setConfig] = useState({
+    court_count: 1,
+    currency: 'USD',
+    timezone: 'America/Argentina/Buenos_Aires',
+    operating_hours_start: '08:00',
+    operating_hours_end: '22:00',
+    hourly_price_standard: 200,
+    hourly_price_peak: 300,
+    hourly_price_off_peak: 150
+  })
   const [newCourt, setNewCourt] = useState({
     name: '',
     number: '',
@@ -49,6 +60,12 @@ function ClubPanel() {
 
     fetchClubData()
   }, [navigate])
+
+  useEffect(() => {
+    if (club && courts.length === 0) {
+      setShowConfig(true)
+    }
+  }, [club, courts])
 
   const fetchClubData = async () => {
     try {
@@ -229,6 +246,38 @@ function ClubPanel() {
     }
   }
 
+  const handleSaveConfig = async () => {
+    if (!club) return
+    
+    try {
+      // Update club configuration
+      await api.put(`/clubs/${club.id}`, {
+        currency: config.currency,
+        timezone: config.timezone,
+        operating_hours_start: config.operating_hours_start,
+        operating_hours_end: config.operating_hours_end,
+        hourly_price: config.hourly_price_standard
+      })
+      
+      // Generate courts automatically
+      for (let i = 1; i <= config.court_count; i++) {
+        await api.post(`/clubs/${club.id}/courts`, {
+          name: `Cancha ${i}`,
+          number: i,
+          surface: 'Sintético',
+          is_indoor: false
+        })
+      }
+      
+      setShowConfig(false)
+      fetchClubData()
+      alert('Configuración guardada exitosamente. Las canchas fueron creadas automáticamente.')
+    } catch (err) {
+      console.error('Error saving config:', err)
+      alert('Error al guardar configuración')
+    }
+  }
+
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('userType')
@@ -238,7 +287,7 @@ function ClubPanel() {
   return (
     <div style={{ padding: '20px' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid #ddd' }}>
-        <h1>Padelo V2 - Panel del Club</h1>
+        <h1>Nexasist - {club ? club.name : 'Panel del Club'}</h1>
         <button
           onClick={handleLogout}
           style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
@@ -247,7 +296,137 @@ function ClubPanel() {
         </button>
       </header>
 
-      {club && (
+      {showConfig && club && (
+        <div style={{ marginBottom: '30px', padding: '30px', backgroundColor: 'white', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+          <h2 style={{ marginBottom: '20px', color: '#333' }}>⚙️ Configuración Inicial del Club</h2>
+          <p style={{ marginBottom: '25px', color: '#666' }}>Antes de comenzar, configura tu club. Estos datos son esenciales para el funcionamiento del sistema.</p>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Cantidad de Canchas *</label>
+              <input
+                type="number"
+                value={config.court_count}
+                onChange={(e) => setConfig({...config, court_count: parseInt(e.target.value)})}
+                min="1"
+                max="50"
+                required
+                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
+              />
+              <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>El sistema generará automáticamente la grilla de canchas</p>
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Moneda *</label>
+              <select
+                value={config.currency}
+                onChange={(e) => setConfig({...config, currency: e.target.value})}
+                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
+              >
+                <option value="USD">USD - Dólar Estadounidense</option>
+                <option value="ARS">ARS - Peso Argentino</option>
+                <option value="MXN">MXN - Peso Mexicano</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="BRL">BRL - Real Brasileño</option>
+                <option value="COP">COP - Peso Colombiano</option>
+                <option value="CLP">CLP - Peso Chileno</option>
+                <option value="PEN">PEN - Sol Peruano</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Zona Horaria *</label>
+              <select
+                value={config.timezone}
+                onChange={(e) => setConfig({...config, timezone: e.target.value})}
+                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
+              >
+                <option value="America/Argentina/Buenos_Aires">Argentina (Buenos Aires)</option>
+                <option value="America/Argentina/Cordoba">Argentina (Córdoba)</option>
+                <option value="America/Argentina/Mendoza">Argentina (Mendoza)</option>
+                <option value="America/Mexico_City">México (Ciudad de México)</option>
+                <option value="America/Monterrey">México (Monterrey)</option>
+                <option value="America/Hermosillo">México (Hermosillo)</option>
+                <option value="America/Tijuana">México (Tijuana)</option>
+                <option value="America/Sao_Paulo">Brasil (São Paulo)</option>
+                <option value="America/Lima">Perú (Lima)</option>
+                <option value="America/Bogota">Colombia (Bogotá)</option>
+                <option value="America/Santiago">Chile (Santiago)</option>
+                <option value="America/Caracas">Venezuela (Caracas)</option>
+                <option value="America/New_York">Estados Unidos (New York)</option>
+                <option value="America/Los_Angeles">Estados Unidos (Los Angeles)</option>
+                <option value="Europe/Madrid">España (Madrid)</option>
+                <option value="Europe/Paris">Francia (París)</option>
+                <option value="Europe/London">Reino Unido (Londres)</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Horario de Apertura *</label>
+              <input
+                type="time"
+                value={config.operating_hours_start}
+                onChange={(e) => setConfig({...config, operating_hours_start: e.target.value})}
+                required
+                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Horario de Cierre *</label>
+              <input
+                type="time"
+                value={config.operating_hours_end}
+                onChange={(e) => setConfig({...config, operating_hours_end: e.target.value})}
+                required
+                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
+              />
+            </div>
+          </div>
+
+          <h3 style={{ marginBottom: '15px', color: '#333', marginTop: '25px' }}>💰 Precios por Hora</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '25px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Precio Estándar *</label>
+              <input
+                type="number"
+                value={config.hourly_price_standard}
+                onChange={(e) => setConfig({...config, hourly_price_standard: parseFloat(e.target.value)})}
+                required
+                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
+              />
+              <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>Precio normal por hora</p>
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Precio Hora Pico</label>
+              <input
+                type="number"
+                value={config.hourly_price_peak}
+                onChange={(e) => setConfig({...config, hourly_price_peak: parseFloat(e.target.value)})}
+                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
+              />
+              <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>Horarios de mayor demanda</p>
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Precio Hora Baja</label>
+              <input
+                type="number"
+                value={config.hourly_price_off_peak}
+                onChange={(e) => setConfig({...config, hourly_price_off_peak: parseFloat(e.target.value)})}
+                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
+              />
+              <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>Horarios de menor demanda</p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
+            <button
+              onClick={handleSaveConfig}
+              style={{ padding: '15px 30px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}
+            >
+              ✅ Guardar Configuración y Crear Canchas
+            </button>
+          </div>
+        </div>
+      )}
+
+      {club && !showConfig && (
         <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
           <h2>{club.name}</h2>
           <p>Email: {club.email}</p>
