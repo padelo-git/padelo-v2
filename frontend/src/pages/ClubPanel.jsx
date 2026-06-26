@@ -24,12 +24,7 @@ function ClubPanel() {
     court_count: 1,
     country: 'MX',
     currency: 'MXN',
-    timezone: 'America/Hermosillo',
-    operating_hours_start: '08:00',
-    operating_hours_end: '22:00',
-    hourly_price_standard: 200,
-    hourly_price_peak: 300,
-    hourly_price_off_peak: 150
+    timezone: 'America/Hermosillo'
   })
 
   const countryCurrencyMap = {
@@ -279,10 +274,7 @@ function ClubPanel() {
       await api.put(`/clubs/${club.id}`, {
         country: config.country,
         currency: config.currency,
-        timezone: config.timezone,
-        operating_hours_start: config.operating_hours_start,
-        operating_hours_end: config.operating_hours_end,
-        hourly_price: config.hourly_price_standard
+        timezone: config.timezone
       })
       
       // Generate courts automatically
@@ -327,7 +319,7 @@ function ClubPanel() {
           <h2 style={{ marginBottom: '20px', color: '#333' }}>⚙️ Configuración Inicial del Club</h2>
           <p style={{ marginBottom: '25px', color: '#666' }}>Antes de comenzar, configura tu club. Estos datos son esenciales para el funcionamiento del sistema.</p>
           
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '20px' }}>
             <div>
               <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Cantidad de Canchas *</label>
               <input
@@ -393,62 +385,11 @@ function ClubPanel() {
                 <option value="Europe/London">Reino Unido (Londres)</option>
               </select>
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Horario de Apertura *</label>
-              <input
-                type="time"
-                value={config.operating_hours_start}
-                onChange={(e) => setConfig({...config, operating_hours_start: e.target.value})}
-                required
-                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Horario de Cierre *</label>
-              <input
-                type="time"
-                value={config.operating_hours_end}
-                onChange={(e) => setConfig({...config, operating_hours_end: e.target.value})}
-                required
-                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
-              />
-            </div>
           </div>
 
-          <h3 style={{ marginBottom: '15px', color: '#333', marginTop: '25px' }}>💰 Precios por Hora</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '25px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Precio Estándar *</label>
-              <input
-                type="number"
-                value={config.hourly_price_standard}
-                onChange={(e) => setConfig({...config, hourly_price_standard: parseFloat(e.target.value)})}
-                required
-                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
-              />
-              <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>Precio normal por hora</p>
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Precio Hora Pico</label>
-              <input
-                type="number"
-                value={config.hourly_price_peak}
-                onChange={(e) => setConfig({...config, hourly_price_peak: parseFloat(e.target.value)})}
-                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
-              />
-              <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>Horarios de mayor demanda</p>
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Precio Hora Baja</label>
-              <input
-                type="number"
-                value={config.hourly_price_off_peak}
-                onChange={(e) => setConfig({...config, hourly_price_off_peak: parseFloat(e.target.value)})}
-                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
-              />
-              <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>Horarios de menor demanda</p>
-            </div>
-          </div>
+          <p style={{ fontSize: '14px', color: '#666', marginTop: '15px', marginBottom: '20px' }}>
+            💡 Los precios, horarios y otros ajustes se pueden configurar después en la sección "Configuración" del panel.
+          </p>
 
           <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
             <button
