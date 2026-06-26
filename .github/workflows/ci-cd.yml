@@ -50,7 +50,7 @@ jobs:
       with:
         host: ${{ secrets.PRODUCTION_HOST }}
         username: ${{ secrets.PRODUCTION_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        password: ${{ secrets.PRODUCTION_PASSWORD }}
         script: |
           cd ~/padelo-v2
           docker-compose down --remove-orphans
@@ -66,7 +66,7 @@ jobs:
       with:
         host: ${{ secrets.PRODUCTION_HOST }}
         username: ${{ secrets.PRODUCTION_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        password: ${{ secrets.PRODUCTION_PASSWORD }}
         script: |
           sleep 15
           cd ~/padelo-v2
@@ -77,7 +77,7 @@ jobs:
       with:
         host: ${{ secrets.PRODUCTION_HOST }}
         username: ${{ secrets.PRODUCTION_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        password: ${{ secrets.PRODUCTION_PASSWORD }}
         script: |
           cd ~/padelo-v2
           echo "=== Backend logs ==="
@@ -90,7 +90,7 @@ jobs:
       with:
         host: ${{ secrets.PRODUCTION_HOST }}
         username: ${{ secrets.PRODUCTION_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        password: ${{ secrets.PRODUCTION_PASSWORD }}
         script: |
           for i in {1..5}; do
             if curl -f http://localhost:8000/health; then
@@ -108,7 +108,7 @@ jobs:
       with:
         host: ${{ secrets.PRODUCTION_HOST }}
         username: ${{ secrets.PRODUCTION_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        password: ${{ secrets.PRODUCTION_PASSWORD }}
         script: |
           for i in {1..5}; do
             if curl -f http://localhost:3000; then
@@ -126,7 +126,7 @@ jobs:
       with:
         host: ${{ secrets.PRODUCTION_HOST }}
         username: ${{ secrets.PRODUCTION_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        password: ${{ secrets.PRODUCTION_PASSWORD }}
         script: |
           curl -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" -d '{"email":"davidgctd@gmail.com","password":"Argentina2026"}' || echo "Auth test failed"
           
@@ -136,7 +136,7 @@ jobs:
       with:
         host: ${{ secrets.PRODUCTION_HOST }}
         username: ${{ secrets.PRODUCTION_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        password: ${{ secrets.PRODUCTION_PASSWORD }}
         script: |
           cd ~/padelo-v2
           git checkout HEAD~1
