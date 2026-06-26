@@ -81,11 +81,6 @@ function ClubPanel() {
     fetchClubData()
   }, [navigate])
 
-  useEffect(() => {
-    if (club && courts.length === 0) {
-      setShowConfig(true)
-    }
-  }, [club, courts])
 
   const fetchClubData = async () => {
     try {
@@ -303,9 +298,9 @@ function ClubPanel() {
   }
 
   return (
-    <div style={{ padding: '20px' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid #ddd' }}>
-        <h1>Nexasist - {club ? club.name : 'Panel del Club'}</h1>
+    <div style={{ padding: '20px', backgroundColor: '#1a1a1a', minHeight: '100vh', color: '#ffffff' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid #333' }}>
+        <h1 style={{ color: '#ffffff' }}>Nexasist - {club ? club.name : 'Panel del Club'}</h1>
         <button
           onClick={handleLogout}
           style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
@@ -314,14 +309,42 @@ function ClubPanel() {
         </button>
       </header>
 
+      {/* Navegación principal */}
+      <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '30px', padding: '15px', backgroundColor: '#2a2a2a', borderRadius: '10px' }}>
+        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Inicio</button>
+        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Profesores</button>
+        <button onClick={() => setShowConfig(true)} style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Configuración</button>
+        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Academia</button>
+        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Torneo</button>
+        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Pagos</button>
+        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Calendario</button>
+        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Reservas</button>
+        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Socios</button>
+        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Recompensas</button>
+        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Ayuda</button>
+        <button onClick={handleLogout} style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Salir</button>
+      </nav>
+
+      {/* Código QR */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '30px' }}>
+        <div style={{ padding: '20px', backgroundColor: '#2a2a2a', borderRadius: '10px', textAlign: 'center' }}>
+          <h3 style={{ color: '#ffffff', marginBottom: '15px' }}>Código QR del Club</h3>
+          {club && (
+            <div style={{ backgroundColor: 'white', padding: '15px', borderRadius: '5px', display: 'inline-block' }}>
+              <QRCodeSVG value={`https://nexasist.com/club/${club.id}`} size={150} />
+            </div>
+          )}
+        </div>
+      </div>
+
       {showConfig && club ? (
-        <div style={{ padding: '30px', backgroundColor: 'white', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-          <h2 style={{ marginBottom: '20px', color: '#333' }}>⚙️ Configuración Inicial del Club</h2>
-          <p style={{ marginBottom: '25px', color: '#666' }}>Antes de comenzar, configura tu club. Estos datos son esenciales para el funcionamiento del sistema.</p>
+        <div style={{ padding: '30px', backgroundColor: '#2a2a2a', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
+          <h2 style={{ marginBottom: '20px', color: '#ffffff' }}>⚙️ Configuración del Club</h2>
+          <p style={{ marginBottom: '25px', color: '#cccccc' }}>Configura tu club. Estos datos son esenciales para el funcionamiento del sistema.</p>
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '20px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Cantidad de Canchas *</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#ffffff' }}>Cantidad de Canchas *</label>
               <input
                 type="number"
                 value={config.court_count}
@@ -329,16 +352,16 @@ function ClubPanel() {
                 min="1"
                 max="50"
                 required
-                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
+                style={{ width: '100%', padding: '12px', border: '1px solid #444', borderRadius: '5px', fontSize: '16px', backgroundColor: '#1a1a1a', color: '#ffffff' }}
               />
-              <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>El sistema generará automáticamente la grilla de canchas</p>
+              <p style={{ fontSize: '12px', color: '#cccccc', marginTop: '5px' }}>El sistema generará automáticamente la grilla de canchas</p>
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>País *</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#ffffff' }}>País *</label>
               <select
                 value={config.country}
                 onChange={(e) => handleCountryChange(e.target.value)}
-                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
+                style={{ width: '100%', padding: '12px', border: '1px solid #444', borderRadius: '5px', fontSize: '16px', backgroundColor: '#1a1a1a', color: '#ffffff' }}
               >
                 <option value="AR">Argentina</option>
                 <option value="MX">México</option>
@@ -357,14 +380,14 @@ function ClubPanel() {
                 <option value="DO">República Dominicana</option>
                 <option value="VE">Venezuela</option>
               </select>
-              <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>Moneda asignada automáticamente: {config.currency}</p>
+              <p style={{ fontSize: '12px', color: '#cccccc', marginTop: '5px' }}>Moneda asignada automáticamente: {config.currency}</p>
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Zona Horaria *</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#ffffff' }}>Zona Horaria *</label>
               <select
                 value={config.timezone}
                 onChange={(e) => setConfig({...config, timezone: e.target.value})}
-                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
+                style={{ width: '100%', padding: '12px', border: '1px solid #444', borderRadius: '5px', fontSize: '16px', backgroundColor: '#1a1a1a', color: '#ffffff' }}
               >
                 <option value="America/Argentina/Buenos_Aires">Argentina (Buenos Aires)</option>
                 <option value="America/Argentina/Cordoba">Argentina (Córdoba)</option>
@@ -387,11 +410,17 @@ function ClubPanel() {
             </div>
           </div>
 
-          <p style={{ fontSize: '14px', color: '#666', marginTop: '15px', marginBottom: '20px' }}>
+          <p style={{ fontSize: '14px', color: '#cccccc', marginTop: '15px', marginBottom: '20px' }}>
             💡 Los precios, horarios y otros ajustes se pueden configurar después en la sección "Configuración" del panel.
           </p>
 
           <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
+            <button
+              onClick={() => setShowConfig(false)}
+              style={{ padding: '15px 30px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}
+            >
+              ❌ Cancelar
+            </button>
             <button
               onClick={handleSaveConfig}
               style={{ padding: '15px 30px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}
