@@ -61,6 +61,7 @@ jobs:
           # Docker cleanup - preserve data volumes and recent images
           docker image prune -a -f --filter "until=24h"
           docker container prune -f
+          docker network rm padelo-v2_default 2>/dev/null || true
           git pull origin main
           docker-compose up -d --build
           
