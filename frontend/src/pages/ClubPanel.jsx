@@ -22,14 +22,39 @@ function ClubPanel() {
   const [showConfig, setShowConfig] = useState(false)
   const [config, setConfig] = useState({
     court_count: 1,
-    currency: 'USD',
-    timezone: 'America/Argentina/Buenos_Aires',
+    country: 'MX',
+    currency: 'MXN',
+    timezone: 'America/Hermosillo',
     operating_hours_start: '08:00',
     operating_hours_end: '22:00',
     hourly_price_standard: 200,
     hourly_price_peak: 300,
     hourly_price_off_peak: 150
   })
+
+  const countryCurrencyMap = {
+    'AR': 'ARS',
+    'MX': 'MXN',
+    'US': 'USD',
+    'BR': 'BRL',
+    'CO': 'COP',
+    'CL': 'CLP',
+    'PE': 'PEN',
+    'ES': 'EUR',
+    'UY': 'UYU',
+    'PY': 'PYG',
+    'BO': 'BOB',
+    'EC': 'USD',
+    'CR': 'CRC',
+    'PA': 'USD',
+    'DO': 'DOP',
+    'VE': 'VES'
+  }
+
+  const handleCountryChange = (country) => {
+    const currency = countryCurrencyMap[country] || 'USD'
+    setConfig({...config, country, currency})
+  }
   const [newCourt, setNewCourt] = useState({
     name: '',
     number: '',
@@ -252,6 +277,7 @@ function ClubPanel() {
     try {
       // Update club configuration
       await api.put(`/clubs/${club.id}`, {
+        country: config.country,
         currency: config.currency,
         timezone: config.timezone,
         operating_hours_start: config.operating_hours_start,
@@ -296,8 +322,8 @@ function ClubPanel() {
         </button>
       </header>
 
-      {showConfig && club && (
-        <div style={{ marginBottom: '30px', padding: '30px', backgroundColor: 'white', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+      {showConfig && club ? (
+        <div style={{ padding: '30px', backgroundColor: 'white', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
           <h2 style={{ marginBottom: '20px', color: '#333' }}>⚙️ Configuración Inicial del Club</h2>
           <p style={{ marginBottom: '25px', color: '#666' }}>Antes de comenzar, configura tu club. Estos datos son esenciales para el funcionamiento del sistema.</p>
           
@@ -316,21 +342,30 @@ function ClubPanel() {
               <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>El sistema generará automáticamente la grilla de canchas</p>
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Moneda *</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>País *</label>
               <select
-                value={config.currency}
-                onChange={(e) => setConfig({...config, currency: e.target.value})}
+                value={config.country}
+                onChange={(e) => handleCountryChange(e.target.value)}
                 style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '5px', fontSize: '16px' }}
               >
-                <option value="USD">USD - Dólar Estadounidense</option>
-                <option value="ARS">ARS - Peso Argentino</option>
-                <option value="MXN">MXN - Peso Mexicano</option>
-                <option value="EUR">EUR - Euro</option>
-                <option value="BRL">BRL - Real Brasileño</option>
-                <option value="COP">COP - Peso Colombiano</option>
-                <option value="CLP">CLP - Peso Chileno</option>
-                <option value="PEN">PEN - Sol Peruano</option>
+                <option value="AR">Argentina</option>
+                <option value="MX">México</option>
+                <option value="US">Estados Unidos</option>
+                <option value="BR">Brasil</option>
+                <option value="CO">Colombia</option>
+                <option value="CL">Chile</option>
+                <option value="PE">Perú</option>
+                <option value="ES">España</option>
+                <option value="UY">Uruguay</option>
+                <option value="PY">Paraguay</option>
+                <option value="BO">Bolivia</option>
+                <option value="EC">Ecuador</option>
+                <option value="CR">Costa Rica</option>
+                <option value="PA">Panamá</option>
+                <option value="DO">República Dominicana</option>
+                <option value="VE">Venezuela</option>
               </select>
+              <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>Moneda asignada automáticamente: {config.currency}</p>
             </div>
             <div>
               <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Zona Horaria *</label>
@@ -424,9 +459,9 @@ function ClubPanel() {
             </button>
           </div>
         </div>
-      )}
-
-      {club && !showConfig && (
+      ) : (
+        <div>
+      {club && (
         <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
           <h2>{club.name}</h2>
           <p>Email: {club.email}</p>
@@ -1000,6 +1035,8 @@ function ClubPanel() {
           </div>
         </div>
       </div>
+    </div>
+      )}
     </div>
   )
 }
