@@ -99,6 +99,20 @@ async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
         await db.refresh(db_club)
 
         logger.info(f"Club created successfully: {db_club.id}")
+        
+        # Send email notification to owner
+        try:
+            from core.email_service import send_club_registration_notification
+            await send_club_registration_notification(
+                club_name=db_club.name,
+                club_email=db_club.email,
+                club_city=db_club.city or "Sin ciudad",
+                club_country=db_club.country or "Sin país"
+            )
+            logger.info(f"Email notification sent for club {db_club.id}")
+        except Exception as e:
+            logger.error(f"Error sending email notification: {str(e)}")
+        
         return db_club
     except Exception as e:
         logger.error(f"Error creating club: {str(e)}")

@@ -34,6 +34,14 @@ class Settings(BaseSettings):
     # Transaction Fee
     TRANSACTION_FEE_PERCENTAGE: float = 0.05  # 5%
     
+    # Email Configuration
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USER: str = os.getenv("SMTP_USER", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    EMAIL_FROM: str = os.getenv("EMAIL_FROM", "noreply@nexasist.com")
+    OWNER_EMAIL: str = os.getenv("OWNER_EMAIL", "davidgctd@gmail.com")
+    
     class Config:
         env_file = ".env"
 

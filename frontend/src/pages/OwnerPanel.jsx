@@ -299,7 +299,6 @@ function OwnerPanel() {
                 <span style={{ fontSize: '16px' }}>Online</span>
               </div>
               <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>Uptime: 99.9%</p>
-              <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>Último deploy: Hace 2 horas</p>
               <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>Versión: v2.0.1</p>
               <p style={{ fontSize: '14px', color: '#bdc3c7' }}>Base de datos: PostgreSQL (AWS RDS)</p>
             </div>
