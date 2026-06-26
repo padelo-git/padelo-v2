@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://padelo:padelo_secure_2026@db:5432/padelo_db
+      - DATABASE_URL=postgresql+asyncpg://padelo:tI5X9CNM65KlgD$&1&Y6xuWIftK4Ics#@db:5432/padelo_db
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=uL0FRxtMZKW2zTi_oks2s9KxiMJzbX19R8p6z-0_1aQ
     depends_on:
@@ -28,7 +28,7 @@ services:
     image: postgres:15
     environment:
       - POSTGRES_USER=padelo
-      - POSTGRES_PASSWORD=padelo_secure_2026
+      - POSTGRES_PASSWORD=tI5X9CNM65KlgD$&1&Y6xuWIftK4Ics#
       - POSTGRES_DB=padelo_db
     ports:
       - "5432:5432"
