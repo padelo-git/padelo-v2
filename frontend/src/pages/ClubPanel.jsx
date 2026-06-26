@@ -300,7 +300,16 @@ function ClubPanel() {
   return (
     <div style={{ padding: '20px', backgroundColor: '#1a1a1a', minHeight: '100vh', color: '#ffffff' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', paddingBottom: '20px', borderBottom: '1px solid #333' }}>
-        <h1 style={{ color: '#ffffff' }}>Nexasist - {club ? club.name : 'Panel del Club'}</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ padding: '10px', backgroundColor: '#2a2a2a', borderRadius: '10px', textAlign: 'center' }}>
+            {club && (
+              <div style={{ backgroundColor: 'white', padding: '10px', borderRadius: '5px', display: 'inline-block' }}>
+                <QRCodeSVG value={`https://nexasist.com/club/${club.id}`} size={80} />
+              </div>
+            )}
+          </div>
+          <h1 style={{ color: '#ffffff' }}>Nexasist - {club ? club.name : 'Panel del Club'}</h1>
+        </div>
         <button
           onClick={handleLogout}
           style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
@@ -322,20 +331,7 @@ function ClubPanel() {
         <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Socios</button>
         <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Recompensas</button>
         <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Ayuda</button>
-        <button onClick={handleLogout} style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Salir</button>
       </nav>
-
-      {/* Código QR */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '30px' }}>
-        <div style={{ padding: '20px', backgroundColor: '#2a2a2a', borderRadius: '10px', textAlign: 'center' }}>
-          <h3 style={{ color: '#ffffff', marginBottom: '15px' }}>Código QR del Club</h3>
-          {club && (
-            <div style={{ backgroundColor: 'white', padding: '15px', borderRadius: '5px', display: 'inline-block' }}>
-              <QRCodeSVG value={`https://nexasist.com/club/${club.id}`} size={150} />
-            </div>
-          )}
-        </div>
-      </div>
 
       {showConfig && club ? (
         <div style={{ padding: '30px', backgroundColor: '#2a2a2a', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
@@ -932,80 +928,6 @@ function ClubPanel() {
           )}
         </div>
       </div>
-
-      <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <h3 style={{ marginBottom: '15px' }}>Gestión del Club</h3>
-        
-        <div style={{ marginBottom: '20px' }}>
-          <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px', fontWeight: 'bold' }}>Operaciones</p>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => setShowCreateReservation(true)}
-              style={{ padding: '12px 24px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
-            >
-              📅 Nueva Reserva
-            </button>
-            <button
-              onClick={() => setShowCalendar(true)}
-              style={{ padding: '12px 24px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
-            >
-              📆 Calendario
-            </button>
-            <button
-              onClick={() => setShowCreateCourt(true)}
-              style={{ padding: '12px 24px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
-            >
-              🏟️ Agregar Cancha
-            </button>
-          </div>
-        </div>
-
-        <div style={{ marginBottom: '20px' }}>
-          <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px', fontWeight: 'bold' }}>Finanzas</p>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => { setShowPayments(true); fetchPayments(); }}
-              style={{ padding: '12px 24px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
-            >
-              💰 Pagos
-            </button>
-            <button
-              onClick={() => { setShowDebts(true); fetchDebts(); }}
-              style={{ padding: '12px 24px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
-            >
-              📋 Deudas
-            </button>
-            <button
-              onClick={() => { setShowCashRegisters(true); fetchCashRegisters(); }}
-              style={{ padding: '12px 24px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
-            >
-              🏦 Cajas
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px', fontWeight: 'bold' }}>Configuración</p>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => setShowStatistics(true)}
-              style={{ padding: '12px 24px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
-            >
-              📊 Estadísticas
-            </button>
-            <button
-              onClick={() => setShowQRCode(true)}
-              style={{ padding: '12px 24px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
-            >
-              📱 Código QR
-            </button>
-            <button style={{ padding: '12px 24px', backgroundColor: '#343a40', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>
-              ⚙️ Editar Perfil
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
       )}
     </div>
   )
