@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import api from '../config/axios'
 import { QRCodeSVG } from 'qrcode.react'
 
 function ClubPanel() {
+  const { t, i18n } = useTranslation()
   const [club, setClub] = useState(null)
   const [courts, setCourts] = useState([])
   const [reservations, setReservations] = useState([])
@@ -90,7 +92,13 @@ function ClubPanel() {
       const clubsResponse = await api.get('/clubs/')
       if (clubsResponse.data.length > 0) {
         const clubId = clubsResponse.data[0].id
-        setClub(clubsResponse.data[0])
+        const clubData = clubsResponse.data[0]
+        setClub(clubData)
+        
+        // Change language based on club's language setting
+        if (clubData.language) {
+          i18n.changeLanguage(clubData.language)
+        }
         
         // Fetch courts for this club
         const courtsResponse = await api.get(`/clubs/${clubId}/courts`)
