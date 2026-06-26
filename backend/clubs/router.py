@@ -138,6 +138,33 @@ async def get_pending_clubs_count(db: AsyncSession = Depends(get_db)):
     return {"pending_count": count}
 
 
+@router.get("/pending", response_model=List[ClubResponse])
+async def get_pending_clubs(db: AsyncSession = Depends(get_db)):
+    """Get all clubs pending activation (is_active=False)"""
+    result = await db.execute(select(Club).where(Club.is_active == False))
+    clubs = result.scalars().all()
+    return clubs
+
+
+@router.put("/{club_id}/activate")
+async def activate_club(club_id: int, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    """Activate a club (requires owner/admin)"""
+    result = await db.execute(select(Club).where(Club.id == club_id))
+    club = result.scalar_one_or_none()
+    
+    if not club:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Club not found"
+        )
+    
+    club.is_active = True
+    await db.commit()
+    await db.refresh(club)
+    
+    return {"message": "Club activated successfully", "club": club}
+
+
 @router.get("/{club_id}", response_model=ClubWithCourts)
 async def get_club(club_id: int, db: AsyncSession = Depends(get_db)):
     """Get club by ID with courts"""
