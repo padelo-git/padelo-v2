@@ -30,6 +30,7 @@ class Club(Base):
     # Configuration fields
     currency = Column(String, default="USD")
     timezone = Column(String, default="America/Argentina/Buenos_Aires")
+    language = Column(String, default="es")  # es, en, it, pt
 
     # Pricing fields
     hourly_price = Column(Numeric(10, 2), default=200.00)

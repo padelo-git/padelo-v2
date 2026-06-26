@@ -15,6 +15,26 @@ from pydantic import BaseModel, EmailStr
 router = APIRouter()
 
 
+def get_language_from_country(country: str) -> str:
+    """Assign language based on country"""
+    country_lower = country.lower()
+    
+    # English-speaking countries
+    if country_lower in ['united states', 'usa', 'us', 'united kingdom', 'uk', 'great britain', 'canada', 'australia', 'new zealand', 'ireland']:
+        return 'en'
+    
+    # Italian-speaking countries
+    if country_lower in ['italy', 'italia', 'san marino', 'vatican city']:
+        return 'it'
+    
+    # Portuguese-speaking countries
+    if country_lower in ['brazil', 'brasil', 'portugal', 'angola', 'mozambique', 'cape verde']:
+        return 'pt'
+    
+    # Default to Spanish for all other countries (Latin America, Spain, etc.)
+    return 'es'
+
+
 class ClubLogin(BaseModel):
     email: EmailStr
     password: str
@@ -55,7 +75,10 @@ async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
         from core.security import get_password_hash
         hashed_password = get_password_hash(club.password)
 
-        logger.info(f"Creating club: {club.name}")
+        # Assign language based on country
+        language = get_language_from_country(club.country)
+
+        logger.info(f"Creating club: {club.name} with language: {language}")
 
         db_club = Club(
             name=club.name,
@@ -68,7 +91,8 @@ async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
             description=club.description,
             logo_url=club.logo_url,
             hashed_password=hashed_password,
-            is_active=False  # Requires owner activation
+            is_active=False,  # Requires owner activation
+            language=language  # Auto-assigned based on country
         )
         db.add(db_club)
         await db.commit()
