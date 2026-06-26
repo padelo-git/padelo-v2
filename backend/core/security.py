@@ -9,6 +9,7 @@ from sqlalchemy import select
 from core.config import settings
 from core.database import get_db
 from auth.models import User, UserRole
+from clubs.models import Club
 
 
 security = HTTPBearer()
@@ -111,3 +112,47 @@ async def get_current_club_admin(current_user: User = Depends(get_current_user))
             detail="Not authorized to access club admin panel"
         )
     return current_user
+
+
+async def get_current_club(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db)
+) -> Club:
+    """Get current authenticated club from JWT token"""
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    token = credentials.credentials
+    payload = decode_access_token(token)
+    
+    if payload is None:
+        raise credentials_exception
+    
+    # Check if this is a club token
+    is_club = payload.get("is_club")
+    if not is_club:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized - club access required"
+        )
+    
+    club_id: str = payload.get("club_id")
+    if club_id is None:
+        raise credentials_exception
+    
+    result = await db.execute(select(Club).where(Club.id == int(club_id)))
+    club = result.scalar_one_or_none()
+    
+    if club is None:
+        raise credentials_exception
+    
+    if not club.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Club account is not active"
+        )
+    
+    return club

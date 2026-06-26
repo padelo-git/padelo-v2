@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from typing import List
 from core.database import get_db
-from core.security import get_current_user, get_current_club_admin, verify_password, create_access_token
+from core.security import get_current_user, get_current_club_admin, get_current_club, verify_password, create_access_token
 from clubs.models import Club, Court, Reservation, Payment, Debt, CashRegister, Penalty
 from clubs.schemas import (
     ClubCreate, ClubUpdate, ClubResponse, ClubWithCourts,
@@ -112,8 +112,13 @@ async def login_club(credentials: ClubLogin, db: AsyncSession = Depends(get_db))
             detail="Club account is not active. Please contact support."
         )
 
-    # Create access token
-    access_token = create_access_token(data={"sub": str(club.id), "type": "club"})
+    # Create access token with club identification
+    access_token = create_access_token(data={
+        "sub": str(club.id),
+        "type": "club",
+        "is_club": True,
+        "club_id": str(club.id)
+    })
 
     return {
         "access_token": access_token,
@@ -215,19 +220,11 @@ async def update_club(
 
 
 # Court endpoints
-@router.post("/{club_id}/courts", response_model=CourtResponse)
-async def create_court(club_id: int, court: CourtCreate, db: AsyncSession = Depends(get_db)):
-    """Create a new court for a club"""
-    # Check if club exists
-    result = await db.execute(select(Club).where(Club.id == club_id))
-    if not result.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Club not found"
-        )
-    
+@router.post("/courts", response_model=CourtResponse)
+async def create_court(court: CourtCreate, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Create a new court for the authenticated club"""
     db_court = Court(
-        club_id=club_id,
+        club_id=current_club.id,
         name=court.name,
         number=court.number,
         surface=court.surface,
@@ -240,25 +237,25 @@ async def create_court(club_id: int, court: CourtCreate, db: AsyncSession = Depe
     return db_court
 
 
-@router.get("/{club_id}/courts", response_model=List[CourtResponse])
-async def get_courts(club_id: int, db: AsyncSession = Depends(get_db)):
-    """Get all courts for a club"""
-    result = await db.execute(select(Court).where(Court.club_id == club_id))
+@router.get("/courts", response_model=List[CourtResponse])
+async def get_courts(current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Get all courts for the authenticated club"""
+    result = await db.execute(select(Court).where(Court.club_id == current_club.id))
     courts = result.scalars().all()
     return courts
 
 
-@router.get("/{club_id}/statistics")
-async def get_club_statistics(club_id: int, db: AsyncSession = Depends(get_db)):
-    """Get statistics for a club"""
+@router.get("/statistics")
+async def get_club_statistics(current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Get statistics for the authenticated club"""
     # Get total courts
-    courts_result = await db.execute(select(Court).where(Court.club_id == club_id))
+    courts_result = await db.execute(select(Court).where(Court.club_id == current_club.id))
     courts = courts_result.scalars().all()
     total_courts = len(courts)
     
     # Get total matches
     from matches.models import Match
-    matches_result = await db.execute(select(Match).where(Match.club_id == club_id))
+    matches_result = await db.execute(select(Match).where(Match.club_id == current_club.id))
     matches = matches_result.scalars().all()
     total_matches = len(matches)
     
@@ -278,8 +275,8 @@ async def get_club_statistics(club_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/courts/{court_id}", response_model=CourtResponse)
-async def update_court(court_id: int, court_update: CourtUpdate, db: AsyncSession = Depends(get_db)):
-    """Update court"""
+async def update_court(court_id: int, court_update: CourtUpdate, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Update court (only for the authenticated club)"""
     result = await db.execute(select(Court).where(Court.id == court_id))
     court = result.scalar_one_or_none()
     
@@ -287,6 +284,13 @@ async def update_court(court_id: int, court_update: CourtUpdate, db: AsyncSessio
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Court not found"
+        )
+    
+    # Verify that the court belongs to the authenticated club
+    if court.club_id != current_club.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only update courts belonging to your club"
         )
     
     # Update fields
@@ -300,32 +304,32 @@ async def update_court(court_id: int, court_update: CourtUpdate, db: AsyncSessio
 
 
 # Reservation endpoints
-@router.post("/{club_id}/reservations", response_model=ReservationResponse)
+@router.post("/reservations", response_model=ReservationResponse)
 async def create_reservation(
-    club_id: int, 
-    reservation: ReservationCreate, 
+    reservation: ReservationCreate,
+    current_club: Club = Depends(get_current_club),
     db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    """Create a new reservation (requires authentication)"""
-    # Check if club exists
-    result = await db.execute(select(Club).where(Club.id == club_id))
-    if not result.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Club not found"
-        )
-    
-    # Check if court exists
+    """Create a new reservation for the authenticated club"""
+    # Check if court exists and belongs to the club
     result = await db.execute(select(Court).where(Court.id == reservation.court_id))
-    if not result.scalar_one_or_none():
+    court = result.scalar_one_or_none()
+    if not court:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Court not found"
         )
     
+    # Verify that the court belongs to the authenticated club
+    if court.club_id != current_club.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only create reservations for courts belonging to your club"
+        )
+    
     db_reservation = Reservation(
-        club_id=club_id,
+        club_id=current_club.id,
         court_id=reservation.court_id,
         user_id=reservation.user_id,
         date=reservation.date,
@@ -355,7 +359,7 @@ async def create_reservation(
                 if payment_result["success"]:
                     # Create payment record
                     payment = Payment(
-                        club_id=club_id,
+                        club_id=current_club.id,
                         user_id=reservation.user_id,
                         amount=reservation.price,
                         method="card",
@@ -388,17 +392,17 @@ async def create_reservation(
     return db_reservation
 
 
-@router.get("/{club_id}/reservations", response_model=List[ReservationResponse])
-async def get_reservations(club_id: int, db: AsyncSession = Depends(get_db)):
-    """Get all reservations for a club"""
-    result = await db.execute(select(Reservation).where(Reservation.club_id == club_id))
+@router.get("/reservations", response_model=List[ReservationResponse])
+async def get_reservations(current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Get all reservations for the authenticated club"""
+    result = await db.execute(select(Reservation).where(Reservation.club_id == current_club.id))
     reservations = result.scalars().all()
     return reservations
 
 
 @router.put("/reservations/{reservation_id}", response_model=ReservationResponse)
-async def update_reservation(reservation_id: int, reservation_update: ReservationUpdate, db: AsyncSession = Depends(get_db)):
-    """Update reservation"""
+async def update_reservation(reservation_id: int, reservation_update: ReservationUpdate, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Update reservation (only for the authenticated club)"""
     result = await db.execute(select(Reservation).where(Reservation.id == reservation_id))
     reservation = result.scalar_one_or_none()
     
@@ -406,6 +410,13 @@ async def update_reservation(reservation_id: int, reservation_update: Reservatio
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Reservation not found"
+        )
+    
+    # Verify that the reservation belongs to the authenticated club
+    if reservation.club_id != current_club.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only update reservations belonging to your club"
         )
     
     # Update fields
@@ -419,10 +430,10 @@ async def update_reservation(reservation_id: int, reservation_update: Reservatio
 
 
 # Payment endpoints
-@router.get("/{club_id}/payments")
-async def get_payments(club_id: int, db: AsyncSession = Depends(get_db)):
-    """Get all payments for a club"""
-    result = await db.execute(select(Payment).where(Payment.club_id == club_id))
+@router.get("/payments")
+async def get_payments(current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Get all payments for the authenticated club"""
+    result = await db.execute(select(Payment).where(Payment.club_id == current_club.id))
     payments = result.scalars().all()
     
     return [
@@ -438,11 +449,11 @@ async def get_payments(club_id: int, db: AsyncSession = Depends(get_db)):
     ]
 
 
-@router.post("/{club_id}/payments")
-async def create_payment(club_id: int, payment_data: dict, db: AsyncSession = Depends(get_db)):
-    """Create a new payment"""
+@router.post("/payments")
+async def create_payment(payment_data: dict, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Create a new payment for the authenticated club"""
     payment = Payment(
-        club_id=club_id,
+        club_id=current_club.id,
         user_id=payment_data.get("user_id"),
         amount=payment_data.get("amount"),
         method=payment_data.get("method"),
@@ -464,10 +475,10 @@ async def create_payment(club_id: int, payment_data: dict, db: AsyncSession = De
 
 
 # Debt endpoints
-@router.get("/{club_id}/debts")
-async def get_debts(club_id: int, db: AsyncSession = Depends(get_db)):
-    """Get all debts for a club"""
-    result = await db.execute(select(Debt).where(Debt.club_id == club_id))
+@router.get("/debts")
+async def get_debts(current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Get all debts for the authenticated club"""
+    result = await db.execute(select(Debt).where(Debt.club_id == current_club.id))
     debts = result.scalars().all()
     
     return [
@@ -485,10 +496,10 @@ async def get_debts(club_id: int, db: AsyncSession = Depends(get_db)):
     ]
 
 
-@router.put("/{club_id}/debts/{debt_id}/pay")
-async def mark_debt_paid(club_id: int, debt_id: int, db: AsyncSession = Depends(get_db)):
-    """Mark a debt as paid"""
-    result = await db.execute(select(Debt).where(Debt.id == debt_id, Debt.club_id == club_id))
+@router.put("/debts/{debt_id}/pay")
+async def mark_debt_paid(debt_id: int, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Mark a debt as paid (only for the authenticated club)"""
+    result = await db.execute(select(Debt).where(Debt.id == debt_id, Debt.club_id == current_club.id))
     debt = result.scalar_one_or_none()
     
     if not debt:
@@ -513,10 +524,10 @@ async def mark_debt_paid(club_id: int, debt_id: int, db: AsyncSession = Depends(
 
 
 # Cash Register endpoints
-@router.get("/{club_id}/cash-registers")
-async def get_cash_registers(club_id: int, db: AsyncSession = Depends(get_db)):
-    """Get all cash registers for a club"""
-    result = await db.execute(select(CashRegister).where(CashRegister.club_id == club_id, CashRegister.is_active == True))
+@router.get("/cash-registers")
+async def get_cash_registers(current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Get all cash registers for the authenticated club"""
+    result = await db.execute(select(CashRegister).where(CashRegister.club_id == current_club.id, CashRegister.is_active == True))
     registers = result.scalars().all()
     
     return [
@@ -531,11 +542,11 @@ async def get_cash_registers(club_id: int, db: AsyncSession = Depends(get_db)):
     ]
 
 
-@router.post("/{club_id}/cash-registers")
-async def create_cash_register(club_id: int, register_data: dict, db: AsyncSession = Depends(get_db)):
-    """Create a new cash register"""
+@router.post("/cash-registers")
+async def create_cash_register(register_data: dict, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Create a new cash register for the authenticated club"""
     register = CashRegister(
-        club_id=club_id,
+        club_id=current_club.id,
         name=register_data.get("name"),
         register_type=register_data.get("register_type"),
         balance=register_data.get("balance", 0)
@@ -555,8 +566,8 @@ async def create_cash_register(club_id: int, register_data: dict, db: AsyncSessi
 
 
 # Penalty endpoints
-@router.post("/{club_id}/penalties/calculate")
-async def calculate_penalty(club_id: int, penalty_data: dict, db: AsyncSession = Depends(get_db)):
+@router.post("/penalties/calculate")
+async def calculate_penalty(penalty_data: dict, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
     """Calculate penalty for cancelling a match or reservation"""
     from datetime import datetime, timedelta
     
@@ -571,12 +582,18 @@ async def calculate_penalty(club_id: int, penalty_data: dict, db: AsyncSession =
         match = result.scalar_one_or_none()
         if not match:
             raise HTTPException(status_code=404, detail="Match not found")
+        # Verify match belongs to the club
+        if match.club_id != current_club.id:
+            raise HTTPException(status_code=403, detail="Match does not belong to your club")
         match_date = match.date
     elif reservation_id:
         result = await db.execute(select(Reservation).where(Reservation.id == reservation_id))
         reservation = result.scalar_one_or_none()
         if not reservation:
             raise HTTPException(status_code=404, detail="Reservation not found")
+        # Verify reservation belongs to the club
+        if reservation.club_id != current_club.id:
+            raise HTTPException(status_code=403, detail="Reservation does not belong to your club")
         match_date = reservation.date
     else:
         raise HTTPException(status_code=400, detail="match_id or reservation_id required")
@@ -608,11 +625,11 @@ async def calculate_penalty(club_id: int, penalty_data: dict, db: AsyncSession =
     }
 
 
-@router.post("/{club_id}/penalties")
-async def create_penalty(club_id: int, penalty_data: dict, db: AsyncSession = Depends(get_db)):
-    """Create a penalty record"""
+@router.post("/penalties")
+async def create_penalty(penalty_data: dict, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Create a penalty record for the authenticated club"""
     penalty = Penalty(
-        club_id=club_id,
+        club_id=current_club.id,
         user_id=penalty_data.get("user_id"),
         match_id=penalty_data.get("match_id"),
         reservation_id=penalty_data.get("reservation_id"),
@@ -640,12 +657,12 @@ async def create_penalty(club_id: int, penalty_data: dict, db: AsyncSession = De
     }
 
 
-@router.get("/{club_id}/penalties/{user_id}")
-async def get_user_penalties(club_id: int, user_id: int, db: AsyncSession = Depends(get_db)):
-    """Get all penalties for a user"""
+@router.get("/penalties/{user_id}")
+async def get_user_penalties(user_id: int, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Get all penalties for a user in the authenticated club"""
     result = await db.execute(
         select(Penalty).where(
-            Penalty.club_id == club_id,
+            Penalty.club_id == current_club.id,
             Penalty.user_id == user_id
         )
     )
@@ -668,13 +685,20 @@ async def get_user_penalties(club_id: int, user_id: int, db: AsyncSession = Depe
 
 
 @router.put("/penalties/{penalty_id}/pay")
-async def pay_penalty(penalty_id: int, db: AsyncSession = Depends(get_db)):
-    """Mark a penalty as paid"""
+async def pay_penalty(penalty_id: int, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Mark a penalty as paid (only for the authenticated club)"""
     result = await db.execute(select(Penalty).where(Penalty.id == penalty_id))
     penalty = result.scalar_one_or_none()
     
     if not penalty:
         raise HTTPException(status_code=404, detail="Penalty not found")
+    
+    # Verify that the penalty belongs to the authenticated club
+    if penalty.club_id != current_club.id:
+        raise HTTPException(
+            status_code=403,
+            detail="You can only pay penalties belonging to your club"
+        )
     
     penalty.is_paid = True
     penalty.is_blocked = False
@@ -691,12 +715,12 @@ async def pay_penalty(penalty_id: int, db: AsyncSession = Depends(get_db)):
     }
 
 
-@router.get("/{club_id}/users/{user_id}/blocked")
-async def check_user_blocked(club_id: int, user_id: int, db: AsyncSession = Depends(get_db)):
-    """Check if a user is blocked due to unpaid penalties"""
+@router.get("/users/{user_id}/blocked")
+async def check_user_blocked(user_id: int, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Check if a user is blocked due to unpaid penalties in the authenticated club"""
     result = await db.execute(
         select(Penalty).where(
-            Penalty.club_id == club_id,
+            Penalty.club_id == current_club.id,
             Penalty.user_id == user_id,
             Penalty.is_blocked == True,
             Penalty.is_paid == False
