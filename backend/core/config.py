@@ -1,16 +1,17 @@
 from pydantic_settings import BaseSettings
 from typing import List, Optional
+import os
 
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str = "postgresql+asyncpg://padelo:padelo_secure_2026@localhost:5432/padelo_db"
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql+asyncpg://padelo:padelo_secure_2026@localhost:5432/padelo_db")
     
     # Redis
-    REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     
-    # JWT
-    SECRET_KEY: str = "your-secret-key-here"
+    # JWT - MUST be set via environment variable in production
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     

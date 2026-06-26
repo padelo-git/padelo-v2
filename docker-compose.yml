@@ -8,6 +8,7 @@ services:
     environment:
       - DATABASE_URL=postgresql+asyncpg://padelo:padelo_secure_2026@db:5432/padelo_db
       - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=uL0FRxtMZKW2zTi_oks2s9KxiMJzbX19R8p6z-0_1aQ
     depends_on:
       - db
       - redis
