@@ -121,6 +121,23 @@ function OwnerPanel() {
     }
   }
 
+  // Auto-generate alert for pending clubs
+  const generatePendingClubAlert = () => {
+    if (pendingClubsCount > 0) {
+      const alert = {
+        id: `pending-club-${Date.now()}`,
+        type: 'club',
+        severity: 'high',
+        message: `${pendingClubsCount} club${pendingClubsCount > 1 ? 'es' : ''} pendiente${pendingClubsCount > 1 ? 's' : ''} de activación`,
+        created_at: new Date().toISOString()
+      }
+      // Add to alerts if not already present
+      if (!alerts.some(a => a.type === 'club' && a.message.includes('pendiente'))) {
+        setAlerts([alert, ...alerts])
+      }
+    }
+  }
+
   const fetchBackups = async () => {
     try {
       const token = localStorage.getItem('token')
@@ -150,6 +167,7 @@ function OwnerPanel() {
     try {
       const response = await api.get('/clubs/pending/count')
       setPendingClubsCount(response.data.pending_count || 0)
+      generatePendingClubAlert()
     } catch (err) {
       console.error('Error fetching pending clubs count:', err)
     }
