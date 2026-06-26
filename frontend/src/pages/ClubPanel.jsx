@@ -928,6 +928,7 @@ function ClubPanel() {
           )}
         </div>
       </div>
+      </div>
       )}
     </div>
   )
