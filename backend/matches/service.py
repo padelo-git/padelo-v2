@@ -17,8 +17,14 @@ class MatchingService:
         gender: Optional[str] = None,
         preferred_time: Optional[str] = None
     ) -> List[User]:
-        """Find available players based on criteria"""
-        query = select(User).where(User.is_active == True)
+        """Find available players ONLY from the specified club"""
+        # CRITICAL: Only search for users belonging to this specific club
+        query = select(User).where(
+            and_(
+                User.is_active == True,
+                User.club_id == club_id  # Only users from this club
+            )
+        )
         
         if category:
             # TODO: Add category filtering when user has category preference
