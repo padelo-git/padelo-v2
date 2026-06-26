@@ -5,6 +5,7 @@ import api from '../config/axios'
 function OwnerPanel() {
   const [user, setUser] = useState(null)
   const [clubs, setClubs] = useState([])
+  const [pendingClubs, setPendingClubs] = useState([])
   const [systemMetrics, setSystemMetrics] = useState(null)
   const [businessMetrics, setBusinessMetrics] = useState(null)
   const [activeView, setActiveView] = useState('monitoring')
@@ -37,6 +38,7 @@ function OwnerPanel() {
 
     fetchUserData()
     fetchClubs()
+    fetchPendingClubs()
     fetchSystemMetrics()
     fetchBusinessMetrics()
     fetchAlerts()
@@ -64,7 +66,7 @@ function OwnerPanel() {
   const fetchUserData = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.get('/auth/me', {
+      const response = await api.get('/auth/me', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setUser(response.data)
@@ -75,7 +77,7 @@ function OwnerPanel() {
 
   const fetchClubs = async () => {
     try {
-      const response = await axios.get('/clubs/')
+      const response = await api.get('/clubs/')
       setClubs(response.data)
     } catch (err) {
       console.error('Error fetching clubs:', err)
@@ -87,7 +89,7 @@ function OwnerPanel() {
       const token = localStorage.getItem('token')
       console.log('Fetching system metrics with token:', token ? 'present' : 'missing')
       // Try public endpoint first (temporary fix)
-      const response = await axios.get('/admin-panel/metrics/public')
+      const response = await api.get('/admin-panel/metrics/public')
       console.log('System metrics response:', response.data)
       setSystemMetrics(response.data)
     } catch (err) {
@@ -99,7 +101,7 @@ function OwnerPanel() {
 
   const fetchBusinessMetrics = async () => {
     try {
-      const response = await axios.get('/admin/business-metrics')
+      const response = await api.get('/admin/business-metrics')
       setBusinessMetrics(response.data)
     } catch (err) {
       console.error('Error fetching business metrics:', err)
@@ -110,7 +112,7 @@ function OwnerPanel() {
     try {
       const token = localStorage.getItem('token')
       // Try public endpoint first (temporary fix)
-      const response = await axios.get('/admin-panel/alerts/public')
+      const response = await api.get('/admin-panel/alerts/public')
       console.log('Alerts response:', response.data)
       setAlerts(response.data)
     } catch (err) {
@@ -123,7 +125,7 @@ function OwnerPanel() {
     try {
       const token = localStorage.getItem('token')
       // Try public endpoint first (temporary fix)
-      const response = await axios.get('/admin-panel/backups/public')
+      const response = await api.get('/admin-panel/backups/public')
       console.log('Backups response:', response.data)
       setBackups(response.data.backups || [])
     } catch (err) {
@@ -135,7 +137,7 @@ function OwnerPanel() {
   const fetchHealthStatus = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.get('/admin-panel/health', {
+      const response = await api.get('/admin-panel/health', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setHealthStatus(response.data)
@@ -146,17 +148,61 @@ function OwnerPanel() {
 
   const fetchPendingClubsCount = async () => {
     try {
-      const response = await axios.get('/clubs/pending/count')
+      const response = await api.get('/clubs/pending/count')
       setPendingClubsCount(response.data.pending_count || 0)
     } catch (err) {
       console.error('Error fetching pending clubs count:', err)
     }
   }
 
+  const fetchPendingClubs = async () => {
+    try {
+      const response = await api.get('/clubs/pending')
+      setPendingClubs(response.data)
+    } catch (err) {
+      console.error('Error fetching pending clubs:', err)
+    }
+  }
+
+  const handleActivateClub = async (clubId) => {
+    try {
+      const token = localStorage.getItem('token')
+      await api.put(`/clubs/${clubId}/activate`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      alert('Club activado exitosamente')
+      fetchPendingClubs()
+      fetchClubs()
+      fetchPendingClubsCount()
+    } catch (err) {
+      console.error('Error activating club:', err)
+      alert('Error al activar club')
+    }
+  }
+
+  const handleDeleteClub = async (clubId) => {
+    if (!window.confirm('¿Estás seguro de eliminar este club? Esta acción eliminará todos los datos del club y no se puede deshacer.')) {
+      return
+    }
+    try {
+      const token = localStorage.getItem('token')
+      await api.delete(`/clubs/${clubId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      alert('Club eliminado exitosamente')
+      fetchClubs()
+      fetchPendingClubs()
+      fetchPendingClubsCount()
+    } catch (err) {
+      console.error('Error deleting club:', err)
+      alert('Error al eliminar club')
+    }
+  }
+
   const handleCreateClub = async (e) => {
     e.preventDefault()
     try {
-      await axios.post('/clubs/', newClub)
+      await api.post('/clubs/', newClub)
       setShowCreateClub(false)
       setNewClub({
         name: '',
@@ -178,7 +224,7 @@ function OwnerPanel() {
   const handleCreateBackup = async () => {
     try {
       const token = localStorage.getItem('token')
-      await axios.post('/admin-panel/backups/create', {}, {
+      await api.post('/admin-panel/backups/create', {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       alert('Backup creado exitosamente')
@@ -192,7 +238,7 @@ function OwnerPanel() {
   const handleRestart = async (service) => {
     try {
       const token = localStorage.getItem('token')
-      await axios.post('/admin-panel/restart', { service }, {
+      await api.post('/admin-panel/restart', { service }, {
         headers: { Authorization: `Bearer ${token}` }
       })
       alert(`${service} reiniciado exitosamente`)
@@ -294,32 +340,73 @@ function OwnerPanel() {
                 + Nuevo Club
               </button>
             </div>
-            {clubs.length === 0 ? (
-              <p style={{ color: '#bdc3c7' }}>No hay clubs registrados</p>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
-                {clubs.map(club => (
-                  <div key={club.id} style={{ padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
-                    <h4 style={{ marginBottom: '10px' }}>{club.name}</h4>
-                    <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>📧 {club.email}</p>
-                    <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>📍 {club.city || 'Sin ciudad'}</p>
-                    <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '15px' }}>🌍 {club.country || 'Sin país'}</p>
-                    <div style={{ display: 'flex', gap: '10px' }}>
+
+            {/* Pending Clubs Section */}
+            {pendingClubs.length > 0 && (
+              <div style={{ marginBottom: '30px' }}>
+                <h4 style={{ color: '#ffc107', marginBottom: '15px' }}>
+                  ⏳ Pendientes de Activación ({pendingClubs.length})
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
+                  {pendingClubs.map(club => (
+                    <div key={club.id} style={{ padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '2px solid #ffc107' }}>
+                      <h4 style={{ marginBottom: '10px' }}>{club.name}</h4>
+                      <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>📧 {club.email}</p>
+                      <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>📍 {club.city || 'Sin ciudad'}</p>
+                      <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>🌍 {club.country || 'Sin país'}</p>
+                      <p style={{ fontSize: '12px', color: '#ffc107', marginBottom: '15px' }}>
+                        Registrado: {new Date(club.created_at).toLocaleString()}
+                      </p>
                       <button
-                        style={{ padding: '6px 12px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+                        onClick={() => handleActivateClub(club.id)}
+                        style={{ padding: '8px 16px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
                       >
-                        Activar
-                      </button>
-                      <button
-                        style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
-                      >
-                        Suspender
+                        ✅ Activar Club
                       </button>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
+
+            {/* Active Clubs Section */}
+            <div>
+              <h4 style={{ color: '#28a745', marginBottom: '15px' }}>
+                ✅ Clubes Activos ({clubs.filter(c => c.is_active).length})
+              </h4>
+              {clubs.filter(c => c.is_active).length === 0 ? (
+                <p style={{ color: '#bdc3c7' }}>No hay clubs activos</p>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
+                  {clubs.filter(c => c.is_active).map(club => (
+                    <div key={club.id} style={{ padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
+                      <h4 style={{ marginBottom: '10px' }}>{club.name}</h4>
+                      <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>📧 {club.email}</p>
+                      <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>📍 {club.city || 'Sin ciudad'}</p>
+                      <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '15px' }}>🌍 {club.country || 'Sin país'}</p>
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button
+                          style={{ padding: '6px 12px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+                        >
+                          Ver Detalles
+                        </button>
+                        <button
+                          style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+                        >
+                          Suspender
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClub(club.id)}
+                          style={{ padding: '6px 12px', backgroundColor: '#c82333', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+                        >
+                          🗑️ Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )
       case 'system':
