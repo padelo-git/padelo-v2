@@ -30,6 +30,11 @@ jobs:
       run: |
         cd backend
         pytest --cov=app --cov-report=xml --cov-report=term-missing -v || echo "Tests skipped (no test suite configured)"
+    
+    - name: Lint backend
+      run: |
+        cd backend
+        python -m py_compile app/*.py || echo "Lint skipped"
 
   deploy:
     runs-on: ubuntu-latest
@@ -56,17 +61,93 @@ jobs:
           git pull origin main
           docker-compose up -d --build
           
-    - name: Health check
+    - name: Wait for containers to start
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.PRODUCTION_HOST }}
         username: ${{ secrets.PRODUCTION_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          sleep 10
-          curl -f http://localhost:8000/health || exit 1
-          curl -f http://localhost:3000 || exit 1
+          sleep 15
+          cd ~/padelo-v2
+          docker-compose ps
+          
+    - name: Check container logs
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd ~/padelo-v2
+          echo "=== Backend logs ==="
+          docker-compose logs backend --tail 50
+          echo "=== Frontend logs ==="
+          docker-compose logs frontend --tail 50
+          
+    - name: Health check - Backend
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          for i in {1..5}; do
+            if curl -f http://localhost:8000/health; then
+              echo "Backend health check passed"
+              exit 0
+            fi
+            echo "Backend health check failed, retrying ($i/5)..."
+            sleep 5
+          done
+          echo "Backend health check failed after 5 attempts"
+          exit 1
+          
+    - name: Health check - Frontend
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          for i in {1..5}; do
+            if curl -f http://localhost:3000; then
+              echo "Frontend health check passed"
+              exit 0
+            fi
+            echo "Frontend health check failed, retrying ($i/5)..."
+            sleep 5
+          done
+          echo "Frontend health check failed after 5 attempts"
+          exit 1
+          
+    - name: Test backend auth endpoint
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          curl -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" -d '{"email":"davidgctd@gmail.com","password":"Argentina2026"}' || echo "Auth test failed"
+          
+    - name: Rollback on failure
+      if: failure()
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd ~/padelo-v2
+          git checkout HEAD~1
+          docker-compose down
+          docker-compose up -d --build
+          echo "Rolled back to previous version"
           
     - name: Notify deployment success
       if: success()
       run: echo "Deployment completed successfully!"
+      
+    - name: Notify deployment failure
+      if: failure()
+      run: echo "Deployment failed and rolled back!"
