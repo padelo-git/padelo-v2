@@ -1,17 +1,20 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from clubs.models import Club
 from matches.models import Match
 from core.database import get_db
 from core.security import get_current_admin_user
+from core.rate_limit import limiter
 from auth.models import User
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
 @router.get("/system-metrics")
+@limiter.limit("30 per minute")  # Limit to 30 requests per minute per IP
 async def get_system_metrics(
+    request: Request,
     current_user: User = Depends(get_current_admin_user),
     db: AsyncSession = Depends(get_db)
 ):

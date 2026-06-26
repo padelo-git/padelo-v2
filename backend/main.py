@@ -3,6 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
 from core.database import engine, Base
+from core.rate_limit import limiter, custom_rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 from auth.router import router as auth_router
 from clubs.router import router as clubs_router
 from matches.router import router as matches_router
@@ -36,13 +38,17 @@ async def lifespan(app: FastAPI):
     # Shutdown
     stop_scheduler()
 
-# Create FastAPI app
+# Create FastAPI app with rate limiting
 app = FastAPI(
     title="Padelo V2",
     description="Sistema de gestión de clubes de pádel - Versión 2",
     version="2.0.0",
     lifespan=lifespan
 )
+
+# Configure rate limiting
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, custom_rate_limit_exceeded_handler)
 
 # Configure CORS
 app.add_middleware(

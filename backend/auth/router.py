@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from datetime import timedelta
 from core.database import get_db
 from core.security import verify_password, get_password_hash, create_access_token, get_current_user
 from core.config import settings
+from core.rate_limit import limiter
 from auth.models import User
 from clubs.models import Club
 from auth.schemas import UserCreate, UserLogin, UserResponse, Token, ClubCreate, ClubLogin, ClubResponse
@@ -38,7 +39,8 @@ async def register_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login", response_model=Token)
-async def login_user(user_credentials: UserLogin, db: AsyncSession = Depends(get_db)):
+@limiter.limit("5 per minute")  # Limit to 5 login attempts per minute per IP
+async def login_user(request: Request, user_credentials: UserLogin, db: AsyncSession = Depends(get_db)):
     """Login user and return access token using raw SQL to avoid ORM issues"""
     from sqlalchemy import text
     
@@ -227,7 +229,8 @@ async def register_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/club/login", response_model=Token)
-async def login_club(club_credentials: ClubLogin, db: AsyncSession = Depends(get_db)):
+@limiter.limit("5 per minute")  # Limit to 5 login attempts per minute per IP
+async def login_club(request: Request, club_credentials: ClubLogin, db: AsyncSession = Depends(get_db)):
     """Login club and return access token"""
     # Get club
     result = await db.execute(select(Club).where(Club.email == club_credentials.email))

@@ -26,3 +26,4 @@ apscheduler==3.10.4
 stripe==10.8.0
 psutil==6.1.0
 requests==2.31.0
+slowapi==0.1.9
