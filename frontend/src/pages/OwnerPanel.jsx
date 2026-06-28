@@ -23,7 +23,6 @@ function OwnerPanel() {
   const [pendingClubsCount, setPendingClubsCount] = useState(0)
   const [newClub, setNewClub] = useState({
     name: '',
-    slug: '',
     email: '',
     password: '',
     phone: '',
@@ -241,11 +240,25 @@ function OwnerPanel() {
   const handleCreateClub = async (e) => {
     e.preventDefault()
     try {
-      await api.post('/clubs/', newClub)
+      // Generate slug automatically from club name
+      const slug = newClub.name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Remove accents
+        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+        .trim()
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      
+      const clubData = {
+        ...newClub,
+        slug
+      }
+      
+      await api.post('/clubs/', clubData)
       setShowCreateClub(false)
       setNewClub({
         name: '',
-        slug: '',
         email: '',
         password: '',
         phone: '',
@@ -1140,16 +1153,6 @@ function OwnerPanel() {
                     type="text"
                     value={newClub.name}
                     onChange={(e) => setNewClub({...newClub, name: e.target.value})}
-                    required
-                    style={{ width: '100%', padding: '10px', border: '1px solid #4a5f7f', borderRadius: '5px', backgroundColor: '#34495e', color: 'white' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', color: '#bdc3c7' }}>Slug (URL) *</label>
-                  <input
-                    type="text"
-                    value={newClub.slug}
-                    onChange={(e) => setNewClub({...newClub, slug: e.target.value})}
                     required
                     style={{ width: '100%', padding: '10px', border: '1px solid #4a5f7f', borderRadius: '5px', backgroundColor: '#34495e', color: 'white' }}
                   />
