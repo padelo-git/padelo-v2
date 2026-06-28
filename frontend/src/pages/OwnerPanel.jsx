@@ -187,10 +187,7 @@ function OwnerPanel() {
 
   const handleActivateClub = async (clubId) => {
     try {
-      const token = localStorage.getItem('token')
-      await api.put(`/clubs/${clubId}/activate`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      await api.put(`/clubs/${clubId}/activate`)
       alert('Club activado exitosamente')
       fetchPendingClubs()
       fetchClubs()
@@ -204,10 +201,7 @@ function OwnerPanel() {
 
   const handleSuspendClub = async (clubId) => {
     try {
-      const token = localStorage.getItem('token')
-      await api.put(`/clubs/${clubId}/suspend`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      await api.put(`/clubs/${clubId}/suspend`)
       alert('Club suspendido exitosamente')
       fetchClubs()
       setSelectedClub(null)
@@ -222,10 +216,7 @@ function OwnerPanel() {
       return
     }
     try {
-      const token = localStorage.getItem('token')
-      await api.delete(`/clubs/${clubId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      await api.delete(`/clubs/${clubId}`)
       alert('Club eliminado exitosamente')
       fetchClubs()
       fetchPendingClubs()
