@@ -10,6 +10,8 @@ function OwnerPanel() {
   const [systemMetrics, setSystemMetrics] = useState(null)
   const [businessMetrics, setBusinessMetrics] = useState(null)
   const [activeView, setActiveView] = useState('monitoring')
+  const [alertsViewed, setAlertsViewed] = useState(false)
+  const [clubsViewed, setClubsViewed] = useState(false)
   const [showCreateClub, setShowCreateClub] = useState(false)
   const [showBackups, setShowBackups] = useState(false)
   const [timezone, setTimezone] = useState(() => localStorage.getItem('timezone') || 'UTC')
@@ -271,6 +273,16 @@ function OwnerPanel() {
     localStorage.removeItem('token')
     localStorage.removeItem('userType')
     navigate('/login')
+  }
+
+  const handleViewChange = (view) => {
+    setActiveView(view)
+    if (view === 'alerts') {
+      setAlertsViewed(true)
+    }
+    if (view === 'clubs') {
+      setClubsViewed(true)
+    }
   }
 
   const renderContent = () => {
@@ -911,7 +923,7 @@ function OwnerPanel() {
       <nav style={{ padding: '20px 30px', backgroundColor: '#2c3e50', borderBottom: '1px solid #34495e' }}>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <button
-            onClick={() => setActiveView('monitoring')}
+            onClick={() => handleViewChange('monitoring')}
             style={{ 
               padding: '10px 20px', 
               backgroundColor: activeView === 'monitoring' ? '#34495e' : 'transparent', 
@@ -925,7 +937,7 @@ function OwnerPanel() {
             📊 Monitoreo en Vivo
           </button>
           <button
-            onClick={() => setActiveView('clubs')}
+            onClick={() => handleViewChange('clubs')}
             style={{ 
               padding: '10px 20px', 
               backgroundColor: activeView === 'clubs' ? '#34495e' : 'transparent', 
@@ -938,7 +950,7 @@ function OwnerPanel() {
             }}
           >
             🏟️ Clubes
-            {pendingClubsCount > 0 && (
+            {pendingClubsCount > 0 && !clubsViewed && (
               <span style={{
                 position: 'absolute',
                 top: '-5px',
@@ -959,7 +971,7 @@ function OwnerPanel() {
             )}
           </button>
           <button
-            onClick={() => setActiveView('business')}
+            onClick={() => handleViewChange('business')}
             style={{ 
               padding: '10px 20px', 
               backgroundColor: activeView === 'business' ? '#34495e' : 'transparent', 
@@ -973,7 +985,7 @@ function OwnerPanel() {
             💰 Negocio
           </button>
           <button
-            onClick={() => setActiveView('backups')}
+            onClick={() => handleViewChange('backups')}
             style={{ 
               padding: '10px 20px', 
               backgroundColor: activeView === 'backups' ? '#34495e' : 'transparent', 
@@ -987,7 +999,7 @@ function OwnerPanel() {
             💾 Backups
           </button>
           <button
-            onClick={() => setActiveView('alerts')}
+            onClick={() => handleViewChange('alerts')}
             style={{ 
               padding: '10px 20px', 
               backgroundColor: activeView === 'alerts' ? '#34495e' : 'transparent', 
@@ -1000,7 +1012,7 @@ function OwnerPanel() {
             }}
           >
             🔔 Alertas
-            {alerts.length > 0 && (
+            {alerts.length > 0 && !alertsViewed && (
               <span style={{ 
                 position: 'absolute', 
                 top: '-5px', 
