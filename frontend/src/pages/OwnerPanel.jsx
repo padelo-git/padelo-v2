@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../config/axios'
 
+// Owner Panel - Updated with delete club button
 function OwnerPanel() {
   const [user, setUser] = useState(null)
   const [clubs, setClubs] = useState([])
