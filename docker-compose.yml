@@ -9,6 +9,12 @@ services:
       - DATABASE_URL=postgresql+asyncpg://padelo:tI5X9CNM65KlgD$&1&Y6xuWIftK4Ics#@db:5432/padelo_db
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=uL0FRxtMZKW2zTi_oks2s9KxiMJzbX19R8p6z-0_1aQ
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=davidgctd@gmail.com
+      - SMTP_PASSWORD=YOUR_GMAIL_APP_PASSWORD
+      - EMAIL_FROM=noreply@nexasist.com
+      - OWNER_EMAIL=davidgctd@gmail.com
     depends_on:
       - db
       - redis
