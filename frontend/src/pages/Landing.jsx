@@ -35,9 +35,23 @@ function Landing() {
         .replace(/\s+/g, '-') // Replace spaces with hyphens
         .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
       
+      // Set language automatically based on country
+      const countryLanguageMap = {
+        'Argentina': 'es',
+        'México': 'es',
+        'España': 'es',
+        'Brasil': 'pt',
+        'Chile': 'es',
+        'Colombia': 'es',
+        'Uruguay': 'es',
+        'Otro': 'es'
+      }
+      const language = countryLanguageMap[clubForm.country] || 'es'
+      
       const clubData = {
         ...clubForm,
-        slug
+        slug,
+        language
       }
       
       const response = await api.post('/clubs/', clubData)

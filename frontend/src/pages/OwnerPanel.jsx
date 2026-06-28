@@ -250,9 +250,31 @@ function OwnerPanel() {
         .replace(/\s+/g, '-') // Replace spaces with hyphens
         .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
       
+      // Set language automatically based on country
+      const countryLanguageMap = {
+        'AR': 'es',
+        'MX': 'es',
+        'US': 'en',
+        'BR': 'pt',
+        'CO': 'es',
+        'CL': 'es',
+        'PE': 'es',
+        'ES': 'es',
+        'UY': 'es',
+        'PY': 'es',
+        'BO': 'es',
+        'EC': 'es',
+        'CR': 'es',
+        'PA': 'es',
+        'DO': 'es',
+        'VE': 'es'
+      }
+      const language = countryLanguageMap[newClub.country] || 'es'
+      
       const clubData = {
         ...newClub,
-        slug
+        slug,
+        language
       }
       
       await api.post('/clubs/', clubData)
