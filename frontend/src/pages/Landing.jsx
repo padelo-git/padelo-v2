@@ -8,7 +8,6 @@ function Landing() {
   const [showClubModal, setShowClubModal] = useState(false)
   const [clubForm, setClubForm] = useState({
     name: '',
-    slug: '',
     email: '',
     password: '',
     phone: '',
@@ -26,7 +25,22 @@ function Landing() {
     console.log('Starting club registration:', clubForm)
 
     try {
-      const response = await api.post('/clubs/', clubForm)
+      // Generate slug automatically from club name
+      const slug = clubForm.name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Remove accents
+        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+        .trim()
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      
+      const clubData = {
+        ...clubForm,
+        slug
+      }
+      
+      const response = await api.post('/clubs/', clubData)
       console.log('Registration successful:', response.data)
       setShowClubModal(false)
       setShowSuccessMessage(true)
@@ -287,34 +301,6 @@ function Landing() {
                     boxSizing: 'border-box'
                   }}
                 />
-              </div>
-
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '5px',
-                  color: '#333',
-                  fontSize: '13px',
-                  fontWeight: '500'
-                }}>
-                  Slug (URL) *
-                </label>
-                <input
-                  type="text"
-                  value={clubForm.slug}
-                  onChange={(e) => setClubForm({...clubForm, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-')})}
-                  required
-                  placeholder="mi-club-padel"
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '2px solid #e0e0e0',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    boxSizing: 'border-box'
-                  }}
-                />
-                <small style={{ color: '#666', fontSize: '11px' }}>Solo letras, números y guiones</small>
               </div>
 
               <div style={{ marginBottom: '15px' }}>
