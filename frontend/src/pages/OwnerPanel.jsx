@@ -12,6 +12,7 @@ function OwnerPanel() {
   const [activeView, setActiveView] = useState('monitoring')
   const [alertsViewed, setAlertsViewed] = useState(false)
   const [clubsViewed, setClubsViewed] = useState(false)
+  const [selectedClub, setSelectedClub] = useState(null)
   const [showCreateClub, setShowCreateClub] = useState(false)
   const [showBackups, setShowBackups] = useState(false)
   const [timezone, setTimezone] = useState(() => localStorage.getItem('timezone') || 'UTC')
@@ -195,9 +196,25 @@ function OwnerPanel() {
       fetchPendingClubs()
       fetchClubs()
       fetchPendingClubsCount()
+      setSelectedClub(null)
     } catch (err) {
       console.error('Error activating club:', err)
       alert('Error al activar club')
+    }
+  }
+
+  const handleSuspendClub = async (clubId) => {
+    try {
+      const token = localStorage.getItem('token')
+      await api.put(`/clubs/${clubId}/suspend`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      alert('Club suspendido exitosamente')
+      fetchClubs()
+      setSelectedClub(null)
+    } catch (err) {
+      console.error('Error suspending club:', err)
+      alert('Error al suspender club')
     }
   }
 
@@ -214,6 +231,7 @@ function OwnerPanel() {
       fetchClubs()
       fetchPendingClubs()
       fetchPendingClubsCount()
+      setSelectedClub(null)
     } catch (err) {
       console.error('Error deleting club:', err)
       alert('Error al eliminar club')
@@ -363,12 +381,39 @@ function OwnerPanel() {
           <div style={{ padding: '20px', backgroundColor: '#2c3e50', borderRadius: '5px', border: '1px solid #34495e' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h3>Clubes ({clubs.length})</h3>
-              <button
-                onClick={() => setShowCreateClub(true)}
-                style={{ padding: '8px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-              >
-                + Nuevo Club
-              </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={() => setShowCreateClub(true)}
+                  style={{ padding: '8px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                >
+                  + Nuevo Club
+                </button>
+                {selectedClub && (
+                  <>
+                    <button
+                      onClick={() => selectedClub && handleActivateClub(selectedClub.id)}
+                      disabled={!selectedClub || selectedClub.is_active}
+                      style={{ padding: '8px 16px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', opacity: selectedClub && !selectedClub.is_active ? 1 : 0.5 }}
+                    >
+                      ✅ Activar
+                    </button>
+                    <button
+                      onClick={() => selectedClub && handleSuspendClub(selectedClub.id)}
+                      disabled={!selectedClub || !selectedClub.is_active}
+                      style={{ padding: '8px 16px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer', opacity: selectedClub && selectedClub.is_active ? 1 : 0.5 }}
+                    >
+                      ⏸️ Suspender
+                    </button>
+                    <button
+                      onClick={() => selectedClub && handleDeleteClub(selectedClub.id)}
+                      disabled={!selectedClub}
+                      style={{ padding: '8px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', opacity: selectedClub ? 1 : 0.5 }}
+                    >
+                      🗑️ Eliminar
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Pending Clubs Section */}
@@ -379,20 +424,24 @@ function OwnerPanel() {
                 </h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
                   {pendingClubs.map(club => (
-                    <div key={club.id} style={{ padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '2px solid #ffc107' }}>
+                    <div 
+                      key={club.id} 
+                      onClick={() => setSelectedClub(club)}
+                      style={{ 
+                        padding: '15px', 
+                        backgroundColor: selectedClub?.id === club.id ? '#4a5f7f' : '#34495e', 
+                        borderRadius: '5px', 
+                        border: selectedClub?.id === club.id ? '3px solid #ffc107' : '2px solid #ffc107',
+                        cursor: 'pointer'
+                      }}
+                    >
                       <h4 style={{ marginBottom: '10px' }}>{club.name}</h4>
                       <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>📧 {club.email}</p>
                       <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>📍 {club.city || 'Sin ciudad'}</p>
                       <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>🌍 {club.country || 'Sin país'}</p>
-                      <p style={{ fontSize: '12px', color: '#ffc107', marginBottom: '15px' }}>
+                      <p style={{ fontSize: '12px', color: '#ffc107', marginBottom: '5px' }}>
                         Registrado: {new Date(club.created_at).toLocaleString()}
                       </p>
-                      <button
-                        onClick={() => handleActivateClub(club.id)}
-                        style={{ padding: '8px 16px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
-                      >
-                        ✅ Activar Club
-                      </button>
                     </div>
                   ))}
                 </div>
@@ -409,29 +458,21 @@ function OwnerPanel() {
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
                   {clubs.filter(c => c.is_active).map(club => (
-                    <div key={club.id} style={{ padding: '15px', backgroundColor: '#34495e', borderRadius: '5px', border: '1px solid #4a5f7f' }}>
+                    <div 
+                      key={club.id} 
+                      onClick={() => setSelectedClub(club)}
+                      style={{ 
+                        padding: '15px', 
+                        backgroundColor: selectedClub?.id === club.id ? '#4a5f7f' : '#34495e', 
+                        borderRadius: '5px', 
+                        border: selectedClub?.id === club.id ? '3px solid #28a745' : '1px solid #4a5f7f',
+                        cursor: 'pointer'
+                      }}
+                    >
                       <h4 style={{ marginBottom: '10px' }}>{club.name}</h4>
                       <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>📧 {club.email}</p>
                       <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>📍 {club.city || 'Sin ciudad'}</p>
-                      <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '15px' }}>🌍 {club.country || 'Sin país'}</p>
-                      <div style={{ display: 'flex', gap: '10px' }}>
-                        <button
-                          style={{ padding: '6px 12px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
-                        >
-                          Ver Detalles
-                        </button>
-                        <button
-                          style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
-                        >
-                          Suspender
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClub(club.id)}
-                          style={{ padding: '6px 12px', backgroundColor: '#c82333', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
-                        >
-                          🗑️ Eliminar
-                        </button>
-                      </div>
+                      <p style={{ fontSize: '14px', color: '#bdc3c7', marginBottom: '5px' }}>🌍 {club.country || 'Sin país'}</p>
                     </div>
                   ))}
                 </div>

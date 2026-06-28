@@ -208,6 +208,25 @@ async def activate_club(club_id: int, current_user: dict = Depends(get_current_u
     return {"message": "Club activated successfully", "club": club}
 
 
+@router.put("/{club_id}/suspend")
+async def suspend_club(club_id: int, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    """Suspend a club (requires owner/admin)"""
+    result = await db.execute(select(Club).where(Club.id == club_id))
+    club = result.scalar_one_or_none()
+    
+    if not club:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Club not found"
+        )
+    
+    club.is_active = False
+    await db.commit()
+    await db.refresh(club)
+    
+    return {"message": "Club suspended successfully", "club": club}
+
+
 @router.delete("/{club_id}")
 async def delete_club(club_id: int, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """Delete a club (requires owner/admin) - WARNING: This will delete all club data"""
