@@ -62,18 +62,24 @@ async def delete_club_by_email(email):
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) != 2:
-        print("Usage: python delete_club_by_email.py <email>")
+    if len(sys.argv) < 2:
+        print("Usage: python delete_club_by_email.py <email> [--force]")
         print("Example: python delete_club_by_email.py davidgctd@gmail.com")
+        print("Example: python delete_club_by_email.py davidgctd@gmail.com --force")
         sys.exit(1)
     
     email = sys.argv[1]
-    print(f"⚠️  WARNING: This will permanently delete the club with email '{email}' and all related data!")
-    print("This action cannot be undone.")
+    force = '--force' in sys.argv
     
-    confirm = input("Are you sure you want to continue? (yes/no): ")
-    if confirm.lower() != 'yes':
-        print("Operation cancelled.")
-        sys.exit(0)
+    if not force:
+        print(f"⚠️  WARNING: This will permanently delete the club with email '{email}' and all related data!")
+        print("This action cannot be undone.")
+        
+        confirm = input("Are you sure you want to continue? (yes/no): ")
+        if confirm.lower() != 'yes':
+            print("Operation cancelled.")
+            sys.exit(0)
+    else:
+        print(f"⚠️  Force deletion of club with email '{email}' and all related data...")
     
     asyncio.run(delete_club_by_email(email))
