@@ -388,31 +388,27 @@ function OwnerPanel() {
                 >
                   + Nuevo Club
                 </button>
-                {selectedClub && (
-                  <>
-                    <button
-                      onClick={() => selectedClub && handleActivateClub(selectedClub.id)}
-                      disabled={!selectedClub || selectedClub.is_active}
-                      style={{ padding: '8px 16px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', opacity: selectedClub && !selectedClub.is_active ? 1 : 0.5 }}
-                    >
-                      ✅ Activar
-                    </button>
-                    <button
-                      onClick={() => selectedClub && handleSuspendClub(selectedClub.id)}
-                      disabled={!selectedClub || !selectedClub.is_active}
-                      style={{ padding: '8px 16px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer', opacity: selectedClub && selectedClub.is_active ? 1 : 0.5 }}
-                    >
-                      ⏸️ Suspender
-                    </button>
-                    <button
-                      onClick={() => selectedClub && handleDeleteClub(selectedClub.id)}
-                      disabled={!selectedClub}
-                      style={{ padding: '8px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', opacity: selectedClub ? 1 : 0.5 }}
-                    >
-                      🗑️ Eliminar
-                    </button>
-                  </>
-                )}
+                <button
+                  onClick={() => selectedClub && handleActivateClub(selectedClub.id)}
+                  disabled={!selectedClub || selectedClub.is_active}
+                  style={{ padding: '8px 16px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', opacity: selectedClub && !selectedClub.is_active ? 1 : 0.5 }}
+                >
+                  ✅ Activar
+                </button>
+                <button
+                  onClick={() => selectedClub && handleSuspendClub(selectedClub.id)}
+                  disabled={!selectedClub || !selectedClub.is_active}
+                  style={{ padding: '8px 16px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer', opacity: selectedClub && selectedClub.is_active ? 1 : 0.5 }}
+                >
+                  ⏸️ Suspender
+                </button>
+                <button
+                  onClick={() => selectedClub && handleDeleteClub(selectedClub.id)}
+                  disabled={!selectedClub}
+                  style={{ padding: '8px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', opacity: selectedClub ? 1 : 0.5 }}
+                >
+                  🗑️ Eliminar
+                </button>
               </div>
             </div>
 
