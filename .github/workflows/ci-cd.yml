@@ -2,7 +2,7 @@ name: CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, preproduction ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -39,11 +39,25 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/preproduction'
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    
+    - name: Set environment variables
+      run: |
+        if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          echo "ENVIRONMENT=production" >> $GITHUB_ENV
+          echo "BRANCH=main" >> $GITHUB_ENV
+          echo "FRONTEND_PORT=80" >> $GITHUB_ENV
+          echo "BACKEND_PORT=8000" >> $GITHUB_ENV
+        else
+          echo "ENVIRONMENT=preproduction" >> $GITHUB_ENV
+          echo "BRANCH=preproduction" >> $GITHUB_ENV
+          echo "FRONTEND_PORT=3001" >> $GITHUB_ENV
+          echo "BACKEND_PORT=8001" >> $GITHUB_ENV
+        fi
     
     - name: Deploy to AWS
       uses: appleboy/ssh-action@master
@@ -53,13 +67,18 @@ jobs:
         password: ${{ secrets.PRODUCTION_PASSWORD }}
         script: |
           cd ~/padelo-v2
-          docker-compose down --remove-orphans
-          docker rm -f $(docker ps -aq) 2>/dev/null || true
-          docker image prune -a -f --filter "until=24h"
-          docker container prune -f
-          docker network rm padelo-v2_default 2>/dev/null || true
-          git pull origin main
-          docker-compose up -d --build
+          git checkout ${{ env.BRANCH }}
+          git pull origin ${{ env.BRANCH }}
+          
+          if [ "${{ env.ENVIRONMENT }}" == "preproduction" ]; then
+            # Deploy to preproduction
+            docker-compose -f docker-compose.preproduction.yml down --remove-orphans
+            docker-compose -f docker-compose.preproduction.yml up -d --build
+          else
+            # Deploy to production
+            docker-compose down --remove-orphans
+            docker-compose up -d --build
+          fi
           
     - name: Wait for containers to start
       uses: appleboy/ssh-action@master
@@ -93,14 +112,14 @@ jobs:
         password: ${{ secrets.PRODUCTION_PASSWORD }}
         script: |
           for i in {1..5}; do
-            if curl -f http://localhost:8000/health; then
-              echo "Backend health check passed"
+            if curl -f http://localhost:${{ env.BACKEND_PORT }}/health; then
+              echo "Backend health check passed on port ${{ env.BACKEND_PORT }}"
               exit 0
             fi
-            echo "Backend health check failed, retrying ($i/5)..."
+            echo "Backend health check failed on port ${{ env.BACKEND_PORT }}, retrying ($i/5)..."
             sleep 5
           done
-          echo "Backend health check failed after 5 attempts"
+          echo "Backend health check failed after 5 attempts on port ${{ env.BACKEND_PORT }}"
           exit 1
           
     - name: Health check - Frontend
@@ -111,14 +130,14 @@ jobs:
         password: ${{ secrets.PRODUCTION_PASSWORD }}
         script: |
           for i in {1..5}; do
-            if curl -f http://localhost:3000; then
-              echo "Frontend health check passed"
+            if curl -f http://localhost:${{ env.FRONTEND_PORT }}; then
+              echo "Frontend health check passed on port ${{ env.FRONTEND_PORT }}"
               exit 0
             fi
-            echo "Frontend health check failed, retrying ($i/5)..."
+            echo "Frontend health check failed on port ${{ env.FRONTEND_PORT }}, retrying ($i/5)..."
             sleep 5
           done
-          echo "Frontend health check failed after 5 attempts"
+          echo "Frontend health check failed after 5 attempts on port ${{ env.FRONTEND_PORT }}"
           exit 1
           
     - name: Test backend auth endpoint
@@ -128,7 +147,7 @@ jobs:
         username: ${{ secrets.PRODUCTION_USER }}
         password: ${{ secrets.PRODUCTION_PASSWORD }}
         script: |
-          curl -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" -d '{"email":"davidgctd@gmail.com","password":"Argentina2026"}' || echo "Auth test failed"
+          curl -X POST http://localhost:${{ env.BACKEND_PORT }}/auth/login -H "Content-Type: application/json" -d '{"email":"davidgctd@gmail.com","password":"Argentina2026"}' || echo "Auth test failed"
           
     - name: Rollback on failure
       if: failure()
