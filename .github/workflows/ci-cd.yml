@@ -112,14 +112,14 @@ jobs:
         password: ${{ secrets.PRODUCTION_PASSWORD }}
         script: |
           for i in {1..5}; do
-            if curl -f http://localhost:8000/health; then
-              echo "Backend health check passed"
+            if curl -f http://localhost:${{ env.BACKEND_PORT }}/health; then
+              echo "Backend health check passed on port ${{ env.BACKEND_PORT }}"
               exit 0
             fi
-            echo "Backend health check failed, retrying ($i/5)..."
+            echo "Backend health check failed on port ${{ env.BACKEND_PORT }}, retrying ($i/5)..."
             sleep 5
           done
-          echo "Backend health check failed after 5 attempts"
+          echo "Backend health check failed after 5 attempts on port ${{ env.BACKEND_PORT }}"
           exit 1
           
     - name: Health check - Frontend
@@ -130,14 +130,14 @@ jobs:
         password: ${{ secrets.PRODUCTION_PASSWORD }}
         script: |
           for i in {1..5}; do
-            if curl -f http://localhost:3000; then
-              echo "Frontend health check passed"
+            if curl -f http://localhost:${{ env.FRONTEND_PORT }}; then
+              echo "Frontend health check passed on port ${{ env.FRONTEND_PORT }}"
               exit 0
             fi
-            echo "Frontend health check failed, retrying ($i/5)..."
+            echo "Frontend health check failed on port ${{ env.FRONTEND_PORT }}, retrying ($i/5)..."
             sleep 5
           done
-          echo "Frontend health check failed after 5 attempts"
+          echo "Frontend health check failed after 5 attempts on port ${{ env.FRONTEND_PORT }}"
           exit 1
           
     - name: Test backend auth endpoint
@@ -147,7 +147,7 @@ jobs:
         username: ${{ secrets.PRODUCTION_USER }}
         password: ${{ secrets.PRODUCTION_PASSWORD }}
         script: |
-          curl -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" -d '{"email":"davidgctd@gmail.com","password":"Argentina2026"}' || echo "Auth test failed"
+          curl -X POST http://localhost:${{ env.BACKEND_PORT }}/auth/login -H "Content-Type: application/json" -d '{"email":"davidgctd@gmail.com","password":"Argentina2026"}' || echo "Auth test failed"
           
     - name: Rollback on failure
       if: failure()
