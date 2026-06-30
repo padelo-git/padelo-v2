@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://padelo:tI5X9CNM65KlgD$&1&Y6xuWIftK4Ics#@db:5432/padelo_preproduction_db
+      - REDIS_URL=redis://redis:6379/1
+      - SECRET_KEY=uL0FRxtMZKW2zTi_oks2s9KxiMJzbX19R8p6z-0_1aQ
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=davidgctd@gmail.com
+      - SMTP_PASSWORD=YOUR_GMAIL_APP_PASSWORD
+      - EMAIL_FROM=noreply@nexasist.com
+      - OWNER_EMAIL=davidgctd@gmail.com
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./backend:/app
+      - backups_data_preproduction:/backups
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+  frontend:
+    build: ./frontend
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=padelo
+      - POSTGRES_PASSWORD=tI5X9CNM65KlgD$&1&Y6xuWIftK4Ics#
+      - POSTGRES_DB=padelo_preproduction_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data_preproduction:/var/lib/postgresql/data
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data_preproduction:/data
+
+volumes:
+  postgres_data_preproduction:
+  redis_data_preproduction:
+  backups_data_preproduction:
