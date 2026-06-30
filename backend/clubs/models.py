@@ -31,9 +31,11 @@ class Club(Base):
     currency = Column(String, default="USD")
     timezone = Column(String, default="America/Argentina/Buenos_Aires")
     language = Column(String, default="es")  # es, en, it, pt
+    court_count = Column(Integer, default=1)  # Number of courts
 
     # Pricing fields
     hourly_price = Column(Numeric(10, 2), default=200.00)
+    premium_hourly_price = Column(Numeric(10, 2))  # Premium price for peak hours
     lesson_1_player_price = Column(Numeric(10, 2))
     lesson_2_player_price = Column(Numeric(10, 2))
     lesson_3_player_price = Column(Numeric(10, 2))
@@ -42,6 +44,12 @@ class Club(Base):
     # Operating hours
     operating_hours_start = Column(String, default="08:00")
     operating_hours_end = Column(String, default="22:00")
+    # Tax and Stripe fields
+    tax_id = Column(String)
+    tax_id_type = Column(String, default="none")
+    stripe_public_key = Column(String)
+    stripe_secret_key = Column(String)
+    stripe_webhook_secret = Column(String)
 
     # Relationships
     courts = relationship("Court", back_populates="club")

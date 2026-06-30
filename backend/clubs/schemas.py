@@ -27,11 +27,31 @@ class ClubUpdate(BaseModel):
     country: Optional[str] = None
     description: Optional[str] = None
     logo_url: Optional[str] = None
+    # Configuration fields
+    currency: Optional[str] = None
+    timezone: Optional[str] = None
+    language: Optional[str] = None
+    court_count: Optional[int] = None
+    # Pricing fields
+    hourly_price: Optional[float] = None
+    premium_hourly_price: Optional[float] = None
+    lesson_1_player_price: Optional[float] = None
+    lesson_2_player_price: Optional[float] = None
+    lesson_3_player_price: Optional[float] = None
+    lesson_4_player_price: Optional[float] = None
+    # Operating hours
+    operating_hours_start: Optional[str] = None
+    operating_hours_end: Optional[str] = None
+    # Tax and Stripe fields
+    tax_id: Optional[str] = None
+    tax_id_type: Optional[str] = None
+    stripe_public_key: Optional[str] = None
+    stripe_secret_key: Optional[str] = None
+    stripe_webhook_secret: Optional[str] = None
 
 
 class ClubResponse(ClubBase):
     model_config = ConfigDict(from_attributes=True)
-
     id: int
     is_active: bool
     created_at: datetime
@@ -41,13 +61,22 @@ class ClubResponse(ClubBase):
     grace_period_end_date: Optional[datetime] = None
     currency: Optional[str] = None
     timezone: Optional[str] = None
+    language: Optional[str] = None
+    country: Optional[str] = None
+    court_count: Optional[int] = None
     hourly_price: Optional[float] = None
+    premium_hourly_price: Optional[float] = None
     lesson_1_player_price: Optional[float] = None
     lesson_2_player_price: Optional[float] = None
     lesson_3_player_price: Optional[float] = None
     lesson_4_player_price: Optional[float] = None
     operating_hours_start: Optional[str] = None
     operating_hours_end: Optional[str] = None
+    tax_id: Optional[str] = None
+    tax_id_type: Optional[str] = None
+    stripe_public_key: Optional[str] = None
+    stripe_secret_key: Optional[str] = None
+    stripe_webhook_secret: Optional[str] = None
 
 
 class CourtBase(BaseModel):
@@ -71,7 +100,6 @@ class CourtUpdate(BaseModel):
 
 class CourtResponse(CourtBase):
     model_config = ConfigDict(from_attributes=True)
-    
     id: int
     club_id: int
     is_active: bool
@@ -101,7 +129,6 @@ class ReservationUpdate(BaseModel):
 
 class ReservationResponse(ReservationBase):
     model_config = ConfigDict(from_attributes=True)
-    
     id: int
     user_id: int
     status: str
