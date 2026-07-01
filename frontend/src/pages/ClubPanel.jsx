@@ -41,7 +41,13 @@ function ClubPanel() {
     hourly_price_peak: 300,
     lesson_1_2_players_price: 800,
     lesson_3_players_price: 1200,
-    lesson_4_players_price: 1400
+    lesson_4_players_price: 1400,
+    tax_id: '',
+    tax_address: '',
+    tax_condition: '',
+    stripe_api_key: '',
+    stripe_secret_key: '',
+    stripe_webhook_secret: ''
   })
 
   const countryCurrencyMap = {
@@ -324,7 +330,13 @@ function ClubPanel() {
         lesson_1_player_price: config.lesson_1_2_players_price,
         lesson_2_player_price: config.lesson_1_2_players_price,
         lesson_3_player_price: config.lesson_3_players_price,
-        lesson_4_player_price: config.lesson_4_players_price
+        lesson_4_player_price: config.lesson_4_players_price,
+        tax_id: config.tax_id,
+        tax_address: config.tax_address,
+        tax_condition: config.tax_condition,
+        stripe_api_key: config.stripe_api_key,
+        stripe_secret_key: config.stripe_secret_key,
+        stripe_webhook_secret: config.stripe_webhook_secret
       })
       
       // Generate courts automatically
@@ -551,6 +563,74 @@ function ClubPanel() {
           <p style={{ fontSize: '14px', color: '#cccccc', marginTop: '15px', marginBottom: '20px' }}>
             💡 Los precios de clases para 3 y 4 jugadores se dividen automáticamente por persona.
           </p>
+
+          <h3 style={{ marginTop: '30px', marginBottom: '15px', color: '#ffffff' }}>📄 Datos Fiscales</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#ffffff' }}>CUIT / Tax ID</label>
+              <input
+                type="text"
+                value={config.tax_id}
+                onChange={(e) => setConfig({...config, tax_id: e.target.value})}
+                style={{ width: '100%', padding: '12px', border: '1px solid #444', borderRadius: '5px', fontSize: '16px', backgroundColor: '#1a1a1a', color: '#ffffff' }}
+              />
+              <p style={{ fontSize: '12px', color: '#cccccc', marginTop: '5px' }}>Identificación fiscal del club</p>
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#ffffff' }}>Condición Impositiva</label>
+              <input
+                type="text"
+                value={config.tax_condition}
+                onChange={(e) => setConfig({...config, tax_condition: e.target.value})}
+                style={{ width: '100%', padding: '12px', border: '1px solid #444', borderRadius: '5px', fontSize: '16px', backgroundColor: '#1a1a1a', color: '#ffffff' }}
+              />
+              <p style={{ fontSize: '12px', color: '#cccccc', marginTop: '5px' }}>Ej: Responsable Inscripto, Monotributo, etc.</p>
+            </div>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#ffffff' }}>Dirección Fiscal</label>
+            <input
+              type="text"
+              value={config.tax_address}
+              onChange={(e) => setConfig({...config, tax_address: e.target.value})}
+              style={{ width: '100%', padding: '12px', border: '1px solid #444', borderRadius: '5px', fontSize: '16px', backgroundColor: '#1a1a1a', color: '#ffffff' }}
+            />
+            <p style={{ fontSize: '12px', color: '#cccccc', marginTop: '5px' }}>Dirección completa para facturación</p>
+          </div>
+
+          <h3 style={{ marginTop: '30px', marginBottom: '15px', color: '#ffffff' }}>💳 Configuración Stripe</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#ffffff' }}>Stripe API Key</label>
+              <input
+                type="text"
+                value={config.stripe_api_key}
+                onChange={(e) => setConfig({...config, stripe_api_key: e.target.value})}
+                style={{ width: '100%', padding: '12px', border: '1px solid #444', borderRadius: '5px', fontSize: '16px', backgroundColor: '#1a1a1a', color: '#ffffff' }}
+              />
+              <p style={{ fontSize: '12px', color: '#cccccc', marginTop: '5px' }}>Clave pública de Stripe</p>
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#ffffff' }}>Stripe Secret Key</label>
+              <input
+                type="password"
+                value={config.stripe_secret_key}
+                onChange={(e) => setConfig({...config, stripe_secret_key: e.target.value})}
+                style={{ width: '100%', padding: '12px', border: '1px solid #444', borderRadius: '5px', fontSize: '16px', backgroundColor: '#1a1a1a', color: '#ffffff' }}
+              />
+              <p style={{ fontSize: '12px', color: '#cccccc', marginTop: '5px' }}>Clave secreta de Stripe</p>
+            </div>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#ffffff' }}>Stripe Webhook Secret</label>
+            <input
+              type="password"
+              value={config.stripe_webhook_secret}
+              onChange={(e) => setConfig({...config, stripe_webhook_secret: e.target.value})}
+              style={{ width: '100%', padding: '12px', border: '1px solid #444', borderRadius: '5px', fontSize: '16px', backgroundColor: '#1a1a1a', color: '#ffffff' }}
+            />
+            <p style={{ fontSize: '12px', color: '#cccccc', marginTop: '5px' }}>Secreto para verificar webhooks de Stripe</p>
+          </div>
 
           <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
             <button
