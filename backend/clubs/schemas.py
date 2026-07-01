@@ -45,9 +45,12 @@ class ClubUpdate(BaseModel):
     # Tax and Stripe fields
     tax_id: Optional[str] = None
     tax_id_type: Optional[str] = None
+    tax_address: Optional[str] = None
+    tax_condition: Optional[str] = None
     stripe_public_key: Optional[str] = None
     stripe_secret_key: Optional[str] = None
     stripe_webhook_secret: Optional[str] = None
+    is_configured: Optional[bool] = None
 
 
 class ClubResponse(ClubBase):
@@ -74,9 +77,12 @@ class ClubResponse(ClubBase):
     operating_hours_end: Optional[str] = None
     tax_id: Optional[str] = None
     tax_id_type: Optional[str] = None
+    tax_address: Optional[str] = None
+    tax_condition: Optional[str] = None
     stripe_public_key: Optional[str] = None
     stripe_secret_key: Optional[str] = None
     stripe_webhook_secret: Optional[str] = None
+    is_configured: Optional[bool] = None
 
 
 class CourtBase(BaseModel):

@@ -288,6 +288,18 @@ async def update_club(
     for field, value in club_update.model_dump(exclude_unset=True).items():
         setattr(club, field, value)
     
+    # Check if all required configuration fields are set
+    required_fields = [
+        club.tax_id,
+        club.tax_address,
+        club.tax_condition,
+        club.stripe_public_key,
+        club.stripe_secret_key
+    ]
+    
+    # Mark as configured if all required fields are present
+    club.is_configured = all(required_fields)
+    
     await db.commit()
     await db.refresh(club)
     

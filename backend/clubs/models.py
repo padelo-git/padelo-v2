@@ -47,9 +47,12 @@ class Club(Base):
     # Tax and Stripe fields
     tax_id = Column(String)
     tax_id_type = Column(String, default="none")
+    tax_address = Column(String)
+    tax_condition = Column(String)
     stripe_public_key = Column(String)
     stripe_secret_key = Column(String)
     stripe_webhook_secret = Column(String)
+    is_configured = Column(Boolean, default=False)  # True when all required config fields are set
 
     # Relationships
     courts = relationship("Court", back_populates="club")
