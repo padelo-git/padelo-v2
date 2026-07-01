@@ -134,11 +134,6 @@ function ClubPanel() {
     fetchClubData()
   }, [navigate])
 
-  useEffect(() => {
-    localStorage.setItem('showConfig', JSON.stringify(showConfig))
-  }, [showConfig])
-
-
   const fetchClubData = async () => {
     try {
       const token = localStorage.getItem('token')
