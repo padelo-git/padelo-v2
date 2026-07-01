@@ -69,6 +69,44 @@ function ClubPanel() {
     'VE': 'VES'
   }
 
+  const countryTaxIdMap = {
+    'AR': 'CUIT',
+    'MX': 'RFC',
+    'US': 'EIN / Tax ID',
+    'BR': 'CNPJ / CPF',
+    'CO': 'NIT',
+    'CL': 'RUT',
+    'PE': 'RUC',
+    'ES': 'NIF / CIF',
+    'UY': 'RUT',
+    'PY': 'RUC',
+    'BO': 'NIT',
+    'EC': 'RUC',
+    'CR': 'Cédula Jurídica',
+    'PA': 'RUC',
+    'DO': 'RNC',
+    'VE': 'RIF'
+  }
+
+  const countryTaxConditionMap = {
+    'AR': 'Responsable Inscripto / Monotributo / Exento',
+    'MX': 'Persona Moral / Persona Física',
+    'US': 'LLC / Corporation / Sole Proprietor',
+    'BR': 'Pessoa Jurídica / Pessoa Física',
+    'CO': 'Persona Jurídica / Persona Natural',
+    'CL': 'Empresa / Persona Natural',
+    'PE': 'Persona Jurídica / Persona Natural',
+    'ES': 'Autónomo / Empresa',
+    'UY': 'Persona Jurídica / Persona Física',
+    'PY': 'Persona Jurídica / Persona Física',
+    'BO': 'Persona Jurídica / Persona Natural',
+    'EC': 'Persona Jurídica / Persona Natural',
+    'CR': 'Persona Jurídica / Persona Física',
+    'PA': 'Persona Jurídica / Persona Natural',
+    'DO': 'Persona Jurídica / Persona Física',
+    'VE': 'Persona Jurídica / Persona Natural'
+  }
+
   const handleCountryChange = (country) => {
     const currency = countryCurrencyMap[country] || 'USD'
     setConfig({...config, country, currency})
@@ -567,7 +605,7 @@ function ClubPanel() {
           <h3 style={{ marginTop: '30px', marginBottom: '15px', color: '#ffffff' }}>📄 Datos Fiscales</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#ffffff' }}>CUIT / Tax ID</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#ffffff' }}>{countryTaxIdMap[config.country] || 'Tax ID'}</label>
               <input
                 type="text"
                 value={config.tax_id}
@@ -584,7 +622,7 @@ function ClubPanel() {
                 onChange={(e) => setConfig({...config, tax_condition: e.target.value})}
                 style={{ width: '100%', padding: '12px', border: '1px solid #444', borderRadius: '5px', fontSize: '16px', backgroundColor: '#1a1a1a', color: '#ffffff' }}
               />
-              <p style={{ fontSize: '12px', color: '#cccccc', marginTop: '5px' }}>Ej: Responsable Inscripto, Monotributo, etc.</p>
+              <p style={{ fontSize: '12px', color: '#cccccc', marginTop: '5px' }}>{countryTaxConditionMap[config.country] || 'Condición fiscal'}</p>
             </div>
           </div>
           <div style={{ marginBottom: '20px' }}>
