@@ -378,7 +378,7 @@ function ClubPanel() {
         tax_id: config.tax_id,
         tax_address: config.tax_address,
         tax_condition: config.tax_condition,
-        stripe_api_key: config.stripe_api_key,
+        stripe_public_key: config.stripe_api_key,
         stripe_secret_key: config.stripe_secret_key,
         stripe_webhook_secret: config.stripe_webhook_secret
       })
