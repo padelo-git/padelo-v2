@@ -15,7 +15,10 @@ function ClubPanel() {
   const [cashRegisters, setCashRegisters] = useState([])
   const [showCreateCourt, setShowCreateCourt] = useState(false)
   const [showCreateReservation, setShowCreateReservation] = useState(false)
-  const [activeTab, setActiveTab] = useState('inicio')
+  const [activeTab, setActiveTab] = useState(() => {
+    const saved = localStorage.getItem('activeTab')
+    return saved ? JSON.parse(saved) : 'inicio'
+  })
   const [showQRCode, setShowQRCode] = useState(false)
   const [config, setConfig] = useState({
     court_count: 1,
@@ -133,6 +136,10 @@ function ClubPanel() {
 
     fetchClubData()
   }, [navigate])
+
+  useEffect(() => {
+    localStorage.setItem('activeTab', JSON.stringify(activeTab))
+  }, [activeTab])
 
   const fetchClubData = async () => {
     try {
