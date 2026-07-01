@@ -401,7 +401,10 @@ function ClubPanel() {
       }
       
       fetchClubData()
-      alert('Configuración guardada exitosamente. Las canchas fueron creadas automáticamente.')
+      setShowConfig(false)
+      setShowCalendar(true)
+      setShowPayments(true)
+      alert('Configuración guardada exitosamente. Las canchas fueron creadas automáticamente. Las pestañas de Calendario y Pagos han sido activadas.')
     } catch (err) {
       console.error('Error saving config:', err)
       alert('Error al guardar configuración')
@@ -437,13 +440,13 @@ function ClubPanel() {
 
       {/* Navegación principal */}
       <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '30px', padding: '15px', backgroundColor: '#2a2a2a', borderRadius: '10px' }}>
-        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Inicio</button>
+        <button onClick={() => { setShowCalendar(false); setShowPayments(false); setShowDebts(false); setShowStatistics(false); setShowConfig(false); }} style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Inicio</button>
         <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Profesores</button>
         <button onClick={() => setShowConfig(true)} style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Configuración</button>
         <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Academia</button>
         <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Torneo</button>
-        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Pagos</button>
-        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Calendario</button>
+        <button onClick={() => setShowPayments(true)} style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Pagos</button>
+        <button onClick={() => setShowCalendar(true)} style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Calendario</button>
         <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Reservas</button>
         <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Socios</button>
         <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Recompensas</button>
