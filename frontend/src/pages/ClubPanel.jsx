@@ -15,16 +15,8 @@ function ClubPanel() {
   const [cashRegisters, setCashRegisters] = useState([])
   const [showCreateCourt, setShowCreateCourt] = useState(false)
   const [showCreateReservation, setShowCreateReservation] = useState(false)
-  const [showCalendar, setShowCalendar] = useState(false)
-  const [showStatistics, setShowStatistics] = useState(false)
+  const [activeTab, setActiveTab] = useState('inicio')
   const [showQRCode, setShowQRCode] = useState(false)
-  const [showPayments, setShowPayments] = useState(false)
-  const [showDebts, setShowDebts] = useState(false)
-  const [showCashRegisters, setShowCashRegisters] = useState(false)
-  const [showConfig, setShowConfig] = useState(() => {
-    const saved = localStorage.getItem('showConfig')
-    return saved ? JSON.parse(saved) : false
-  })
   const [config, setConfig] = useState({
     court_count: 1,
     name: '',
@@ -401,10 +393,8 @@ function ClubPanel() {
       }
       
       fetchClubData()
-      setShowConfig(false)
-      setShowCalendar(true)
-      setShowPayments(true)
-      alert('Configuración guardada exitosamente. Las canchas fueron creadas automáticamente. Las pestañas de Calendario y Pagos han sido activadas.')
+      setActiveTab('inicio')
+      alert('Configuración guardada exitosamente. Las canchas fueron creadas automáticamente.')
     } catch (err) {
       console.error('Error saving config:', err)
       alert('Error al guardar configuración')
@@ -440,20 +430,20 @@ function ClubPanel() {
 
       {/* Navegación principal */}
       <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '30px', padding: '15px', backgroundColor: '#2a2a2a', borderRadius: '10px' }}>
-        <button onClick={() => { setShowCalendar(false); setShowPayments(false); setShowDebts(false); setShowStatistics(false); setShowConfig(false); }} style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Inicio</button>
-        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Profesores</button>
-        <button onClick={() => setShowConfig(true)} style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Configuración</button>
-        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Academia</button>
-        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Torneo</button>
-        <button onClick={() => setShowPayments(true)} style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Pagos</button>
-        <button onClick={() => setShowCalendar(true)} style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Calendario</button>
-        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Reservas</button>
-        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Socios</button>
-        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Recompensas</button>
-        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Ayuda</button>
+        <button onClick={() => setActiveTab('inicio')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'inicio' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Inicio</button>
+        <button onClick={() => setActiveTab('profesores')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'profesores' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Profesores</button>
+        <button onClick={() => setActiveTab('configuracion')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'configuracion' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Configuración</button>
+        <button onClick={() => setActiveTab('academia')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'academia' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Academia</button>
+        <button onClick={() => setActiveTab('torneo')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'torneo' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Torneo</button>
+        <button onClick={() => setActiveTab('pagos')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'pagos' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Pagos</button>
+        <button onClick={() => setActiveTab('calendario')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'calendario' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Calendario</button>
+        <button onClick={() => setActiveTab('reservas')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'reservas' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Reservas</button>
+        <button onClick={() => setActiveTab('socios')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'socios' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Socios</button>
+        <button onClick={() => setActiveTab('recompensas')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'recompensas' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Recompensas</button>
+        <button onClick={() => setActiveTab('ayuda')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'ayuda' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Ayuda</button>
       </nav>
 
-      {showConfig && club ? (
+      {activeTab === 'configuracion' && (
         <div style={{ padding: '30px', backgroundColor: '#2a2a2a', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
           <h2 style={{ marginBottom: '20px', color: '#ffffff' }}>⚙️ Configuración del Club</h2>
           <p style={{ marginBottom: '25px', color: '#cccccc' }}>Configura tu club. Estos datos son esenciales para el funcionamiento del sistema.</p>
@@ -681,7 +671,7 @@ function ClubPanel() {
 
           <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
             <button
-              onClick={() => setShowConfig(false)}
+              onClick={() => setActiveTab('inicio')}
               style={{ padding: '15px 30px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}
             >
               ❌ Cancelar
@@ -694,8 +684,8 @@ function ClubPanel() {
             </button>
           </div>
         </div>
-      ) : (
-        <div>
+      )}
+
       {club && (
         <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
           <h2>{club.name}</h2>
@@ -853,7 +843,7 @@ function ClubPanel() {
         </div>
       )}
 
-      {showCalendar && (
+      {activeTab === 'calendario' && (
         <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           <h3 style={{ marginBottom: '15px' }}>Calendario de Reservas</h3>
           <div style={{ marginBottom: '15px' }}>
@@ -894,7 +884,7 @@ function ClubPanel() {
         </div>
       )}
 
-      {showStatistics && (
+      {activeTab === 'estadisticas' && (
         <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           <h3 style={{ marginBottom: '15px' }}>Estadísticas del Club</h3>
           {!statistics ? (
@@ -975,7 +965,7 @@ function ClubPanel() {
         </div>
       )}
 
-      {showPayments && (
+      {activeTab === 'pagos' && (
         <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           <h3 style={{ marginBottom: '15px' }}>Gestión de Pagos</h3>
           
@@ -1076,7 +1066,7 @@ function ClubPanel() {
         </div>
       )}
 
-      {showDebts && (
+      {activeTab === 'deudas' && (
         <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           <h3 style={{ marginBottom: '15px' }}>Gestión de Deudas</h3>
           
@@ -1114,90 +1104,92 @@ function ClubPanel() {
         </div>
       )}
 
-      {showCashRegisters && (
-        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ marginBottom: '15px' }}>Sistema de Cajas</h3>
-          
-          <div style={{ marginBottom: '20px' }}>
-            <button
-              onClick={() => handleCreateCashRegister('Caja Principal', 'main')}
-              style={{ padding: '8px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginRight: '10px' }}
-            >
-              + Caja Principal
-            </button>
-            <button
-              onClick={() => handleCreateCashRegister('Caja Efectivo', 'cash')}
-              style={{ padding: '8px 16px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginRight: '10px' }}
-            >
-              + Caja Efectivo
-            </button>
-            <button
-              onClick={() => handleCreateCashRegister('Caja Tarjeta', 'card')}
-              style={{ padding: '8px 16px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginRight: '10px' }}
-            >
-              + Caja Tarjeta
-            </button>
-            <button
-              onClick={() => handleCreateCashRegister('Caja Transferencia', 'transfer')}
-              style={{ padding: '8px 16px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-            >
-              + Caja Transferencia
-            </button>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
-            {cashRegisters.length === 0 ? (
-              <p style={{ color: '#666' }}>No hay cajas registradas</p>
-            ) : (
-              cashRegisters.map(register => (
-                <div key={register.id} style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px', border: '2px solid #ddd' }}>
-                  <h4 style={{ marginBottom: '10px' }}>{register.name}</h4>
-                  <p style={{ fontSize: '24px', color: '#007bff', fontWeight: 'bold', marginBottom: '5px' }}>${register.balance}</p>
-                  <p style={{ fontSize: '12px', color: '#666' }}>Tipo: {register.register_type}</p>
-                </div>
-              ))
-            )}
-          </div>
+      {activeTab === 'profesores' && (
+        <div style={{ padding: '30px', backgroundColor: '#2a2a2a', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
+          <h2 style={{ marginBottom: '20px', color: '#ffffff' }}>👨‍🏫 Profesores</h2>
+          <p style={{ color: '#cccccc' }}>Gestión de profesores del club.</p>
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
-        <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ marginBottom: '15px' }}>Canchas ({courts.length})</h3>
-          {courts.length === 0 ? (
-            <p>No hay canchas registradas</p>
-          ) : (
-            <ul style={{ listStyle: 'none' }}>
-              {courts.map(court => (
-                <li key={court.id} style={{ padding: '10px', marginBottom: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
-                  <strong>{court.name}</strong>
-                  <p style={{ fontSize: '14px', color: '#666' }}>Número: {court.number}</p>
-                  <p style={{ fontSize: '14px', color: '#666' }}>Superficie: {court.surface || 'Sin especificar'}</p>
-                  <p style={{ fontSize: '14px', color: '#666' }}>{court.is_indoor ? 'Techada' : 'Al aire libre'}</p>
-                </li>
-              ))}
-            </ul>
-          )}
+      {activeTab === 'academia' && (
+        <div style={{ padding: '30px', backgroundColor: '#2a2a2a', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
+          <h2 style={{ marginBottom: '20px', color: '#ffffff' }}>🎓 Academia</h2>
+          <p style={{ color: '#cccccc' }}>Gestión de clases y programas de la academia.</p>
         </div>
+      )}
 
-        <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ marginBottom: '15px' }}>Reservas ({reservations.length})</h3>
-          {reservations.length === 0 ? (
-            <p>No hay reservas pendientes</p>
-          ) : (
-            <ul style={{ listStyle: 'none' }}>
-              {reservations.map(reservation => (
-                <li key={reservation.id} style={{ padding: '10px', marginBottom: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
-                  <strong>Reserva #{reservation.id}</strong>
-                  <p style={{ fontSize: '14px', color: '#666' }}>{reservation.date} - {reservation.start_time}</p>
-                  <p style={{ fontSize: '14px', color: '#666' }}>Precio: ${reservation.price || 'N/A'}</p>
-                </li>
-              ))}
-            </ul>
-          )}
+      {activeTab === 'torneo' && (
+        <div style={{ padding: '30px', backgroundColor: '#2a2a2a', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
+          <h2 style={{ marginBottom: '20px', color: '#ffffff' }}>🏆 Torneos</h2>
+          <p style={{ color: '#cccccc' }}>Gestión de torneos y competencias.</p>
         </div>
-      </div>
-      </div>
+      )}
+
+      {activeTab === 'reservas' && (
+        <div style={{ padding: '30px', backgroundColor: '#2a2a2a', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
+          <h2 style={{ marginBottom: '20px', color: '#ffffff' }}>📅 Reservas</h2>
+          <p style={{ color: '#cccccc' }}>Gestión de reservas de canchas.</p>
+        </div>
+      )}
+
+      {activeTab === 'socios' && (
+        <div style={{ padding: '30px', backgroundColor: '#2a2a2a', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
+          <h2 style={{ marginBottom: '20px', color: '#ffffff' }}>👥 Socios</h2>
+          <p style={{ color: '#cccccc' }}>Gestión de socios del club.</p>
+        </div>
+      )}
+
+      {activeTab === 'recompensas' && (
+        <div style={{ padding: '30px', backgroundColor: '#2a2a2a', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
+          <h2 style={{ marginBottom: '20px', color: '#ffffff' }}>🎁 Recompensas</h2>
+          <p style={{ color: '#cccccc' }}>Sistema de recompensas y puntos.</p>
+        </div>
+      )}
+
+      {activeTab === 'ayuda' && (
+        <div style={{ padding: '30px', backgroundColor: '#2a2a2a', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
+          <h2 style={{ marginBottom: '20px', color: '#ffffff' }}>❓ Ayuda</h2>
+          <p style={{ color: '#cccccc' }}>Centro de ayuda y soporte.</p>
+        </div>
+      )}
+
+      {activeTab === 'inicio' && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
+          <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ marginBottom: '15px' }}>Canchas ({courts.length})</h3>
+            {courts.length === 0 ? (
+              <p>No hay canchas registradas</p>
+            ) : (
+              <ul style={{ listStyle: 'none' }}>
+                {courts.map(court => (
+                  <li key={court.id} style={{ padding: '10px', marginBottom: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
+                    <strong>{court.name}</strong>
+                    <p style={{ fontSize: '14px', color: '#666' }}>Número: {court.number}</p>
+                    <p style={{ fontSize: '14px', color: '#666' }}>Superficie: {court.surface || 'Sin especificar'}</p>
+                    <p style={{ fontSize: '14px', color: '#666' }}>{court.is_indoor ? 'Techada' : 'Al aire libre'}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ marginBottom: '15px' }}>Reservas ({reservations.length})</h3>
+            {reservations.length === 0 ? (
+              <p>No hay reservas pendientes</p>
+            ) : (
+              <ul style={{ listStyle: 'none' }}>
+                {reservations.map(reservation => (
+                  <li key={reservation.id} style={{ padding: '10px', marginBottom: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
+                    <strong>Reserva #{reservation.id}</strong>
+                    <p style={{ fontSize: '14px', color: '#666' }}>{reservation.date} - {reservation.start_time}</p>
+                    <p style={{ fontSize: '14px', color: '#666' }}>Precio: ${reservation.price || 'N/A'}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       )}
     </div>
   )
