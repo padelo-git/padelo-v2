@@ -175,7 +175,13 @@ function ClubPanel() {
           hourly_price_peak: clubData.premium_hourly_price || 300,
           lesson_1_2_players_price: clubData.lesson_1_player_price || 800,
           lesson_3_players_price: clubData.lesson_3_player_price || 1200,
-          lesson_4_players_price: clubData.lesson_4_player_price || 1400
+          lesson_4_players_price: clubData.lesson_4_player_price || 1400,
+          tax_id: clubData.tax_id || '',
+          tax_address: clubData.tax_address || '',
+          tax_condition: clubData.tax_condition || '',
+          stripe_api_key: clubData.stripe_public_key || '',
+          stripe_secret_key: clubData.stripe_secret_key || '',
+          stripe_webhook_secret: clubData.stripe_webhook_secret || ''
         })
         
         // Change language based on club's language setting
