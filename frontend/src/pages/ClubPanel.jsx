@@ -349,13 +349,8 @@ function ClubPanel() {
       // slotIndex 0 es 6:00-6:30, slotIndex 1 es 6:30-7:00, etc.
       const startHour = parseInt(config.operating_hours_start) + Math.floor(dragStart.hourIndex / 2)
       const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
-      let endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
-      let endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
-      // Si el slot final es impar (media hora), incrementar la hora y poner :00
-      if (dragEnd.hourIndex % 2 === 1) {
-        endHour += 1
-        endMin = '00'
-      }
+      const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
+      const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
       
       console.log('Time range:', `${startHour}:${startMin} - ${endHour}:${endMin}`)
       
@@ -1191,13 +1186,8 @@ function ClubPanel() {
                   {(() => {
                     const startHour = parseInt(config.operating_hours_start) + Math.floor(dragStart.hourIndex / 2)
                     const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
-                    let endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
-                    let endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
-                    // Si el slot final es impar (media hora), incrementar la hora y poner :00
-                    if (dragEnd.hourIndex % 2 === 1) {
-                      endHour += 1
-                      endMin = '00'
-                    }
+                    const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
+                    const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
                     return `${startHour}:${startMin} - ${endHour}:${endMin}`
                   })()}
                 </span>
