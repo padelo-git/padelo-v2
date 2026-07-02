@@ -713,14 +713,6 @@ function ClubPanel() {
         </div>
       )}
 
-      {club && (
-        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#2d2d2d', borderRadius: '5px' }}>
-          <h2>{club.name}</h2>
-          <p>Email: {club.email}</p>
-          <p>Ciudad: {club.city || 'Sin ciudad'}</p>
-          <p>País: {club.country || 'Sin país'}</p>
-        </div>
-      )}
 
       {showCreateCourt && (
         <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
@@ -953,7 +945,7 @@ function ClubPanel() {
               {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
                 const hour = parseInt(config.operating_hours_start) + i
                 return (
-                  <div key={hour} style={{ height: '60px', borderBottom: '2px solid #444', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '5px', fontSize: '12px', color: '#ccc', fontWeight: 'bold' }}>
+                  <div key={hour} style={{ height: '60px', borderBottom: '2px solid #444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#ccc', fontWeight: 'bold' }}>
                     {hour}:00
                   </div>
                 )
@@ -964,7 +956,7 @@ function ClubPanel() {
               {/* Columnas de canchas */}
               {Array.from({ length: config.court_count }, (_, courtIndex) => (
                 <div key={courtIndex} style={{ borderRight: courtIndex < config.court_count - 1 ? '1px solid #ddd' : 'none' }}>
-                  <div style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', borderBottom: '1px solid #333', backgroundColor: '#2d2d2d', color: '#fff' }}>
+                  <div style={{ padding: '5px', textAlign: 'center', fontWeight: 'bold', borderBottom: '1px solid #333', backgroundColor: '#2d2d2d', color: '#fff' }}>
                     Cancha {courtIndex + 1}
                   </div>
                   {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, hourIndex) => {
