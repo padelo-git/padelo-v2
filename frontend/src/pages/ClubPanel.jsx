@@ -1094,11 +1094,10 @@ function ClubPanel() {
               <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Tipo de Reserva</label>
               <select 
                 style={{ width: '100%', padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
-                defaultValue="manual"
+                defaultValue="normal"
               >
-                <option value="manual">Manual</option>
+                <option value="normal">Reserva normal</option>
                 <option value="clases">Clases</option>
-                <option value="partido">Partido</option>
               </select>
             </div>
             <div style={{ marginBottom: '20px' }}>
@@ -1136,6 +1135,7 @@ function ClubPanel() {
                 Cancelar
               </button>
               <button
+                onClick={handleCreateReservation}
                 style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
               >
                 Crear Reserva
