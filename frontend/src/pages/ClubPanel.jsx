@@ -345,6 +345,24 @@ function ClubPanel() {
     }
   }
 
+  const closeModal = () => {
+    setShowReservationModal(false)
+    setShowSelectionOverlay(false)
+    setIsDragging(false)
+    setDragStart(null)
+    setDragEnd(null)
+    setSelectedCourt(null)
+    setDragStartY(null)
+    setDragCurrentY(null)
+    setReservationType('normal')
+    setPlayers([
+      { name: '', paymentMethod: 'pendiente' },
+      { name: '', paymentMethod: 'pendiente' },
+      { name: '', paymentMethod: 'pendiente' },
+      { name: '', paymentMethod: 'pendiente' }
+    ])
+  }
+
   const handleCreateReservation = async () => {
     console.log('handleCreateReservation called')
     console.log('club:', club)
@@ -355,6 +373,8 @@ function ClubPanel() {
     
     if (!club || !dragStart || !dragEnd) {
       console.log('Missing required data')
+      alert('Error: Faltan datos requeridos')
+      closeModal()
       return
     }
     
@@ -402,7 +422,8 @@ function ClubPanel() {
       const court = courts[selectedCourt]
       console.log('Selected court:', court)
       if (!court) {
-        alert('Error: No se encontró la cancha')
+        alert('Error: No se encontró la cancha. Por favor, recarga la página.')
+        closeModal()
         return
       }
       
@@ -429,24 +450,8 @@ function ClubPanel() {
       
       console.log('Response:', response)
       
-      // Cerrar modal y resetear estado
-      setShowReservationModal(false)
-      setShowSelectionOverlay(false) // Desactivar overlay
-      setIsDragging(false)
-      setDragStart(null)
-      setDragEnd(null)
-      setSelectedCourt(null)
-      setDragStartY(null)
-      setDragCurrentY(null)
-      setReservationType('normal')
-      setPlayers([
-        { name: '', paymentMethod: 'pendiente' },
-        { name: '', paymentMethod: 'pendiente' },
-        { name: '', paymentMethod: 'pendiente' },
-        { name: '', paymentMethod: 'pendiente' }
-      ])
-      
       alert('Reserva creada exitosamente')
+      closeModal()
       
       // Recargar reservas para mostrar la nueva reserva
       fetchReservationsForDate(selectedDate)
@@ -454,6 +459,7 @@ function ClubPanel() {
       console.error('Error creating reservation:', err)
       console.error('Error response:', err.response)
       alert('Error al crear la reserva: ' + (err.response?.data?.detail || err.message))
+      closeModal()
     }
   }
 
@@ -1252,23 +1258,7 @@ function ClubPanel() {
             </div>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button
-                onClick={() => {
-                  setShowReservationModal(false)
-                  setShowSelectionOverlay(false) // Desactivar overlay
-                  setIsDragging(false)
-                  setDragStart(null)
-                  setDragEnd(null)
-                  setSelectedCourt(null)
-                  setDragStartY(null)
-                  setDragCurrentY(null)
-                  setReservationType('normal')
-                  setPlayers([
-                    { name: '', paymentMethod: 'pendiente' },
-                    { name: '', paymentMethod: 'pendiente' },
-                    { name: '', paymentMethod: 'pendiente' },
-                    { name: '', paymentMethod: 'pendiente' }
-                  ])
-                }}
+                onClick={closeModal}
                 style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
               >
                 Cancelar
