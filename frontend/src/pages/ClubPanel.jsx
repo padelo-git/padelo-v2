@@ -248,16 +248,16 @@ function ClubPanel() {
     }
   }
 
-  const handleSlotMouseDown = (courtIndex, hour) => {
+  const handleSlotMouseDown = (courtIndex, hourIndex) => {
     setIsDragging(true)
-    setDragStart({ courtIndex, hour })
-    setDragEnd({ courtIndex, hour })
+    setDragStart({ courtIndex, hourIndex })
+    setDragEnd({ courtIndex, hourIndex })
     setSelectedCourt(courtIndex)
   }
 
-  const handleSlotMouseMove = (courtIndex, hour) => {
+  const handleSlotMouseMove = (courtIndex, hourIndex) => {
     if (isDragging && selectedCourt === courtIndex) {
-      setDragEnd({ courtIndex, hour })
+      setDragEnd({ courtIndex, hourIndex })
     }
   }
 
@@ -268,15 +268,15 @@ function ClubPanel() {
     }
   }
 
-  const isSlotSelected = (courtIndex, hour) => {
+  const isSlotSelected = (courtIndex, hourIndex) => {
     if (!isDragging || !dragStart || !dragEnd || selectedCourt !== courtIndex) {
       return false
     }
-    const startHour = dragStart.hour
-    const endHour = dragEnd.hour
-    const minHour = Math.min(startHour, endHour)
-    const maxHour = Math.max(startHour, endHour)
-    return hour >= minHour && hour <= maxHour
+    const startIndex = dragStart.hourIndex
+    const endIndex = dragEnd.hourIndex
+    const minIndex = Math.min(startIndex, endIndex)
+    const maxIndex = Math.max(startIndex, endIndex)
+    return hourIndex >= minIndex && hourIndex <= maxIndex
   }
 
   const handleCreateReservation = async (e) => {
@@ -983,8 +983,9 @@ function ClubPanel() {
               {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
                 const hour = parseInt(config.operating_hours_start) + i
                 return (
-                  <div key={hour} style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
-                    {hour}:00
+                  <div key={hour} style={{ height: '60px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
+                    <div style={{ height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{hour}:00</div>
+                    <div style={{ height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#888' }}>{hour}:30</div>
                   </div>
                 )
               })}
@@ -997,33 +998,25 @@ function ClubPanel() {
                   <div style={{ padding: '5px', textAlign: 'center', fontWeight: 'bold', borderBottom: '1px solid #333', backgroundColor: '#2d2d2d', color: '#fff' }}>
                     Cancha {courtIndex + 1}
                   </div>
-                  {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, hourIndex) => {
-                    const hour = parseInt(config.operating_hours_start) + hourIndex
-                    const isSelected = isSlotSelected(courtIndex, hour)
+                  {Array.from({ length: (parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 2 }, (_, slotIndex) => {
+                    const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
+                    const isHalfHour = slotIndex % 2 === 1
+                    const isSelected = isSlotSelected(courtIndex, slotIndex)
                     return (
                       <div 
-                        key={`${courtIndex}-${hour}`}
-                        onMouseDown={() => handleSlotMouseDown(courtIndex, hour)}
-                        onMouseMove={() => handleSlotMouseMove(courtIndex, hour)}
+                        key={`${courtIndex}-${slotIndex}`}
+                        onMouseDown={() => handleSlotMouseDown(courtIndex, slotIndex)}
+                        onMouseMove={() => handleSlotMouseMove(courtIndex, slotIndex)}
                         onMouseUp={handleSlotMouseUp}
                         style={{ 
-                          height: '60px', 
-                          borderBottom: '2px solid #333', 
+                          height: '30px', 
+                          borderBottom: isHalfHour ? '1px solid #333' : '2px solid #333', 
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
                           backgroundColor: isSelected ? '#F59E0B' : '#2d2d2d'
                         }}
                       >
-                        {/* Línea sutil entre medias */}
-                        <div style={{ 
-                          position: 'absolute', 
-                          top: '50%', 
-                          left: 0, 
-                          right: 0, 
-                          height: '1px', 
-                          backgroundColor: '#444' 
-                        }}></div>
                       </div>
                     )
                   })}
@@ -1051,26 +1044,24 @@ function ClubPanel() {
             </div>
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Jugadores</label>
-              <input 
-                type="text" 
-                placeholder="Nombre del jugador 1"
-                style={{ width: '100%', padding: '10px', marginBottom: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
-              />
-              <input 
-                type="text" 
-                placeholder="Nombre del jugador 2"
-                style={{ width: '100%', padding: '10px', marginBottom: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
-              />
-              <input 
-                type="text" 
-                placeholder="Nombre del jugador 3"
-                style={{ width: '100%', padding: '10px', marginBottom: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
-              />
-              <input 
-                type="text" 
-                placeholder="Nombre del jugador 4"
-                style={{ width: '100%', padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
-              />
+              {[1, 2, 3, 4].map((playerNum) => (
+                <div key={playerNum} style={{ marginBottom: '10px' }}>
+                  <input 
+                    type="text" 
+                    placeholder={`Nombre del jugador ${playerNum}`}
+                    style={{ width: '100%', padding: '10px', marginBottom: '5px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
+                  />
+                  <select 
+                    style={{ width: '100%', padding: '8px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff', fontSize: '12px' }}
+                    defaultValue="pendiente"
+                  >
+                    <option value="pendiente">Pendiente de pago</option>
+                    <option value="efectivo">Efectivo</option>
+                    <option value="club">Club</option>
+                    <option value="sistema">Sistema</option>
+                  </select>
+                </div>
+              ))}
             </div>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button
