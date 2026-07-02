@@ -251,7 +251,7 @@ function ClubPanel() {
   const handleSlotMouseDown = (courtIndex, hourIndex) => {
     setIsDragging(true)
     setDragStart({ courtIndex, hourIndex })
-    setDragEnd({ courtIndex, hourIndex })
+    setDragEnd(null)
     setSelectedCourt(courtIndex)
   }
 
@@ -266,6 +266,9 @@ function ClubPanel() {
       setIsDragging(false)
       setShowReservationModal(true)
     }
+    setDragStart(null)
+    setDragEnd(null)
+    setSelectedCourt(null)
   }
 
   const isSlotSelected = (courtIndex, hourIndex) => {
@@ -983,9 +986,8 @@ function ClubPanel() {
               {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
                 const hour = parseInt(config.operating_hours_start) + i
                 return (
-                  <div key={hour} style={{ height: '60px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
-                    <div style={{ height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{hour}:00</div>
-                    <div style={{ height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#888' }}>{hour}:30</div>
+                  <div key={hour} style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
+                    {hour}:00
                   </div>
                 )
               })}
@@ -1045,17 +1047,17 @@ function ClubPanel() {
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Jugadores</label>
               {[1, 2, 3, 4].map((playerNum) => (
-                <div key={playerNum} style={{ marginBottom: '10px' }}>
+                <div key={playerNum} style={{ marginBottom: '10px', display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <input 
                     type="text" 
                     placeholder={`Nombre del jugador ${playerNum}`}
-                    style={{ width: '100%', padding: '10px', marginBottom: '5px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
+                    style={{ flex: 1, padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
                   />
                   <select 
-                    style={{ width: '100%', padding: '8px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff', fontSize: '12px' }}
+                    style={{ padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff', fontSize: '12px', minWidth: '120px' }}
                     defaultValue="pendiente"
                   >
-                    <option value="pendiente">Pendiente de pago</option>
+                    <option value="pendiente">Pendiente</option>
                     <option value="efectivo">Efectivo</option>
                     <option value="club">Club</option>
                     <option value="sistema">Sistema</option>
