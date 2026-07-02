@@ -20,7 +20,8 @@ function ClubPanel() {
     return saved ? JSON.parse(saved) : 'inicio'
   })
   const [showQRCode, setShowQRCode] = useState(false)
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+  const [selectedDate, setSelectedDate] = useState('')
+  const [currentTime, setCurrentTime] = useState('')
   const [config, setConfig] = useState({
     court_count: 1,
     name: '',
@@ -141,6 +142,29 @@ function ClubPanel() {
   useEffect(() => {
     localStorage.setItem('activeTab', JSON.stringify(activeTab))
   }, [activeTab])
+
+  // Initialize selectedDate with local timezone
+  useEffect(() => {
+    const getLocalDate = () => {
+      const now = new Date()
+      const year = now.getFullYear()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const day = String(now.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+    setSelectedDate(getLocalDate())
+  }, [])
+
+  // Update current time every second
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date()
+      setCurrentTime(now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }))
+    }
+    updateTime()
+    const interval = setInterval(updateTime, 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   const fetchClubData = async () => {
     try {
@@ -432,7 +456,7 @@ function ClubPanel() {
       </header>
 
       {/* Navegación principal */}
-      <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '30px', padding: '15px', backgroundColor: '#2a2a2a', borderRadius: '10px' }}>
+      <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px', padding: '15px', backgroundColor: '#2a2a2a', borderRadius: '10px' }}>
         <button onClick={() => setActiveTab('inicio')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'inicio' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Inicio</button>
         <button onClick={() => setActiveTab('profesores')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'profesores' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Profesores</button>
         <button onClick={() => setActiveTab('configuracion')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'configuracion' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Configuración</button>
@@ -847,31 +871,43 @@ function ClubPanel() {
       )}
 
       {activeTab === 'calendario' && (
-        <div style={{ height: 'calc(100vh - 200px)', display: 'flex', flexDirection: 'column', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-          {/* Header con navegación de fechas y leyenda */}
+        <div style={{ height: 'calc(100vh - 180px)', display: 'flex', flexDirection: 'column', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          {/* Header con navegación de fechas, reloj y leyenda */}
           <div style={{ padding: '15px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <button
                 onClick={() => {
-                  const date = new Date(selectedDate)
+                  const date = new Date(selectedDate + 'T00:00:00')
                   date.setDate(date.getDate() - 1)
-                  setSelectedDate(date.toISOString().split('T')[0])
+                  const year = date.getFullYear()
+                  const month = String(date.getMonth() + 1).padStart(2, '0')
+                  const day = String(date.getDate()).padStart(2, '0')
+                  setSelectedDate(`${year}-${month}-${day}`)
                 }}
                 style={{ padding: '8px 12px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer' }}
               >
                 ←
               </button>
               <button
-                onClick={() => setSelectedDate(new Date().toISOString().split('T')[0])}
+                onClick={() => {
+                  const now = new Date()
+                  const year = now.getFullYear()
+                  const month = String(now.getMonth() + 1).padStart(2, '0')
+                  const day = String(now.getDate()).padStart(2, '0')
+                  setSelectedDate(`${year}-${month}-${day}`)
+                }}
                 style={{ padding: '8px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
               >
                 Hoy
               </button>
               <button
                 onClick={() => {
-                  const date = new Date(selectedDate)
+                  const date = new Date(selectedDate + 'T00:00:00')
                   date.setDate(date.getDate() + 1)
-                  setSelectedDate(date.toISOString().split('T')[0])
+                  const year = date.getFullYear()
+                  const month = String(date.getMonth() + 1).padStart(2, '0')
+                  const day = String(date.getDate()).padStart(2, '0')
+                  setSelectedDate(`${year}-${month}-${day}`)
                 }}
                 style={{ padding: '8px 12px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer' }}
               >
@@ -883,6 +919,10 @@ function ClubPanel() {
                 onChange={(e) => setSelectedDate(e.target.value)}
                 style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '5px' }}
               />
+              {/* Reloj */}
+              <div style={{ padding: '8px 12px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>
+                🕐 {currentTime}
+              </div>
             </div>
             
             {/* Leyenda de colores */}
@@ -913,7 +953,7 @@ function ClubPanel() {
               {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
                 const hour = parseInt(config.operating_hours_start) + i
                 return (
-                  <div key={hour} style={{ height: '60px', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#666' }}>
+                  <div key={hour} style={{ height: '60px', borderBottom: '2px solid #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#666', fontWeight: 'bold' }}>
                     {hour}:00
                   </div>
                 )
@@ -934,7 +974,7 @@ function ClubPanel() {
                         key={`${courtIndex}-${hour}`}
                         style={{ 
                           height: '60px', 
-                          borderBottom: '1px solid #eee', 
+                          borderBottom: '2px solid #ccc', 
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer'
@@ -947,7 +987,7 @@ function ClubPanel() {
                           left: 0, 
                           right: 0, 
                           height: '1px', 
-                          backgroundColor: '#f0f0f0' 
+                          backgroundColor: '#e0e0e0' 
                         }}></div>
                       </div>
                     )
