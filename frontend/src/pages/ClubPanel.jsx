@@ -871,9 +871,9 @@ function ClubPanel() {
       )}
 
       {activeTab === 'calendario' && (
-        <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column', backgroundColor: '#f5f5f5', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+        <div style={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column', backgroundColor: '#e9ecef', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           {/* Header con navegación de fechas, reloj y leyenda */}
-          <div style={{ padding: '15px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{ padding: '10px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <button
                 onClick={() => {
@@ -977,7 +977,8 @@ function ClubPanel() {
                           borderBottom: '2px solid #ccc', 
                           borderRight: 'none',
                           position: 'relative',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          backgroundColor: '#e9ecef'
                         }}
                       >
                         {/* Línea sutil entre medias */}
