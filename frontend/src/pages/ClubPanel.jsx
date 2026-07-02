@@ -22,6 +22,11 @@ function ClubPanel() {
   const [showQRCode, setShowQRCode] = useState(false)
   const [selectedDate, setSelectedDate] = useState('')
   const [currentTime, setCurrentTime] = useState('')
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState(null)
+  const [dragEnd, setDragEnd] = useState(null)
+  const [selectedCourt, setSelectedCourt] = useState(null)
+  const [showReservationModal, setShowReservationModal] = useState(false)
   const [config, setConfig] = useState({
     court_count: 1,
     name: '',
@@ -241,6 +246,37 @@ function ClubPanel() {
       console.error('Error creating court:', err)
       alert('Error al crear la cancha')
     }
+  }
+
+  const handleSlotMouseDown = (courtIndex, hour) => {
+    setIsDragging(true)
+    setDragStart({ courtIndex, hour })
+    setDragEnd({ courtIndex, hour })
+    setSelectedCourt(courtIndex)
+  }
+
+  const handleSlotMouseMove = (courtIndex, hour) => {
+    if (isDragging && selectedCourt === courtIndex) {
+      setDragEnd({ courtIndex, hour })
+    }
+  }
+
+  const handleSlotMouseUp = () => {
+    if (isDragging && dragStart && dragEnd) {
+      setIsDragging(false)
+      setShowReservationModal(true)
+    }
+  }
+
+  const isSlotSelected = (courtIndex, hour) => {
+    if (!isDragging || !dragStart || !dragEnd || selectedCourt !== courtIndex) {
+      return false
+    }
+    const startHour = dragStart.hour
+    const endHour = dragEnd.hour
+    const minHour = Math.min(startHour, endHour)
+    const maxHour = Math.max(startHour, endHour)
+    return hour >= minHour && hour <= maxHour
   }
 
   const handleCreateReservation = async (e) => {
@@ -963,16 +999,20 @@ function ClubPanel() {
                   </div>
                   {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, hourIndex) => {
                     const hour = parseInt(config.operating_hours_start) + hourIndex
+                    const isSelected = isSlotSelected(courtIndex, hour)
                     return (
                       <div 
                         key={`${courtIndex}-${hour}`}
+                        onMouseDown={() => handleSlotMouseDown(courtIndex, hour)}
+                        onMouseMove={() => handleSlotMouseMove(courtIndex, hour)}
+                        onMouseUp={handleSlotMouseUp}
                         style={{ 
                           height: '60px', 
                           borderBottom: '2px solid #333', 
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
-                          backgroundColor: '#2d2d2d'
+                          backgroundColor: isSelected ? '#F59E0B' : '#2d2d2d'
                         }}
                       >
                         {/* Línea sutil entre medias */}
@@ -989,6 +1029,67 @@ function ClubPanel() {
                   })}
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showReservationModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: '#1a1a1a', padding: '30px', borderRadius: '10px', width: '90%', maxWidth: '500px', border: '1px solid #333' }}>
+            <h3 style={{ marginBottom: '20px', color: '#fff' }}>Crear Reserva</h3>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Tipo de Reserva</label>
+              <select 
+                style={{ width: '100%', padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
+                defaultValue="manual"
+              >
+                <option value="manual">Manual</option>
+                <option value="clases">Clases</option>
+                <option value="partido">Partido</option>
+              </select>
+            </div>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Jugadores</label>
+              <input 
+                type="text" 
+                placeholder="Nombre del jugador 1"
+                style={{ width: '100%', padding: '10px', marginBottom: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
+              />
+              <input 
+                type="text" 
+                placeholder="Nombre del jugador 2"
+                style={{ width: '100%', padding: '10px', marginBottom: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
+              />
+              <input 
+                type="text" 
+                placeholder="Nombre del jugador 3"
+                style={{ width: '100%', padding: '10px', marginBottom: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
+              />
+              <input 
+                type="text" 
+                placeholder="Nombre del jugador 4"
+                style={{ width: '100%', padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => {
+                  setShowReservationModal(false)
+                  setIsDragging(false)
+                  setDragStart(null)
+                  setDragEnd(null)
+                  setSelectedCourt(null)
+                }}
+                style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+              >
+                Cancelar
+              </button>
+              <button
+                style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+              >
+                Crear Reserva
+              </button>
             </div>
           </div>
         </div>
