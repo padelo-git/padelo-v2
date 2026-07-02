@@ -1048,18 +1048,18 @@ function ClubPanel() {
                     const isHalfHour = slotIndex % 2 === 1
                     const isSelected = isSlotSelected(courtIndex, slotIndex)
                     return (
-                      <div 
+                      <div
                         key={`${courtIndex}-${slotIndex}`}
                         onMouseDown={(e) => handleSlotMouseDown(courtIndex, slotIndex, e)}
                         onMouseMove={(e) => handleSlotMouseMove(courtIndex, slotIndex, e)}
                         onMouseUp={handleSlotMouseUp}
-                        style={{ 
-                          height: '30px', 
-                          borderBottom: isHalfHour ? '1px solid #333' : '2px solid #333', 
+                        style={{
+                          height: '30px',
+                          borderBottom: isHalfHour ? '1px solid #333' : '2px solid #333',
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
-                          backgroundColor: isSelected ? '#F59E0B' : '#2d2d2d'
+                          backgroundColor: '#2d2d2d'
                         }}
                       >
                       </div>
