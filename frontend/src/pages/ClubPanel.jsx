@@ -299,9 +299,8 @@ function ClubPanel() {
       return { display: 'none' }
     }
     const rect = containerRef.getBoundingClientRect()
-    const headerHeight = 40 // Altura aproximada del header (padding + texto + border)
-    const relativeStartY = dragStartY - rect.top - headerHeight
-    const relativeCurrentY = dragCurrentY - rect.top - headerHeight
+    const relativeStartY = dragStartY - rect.top
+    const relativeCurrentY = dragCurrentY - rect.top
     const height = Math.abs(relativeCurrentY - relativeStartY)
     const top = Math.min(relativeStartY, relativeCurrentY)
     return {
@@ -1032,15 +1031,19 @@ function ClubPanel() {
               {Array.from({ length: config.court_count }, (_, courtIndex) => (
                 <div 
                   key={courtIndex} 
-                  ref={(el) => courtRefs.current[courtIndex] = el}
-                  style={{ borderRight: courtIndex < config.court_count - 1 ? '1px solid #ddd' : 'none', position: 'relative' }}
+                  style={{ borderRight: courtIndex < config.court_count - 1 ? '1px solid #ddd' : 'none' }}
                 >
                   <div style={{ padding: '5px', textAlign: 'center', fontWeight: 'bold', borderBottom: '1px solid #333', backgroundColor: '#2d2d2d', color: '#fff' }}>
                     Cancha {courtIndex + 1}
                   </div>
-                  {/* Overlay de iluminación progresiva */}
-                  <div style={getDragOverlayStyle(courtIndex, courtRefs.current[courtIndex])}></div>
-                  {Array.from({ length: (parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 2 }, (_, slotIndex) => {
+                  {/* Contenedor de slots con overlay */}
+                  <div 
+                    ref={(el) => courtRefs.current[courtIndex] = el}
+                    style={{ position: 'relative' }}
+                  >
+                    {/* Overlay de iluminación progresiva */}
+                    <div style={getDragOverlayStyle(courtIndex, courtRefs.current[courtIndex])}></div>
+                    {Array.from({ length: (parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 2 }, (_, slotIndex) => {
                     const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
                     const isHalfHour = slotIndex % 2 === 1
                     const isSelected = isSlotSelected(courtIndex, slotIndex)
@@ -1062,6 +1065,7 @@ function ClubPanel() {
                       </div>
                     )
                   })}
+                  </div>
                 </div>
               ))}
             </div>
