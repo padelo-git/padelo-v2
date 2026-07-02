@@ -346,13 +346,12 @@ function ClubPanel() {
     
     try {
       // Calcular hora inicio y fin
-      // Ajuste: slotIndex 0 es 6:00-6:30, slotIndex 1 es 6:30-7:00, etc.
-      // La etiqueta de hora está alineada con el inicio del slot par (6:00, 7:00, etc.)
-      // Si arrastramos desde slot 0, queremos empezar en 6:00, no 6:30
-      const startHour = parseInt(config.operating_hours_start) + Math.floor(dragStart.hourIndex / 2)
-      const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
-      const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
-      const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
+      // Ahora cada slot es una hora completa (60px)
+      // slotIndex 0 es 6:00-7:00, slotIndex 1 es 7:00-8:00, etc.
+      const startHour = parseInt(config.operating_hours_start) + dragStart.hourIndex
+      const startMin = '00'
+      const endHour = parseInt(config.operating_hours_start) + dragEnd.hourIndex
+      const endMin = '00'
       
       console.log('Time range:', `${startHour}:${startMin} - ${endHour}:${endMin}`)
       
@@ -1145,9 +1144,8 @@ function ClubPanel() {
                   >
                     {/* Overlay de iluminación progresiva */}
                     <div style={getDragOverlayStyle(courtIndex, courtRefs.current[courtIndex])}></div>
-                    {Array.from({ length: (parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 2 }, (_, slotIndex) => {
-                    const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
-                    const isHalfHour = slotIndex % 2 === 1
+                    {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, slotIndex) => {
+                    const hour = parseInt(config.operating_hours_start) + slotIndex
                     const isSelected = isSlotSelected(courtIndex, slotIndex)
                     return (
                       <div
@@ -1156,8 +1154,8 @@ function ClubPanel() {
                         onMouseMove={(e) => handleSlotMouseMove(courtIndex, slotIndex, e)}
                         onMouseUp={handleSlotMouseUp}
                         style={{
-                          height: '30px',
-                          borderBottom: isHalfHour ? '1px solid #333' : '2px solid #333',
+                          height: '60px',
+                          borderBottom: '2px solid #333',
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
