@@ -1119,7 +1119,7 @@ function ClubPanel() {
               {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
                 const hour = parseInt(config.operating_hours_start) + i
                 return (
-                  <div key={hour} style={{ height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
+                  <div key={hour} style={{ height: '60px', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '10px', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
                     {hour}:00
                   </div>
                 )
@@ -1155,7 +1155,7 @@ function ClubPanel() {
                         onMouseUp={handleSlotMouseUp}
                         style={{
                           height: '30px',
-                          borderBottom: isHalfHour ? '1px solid #333' : '2px solid #333',
+                          borderBottom: isHalfHour ? '1px solid #333' : '3px solid #555',
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
