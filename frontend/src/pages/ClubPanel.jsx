@@ -137,6 +137,9 @@ function ClubPanel() {
   const courtRefs = useRef([])
   const navigate = useNavigate()
   
+  // Estado para mantener la selección visible mientras el modal está abierto
+  const [showSelectionOverlay, setShowSelectionOverlay] = useState(false)
+  
   // Estado para el modal de reserva
   const [reservationType, setReservationType] = useState('normal')
   const [players, setPlayers] = useState([
@@ -279,13 +282,17 @@ function ClubPanel() {
   const handleSlotMouseUp = () => {
     if (isDragging && dragStart && dragEnd) {
       setIsDragging(false)
+      setShowSelectionOverlay(true) // Activar overlay mientras modal está abierto
       setShowReservationModal(true)
-      // NO limpiar los estados de drag - mantener la iluminación visible mientras el modal está abierto
     }
   }
 
   const isSlotSelected = (courtIndex, hourIndex) => {
-    if (!isDragging || !dragStart || !dragEnd || selectedCourt !== courtIndex) {
+    // Usar showSelectionOverlay cuando el modal está abierto
+    if (!isDragging && !showSelectionOverlay) {
+      return false
+    }
+    if (!dragStart || !dragEnd || selectedCourt !== courtIndex) {
       return false
     }
     const startIndex = dragStart.hourIndex
@@ -300,7 +307,11 @@ function ClubPanel() {
   }
 
   const getDragOverlayStyle = (courtIndex, containerRef) => {
-    if (!isDragging || !dragStartY || !dragCurrentY || selectedCourt !== courtIndex || !containerRef) {
+    // Mostrar overlay tanto durante drag como cuando el modal está abierto
+    if (!isDragging && !showSelectionOverlay) {
+      return { display: 'none' }
+    }
+    if (!dragStartY || !dragCurrentY || selectedCourt !== courtIndex || !containerRef) {
       return { display: 'none' }
     }
     const rect = containerRef.getBoundingClientRect()
@@ -335,6 +346,9 @@ function ClubPanel() {
     
     try {
       // Calcular hora inicio y fin
+      // Ajuste: slotIndex 0 es 6:00-6:30, slotIndex 1 es 6:30-7:00, etc.
+      // La etiqueta de hora está alineada con el inicio del slot par (6:00, 7:00, etc.)
+      // Si arrastramos desde slot 0, queremos empezar en 6:00, no 6:30
       const startHour = parseInt(config.operating_hours_start) + Math.floor(dragStart.hourIndex / 2)
       const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
       const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
@@ -405,6 +419,7 @@ function ClubPanel() {
       
       // Cerrar modal y resetear estado
       setShowReservationModal(false)
+      setShowSelectionOverlay(false) // Desactivar overlay
       setIsDragging(false)
       setDragStart(null)
       setDragEnd(null)
@@ -1106,7 +1121,7 @@ function ClubPanel() {
               {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
                 const hour = parseInt(config.operating_hours_start) + i
                 return (
-                  <div key={hour} style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
+                  <div key={hour} style={{ height: '60px', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '8px', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
                     {hour}:00
                   </div>
                 )
@@ -1227,6 +1242,7 @@ function ClubPanel() {
               <button
                 onClick={() => {
                   setShowReservationModal(false)
+                  setShowSelectionOverlay(false) // Desactivar overlay
                   setIsDragging(false)
                   setDragStart(null)
                   setDragEnd(null)
