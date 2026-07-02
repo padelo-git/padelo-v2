@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import api from '../config/axios'
@@ -132,6 +132,9 @@ function ClubPanel() {
     method: 'card', // card, cash, transfer
     description: ''
   })
+  const [dragStartY, setDragStartY] = useState(null)
+  const [dragCurrentY, setDragCurrentY] = useState(null)
+  const courtRefs = useRef([])
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -248,16 +251,19 @@ function ClubPanel() {
     }
   }
 
-  const handleSlotMouseDown = (courtIndex, hourIndex) => {
+  const handleSlotMouseDown = (courtIndex, hourIndex, e) => {
     setIsDragging(true)
     setDragStart({ courtIndex, hourIndex })
     setDragEnd(null)
     setSelectedCourt(courtIndex)
+    setDragStartY(e.clientY)
+    setDragCurrentY(e.clientY)
   }
 
-  const handleSlotMouseMove = (courtIndex, hourIndex) => {
+  const handleSlotMouseMove = (courtIndex, hourIndex, e) => {
     if (isDragging && selectedCourt === courtIndex) {
       setDragEnd({ courtIndex, hourIndex })
+      setDragCurrentY(e.clientY)
     }
   }
 
@@ -269,6 +275,8 @@ function ClubPanel() {
     setDragStart(null)
     setDragEnd(null)
     setSelectedCourt(null)
+    setDragStartY(null)
+    setDragCurrentY(null)
   }
 
   const isSlotSelected = (courtIndex, hourIndex) => {
@@ -284,6 +292,27 @@ function ClubPanel() {
     const minIndex = Math.min(startIndex, endIndex)
     const maxIndex = Math.max(startIndex, endIndex)
     return hourIndex >= minIndex && hourIndex <= maxIndex
+  }
+
+  const getDragOverlayStyle = (courtIndex, containerRef) => {
+    if (!isDragging || !dragStartY || !dragCurrentY || selectedCourt !== courtIndex || !containerRef) {
+      return { display: 'none' }
+    }
+    const rect = containerRef.getBoundingClientRect()
+    const relativeStartY = dragStartY - rect.top
+    const relativeCurrentY = dragCurrentY - rect.top
+    const height = Math.abs(relativeCurrentY - relativeStartY)
+    const top = Math.min(relativeStartY, relativeCurrentY)
+    return {
+      position: 'absolute',
+      top: `${top}px`,
+      left: '0',
+      right: '0',
+      height: `${height}px`,
+      backgroundColor: 'rgba(245, 158, 11, 0.5)',
+      pointerEvents: 'none',
+      zIndex: 10
+    }
   }
 
   const handleCreateReservation = async (e) => {
@@ -1000,10 +1029,16 @@ function ClubPanel() {
             <div style={{ flex: 1, display: 'grid', gridTemplateColumns: `repeat(${config.court_count}, 1fr)` }}>
               {/* Columnas de canchas */}
               {Array.from({ length: config.court_count }, (_, courtIndex) => (
-                <div key={courtIndex} style={{ borderRight: courtIndex < config.court_count - 1 ? '1px solid #ddd' : 'none' }}>
+                <div 
+                  key={courtIndex} 
+                  ref={(el) => courtRefs.current[courtIndex] = el}
+                  style={{ borderRight: courtIndex < config.court_count - 1 ? '1px solid #ddd' : 'none', position: 'relative' }}
+                >
                   <div style={{ padding: '5px', textAlign: 'center', fontWeight: 'bold', borderBottom: '1px solid #333', backgroundColor: '#2d2d2d', color: '#fff' }}>
                     Cancha {courtIndex + 1}
                   </div>
+                  {/* Overlay de iluminación progresiva */}
+                  <div style={getDragOverlayStyle(courtIndex, courtRefs.current[courtIndex])}></div>
                   {Array.from({ length: (parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 2 }, (_, slotIndex) => {
                     const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
                     const isHalfHour = slotIndex % 2 === 1
@@ -1011,8 +1046,8 @@ function ClubPanel() {
                     return (
                       <div 
                         key={`${courtIndex}-${slotIndex}`}
-                        onMouseDown={() => handleSlotMouseDown(courtIndex, slotIndex)}
-                        onMouseMove={() => handleSlotMouseMove(courtIndex, slotIndex)}
+                        onMouseDown={(e) => handleSlotMouseDown(courtIndex, slotIndex, e)}
+                        onMouseMove={(e) => handleSlotMouseMove(courtIndex, slotIndex, e)}
                         onMouseUp={handleSlotMouseUp}
                         style={{ 
                           height: '30px', 
