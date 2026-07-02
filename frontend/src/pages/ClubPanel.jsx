@@ -440,7 +440,7 @@ function ClubPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div style={{ padding: '10px', backgroundColor: '#2a2a2a', borderRadius: '10px', textAlign: 'center' }}>
             {club && (
-              <div style={{ backgroundColor: 'white', padding: '10px', borderRadius: '5px', display: 'inline-block' }}>
+              <div style={{ backgroundColor: '#1a1a1a', padding: '10px', borderRadius: '5px', display: 'inline-block' }}>
                 <QRCodeSVG value={`https://nexasist.com/club/${club.id}`} size={80} />
               </div>
             )}
@@ -714,7 +714,7 @@ function ClubPanel() {
       )}
 
       {club && (
-        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
+        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#2d2d2d', borderRadius: '5px' }}>
           <h2>{club.name}</h2>
           <p>Email: {club.email}</p>
           <p>Ciudad: {club.city || 'Sin ciudad'}</p>
@@ -723,7 +723,7 @@ function ClubPanel() {
       )}
 
       {showCreateCourt && (
-        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           <h3 style={{ marginBottom: '15px' }}>Crear Nueva Cancha</h3>
           <form onSubmit={handleCreateCourt}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
@@ -734,7 +734,7 @@ function ClubPanel() {
                   value={newCourt.name}
                   onChange={(e) => setNewCourt({...newCourt, name: e.target.value})}
                   required
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #444', borderRadius: '5px' }}
                 />
               </div>
               <div>
@@ -744,7 +744,7 @@ function ClubPanel() {
                   value={newCourt.number}
                   onChange={(e) => setNewCourt({...newCourt, number: e.target.value})}
                   required
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #444', borderRadius: '5px' }}
                 />
               </div>
               <div>
@@ -752,7 +752,7 @@ function ClubPanel() {
                 <select
                   value={newCourt.surface}
                   onChange={(e) => setNewCourt({...newCourt, surface: e.target.value})}
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #444', borderRadius: '5px' }}
                 >
                   <option value="">Seleccionar...</option>
                   <option value="Césped">Césped</option>
@@ -793,7 +793,7 @@ function ClubPanel() {
       )}
 
       {showCreateReservation && (
-        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           <h3 style={{ marginBottom: '15px' }}>Crear Nueva Reserva</h3>
           <form onSubmit={handleCreateReservation}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
@@ -803,7 +803,7 @@ function ClubPanel() {
                   value={newReservation.court_id}
                   onChange={(e) => setNewReservation({...newReservation, court_id: e.target.value})}
                   required
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #444', borderRadius: '5px' }}
                 >
                   <option value="">Seleccionar cancha...</option>
                   {courts.map(court => (
@@ -818,7 +818,7 @@ function ClubPanel() {
                   value={newReservation.date}
                   onChange={(e) => setNewReservation({...newReservation, date: e.target.value})}
                   required
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #444', borderRadius: '5px' }}
                 />
               </div>
               <div>
@@ -828,7 +828,7 @@ function ClubPanel() {
                   value={newReservation.start_time}
                   onChange={(e) => setNewReservation({...newReservation, start_time: e.target.value})}
                   required
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #444', borderRadius: '5px' }}
                 />
               </div>
               <div>
@@ -838,7 +838,7 @@ function ClubPanel() {
                   value={newReservation.end_time}
                   onChange={(e) => setNewReservation({...newReservation, end_time: e.target.value})}
                   required
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #444', borderRadius: '5px' }}
                 />
               </div>
               <div>
@@ -847,7 +847,7 @@ function ClubPanel() {
                   type="number"
                   value={newReservation.price}
                   onChange={(e) => setNewReservation({...newReservation, price: e.target.value})}
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #444', borderRadius: '5px' }}
                 />
               </div>
             </div>
@@ -871,9 +871,9 @@ function ClubPanel() {
       )}
 
       {activeTab === 'calendario' && (
-        <div style={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column', backgroundColor: '#e9ecef', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+        <div style={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column', backgroundColor: '#1a1a1a', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           {/* Header con navegación de fechas, reloj y leyenda */}
-          <div style={{ padding: '10px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{ padding: '10px', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', backgroundColor: '#1a1a1a' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <button
                 onClick={() => {
@@ -884,7 +884,7 @@ function ClubPanel() {
                   const day = String(date.getDate()).padStart(2, '0')
                   setSelectedDate(`${year}-${month}-${day}`)
                 }}
-                style={{ padding: '8px 12px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer' }}
+                style={{ padding: '8px 12px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', cursor: 'pointer' }}
               >
                 ←
               </button>
@@ -909,7 +909,7 @@ function ClubPanel() {
                   const day = String(date.getDate()).padStart(2, '0')
                   setSelectedDate(`${year}-${month}-${day}`)
                 }}
-                style={{ padding: '8px 12px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer' }}
+                style={{ padding: '8px 12px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', cursor: 'pointer' }}
               >
                 →
               </button>
@@ -917,16 +917,16 @@ function ClubPanel() {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '5px' }}
+                style={{ padding: '8px', border: '1px solid #444', borderRadius: '5px' }}
               />
               {/* Reloj */}
-              <div style={{ padding: '8px 12px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', borderRadius: '5px', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>
+              <div style={{ padding: '8px 12px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', fontSize: '14px', fontWeight: 'bold', color: '#fff' }}>
                 🕐 {currentTime}
               </div>
             </div>
             
             {/* Leyenda de colores */}
-            <div style={{ display: 'flex', gap: '20px', alignItems: 'center', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>
+            <div style={{ display: 'flex', gap: '20px', alignItems: 'center', fontSize: '14px', fontWeight: 'bold', color: '#fff' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div style={{ width: '20px', height: '20px', backgroundColor: '#3B82F6', borderRadius: '4px', border: '2px solid #2563eb' }}></div>
                 <span>App móvil</span>
@@ -948,12 +948,12 @@ function ClubPanel() {
 
           {/* Grilla de canchas */}
           <div style={{ flex: 1, overflow: 'auto', display: 'flex' }}>
-            <div style={{ minWidth: '60px', borderRight: '1px solid #ddd', backgroundColor: '#e9ecef' }}>
+            <div style={{ minWidth: '60px', borderRight: '1px solid #333', backgroundColor: '#2d2d2d' }}>
               {/* Columna de horarios */}
               {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
                 const hour = parseInt(config.operating_hours_start) + i
                 return (
-                  <div key={hour} style={{ height: '60px', borderBottom: '2px solid #ccc', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '5px', fontSize: '12px', color: '#666', fontWeight: 'bold' }}>
+                  <div key={hour} style={{ height: '60px', borderBottom: '2px solid #444', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '5px', fontSize: '12px', color: '#ccc', fontWeight: 'bold' }}>
                     {hour}:00
                   </div>
                 )
@@ -964,7 +964,7 @@ function ClubPanel() {
               {/* Columnas de canchas */}
               {Array.from({ length: config.court_count }, (_, courtIndex) => (
                 <div key={courtIndex} style={{ borderRight: courtIndex < config.court_count - 1 ? '1px solid #ddd' : 'none' }}>
-                  <div style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', borderBottom: '1px solid #ddd', backgroundColor: '#f8f9fa' }}>
+                  <div style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', borderBottom: '1px solid #333', backgroundColor: '#2d2d2d', color: '#fff' }}>
                     Cancha {courtIndex + 1}
                   </div>
                   {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, hourIndex) => {
@@ -974,11 +974,11 @@ function ClubPanel() {
                         key={`${courtIndex}-${hour}`}
                         style={{ 
                           height: '60px', 
-                          borderBottom: '2px solid #ccc', 
+                          borderBottom: '2px solid #333', 
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
-                          backgroundColor: '#e9ecef'
+                          backgroundColor: '#2d2d2d'
                         }}
                       >
                         {/* Línea sutil entre medias */}
@@ -988,7 +988,7 @@ function ClubPanel() {
                           left: 0, 
                           right: 0, 
                           height: '1px', 
-                          backgroundColor: '#e0e0e0' 
+                          backgroundColor: '#444' 
                         }}></div>
                       </div>
                     )
@@ -1001,8 +1001,8 @@ function ClubPanel() {
       )}
 
       {activeTab === 'estadisticas' && (
-        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ marginBottom: '15px' }}>Estadísticas del Club</h3>
+        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ marginBottom: '15px', color: '#fff' }}>Estadísticas del Club</h3>
           {!statistics ? (
             <button
               onClick={fetchStatistics}
@@ -1012,25 +1012,25 @@ function ClubPanel() {
             </button>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
-              <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+              <div style={{ padding: '20px', backgroundColor: '#2d2d2d', borderRadius: '5px', textAlign: 'center' }}>
                 <h4 style={{ fontSize: '32px', color: '#007bff', marginBottom: '10px' }}>{statistics.total_courts}</h4>
-                <p style={{ fontSize: '14px', color: '#666' }}>Total Canchas</p>
+                <p style={{ fontSize: '14px', color: '#ccc' }}>Total Canchas</p>
               </div>
-              <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+              <div style={{ padding: '20px', backgroundColor: '#2d2d2d', borderRadius: '5px', textAlign: 'center' }}>
                 <h4 style={{ fontSize: '32px', color: '#28a745', marginBottom: '10px' }}>{statistics.total_matches}</h4>
-                <p style={{ fontSize: '14px', color: '#666' }}>Total Partidos</p>
+                <p style={{ fontSize: '14px', color: '#ccc' }}>Total Partidos</p>
               </div>
-              <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+              <div style={{ padding: '20px', backgroundColor: '#2d2d2d', borderRadius: '5px', textAlign: 'center' }}>
                 <h4 style={{ fontSize: '32px', color: '#17a2b8', marginBottom: '10px' }}>{statistics.completed_matches}</h4>
-                <p style={{ fontSize: '14px', color: '#666' }}>Partidos Completados</p>
+                <p style={{ fontSize: '14px', color: '#ccc' }}>Partidos Completados</p>
               </div>
-              <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+              <div style={{ padding: '20px', backgroundColor: '#2d2d2d', borderRadius: '5px', textAlign: 'center' }}>
                 <h4 style={{ fontSize: '32px', color: '#ffc107', marginBottom: '10px' }}>{statistics.pending_matches}</h4>
-                <p style={{ fontSize: '14px', color: '#666' }}>Partidos Pendientes</p>
+                <p style={{ fontSize: '14px', color: '#ccc' }}>Partidos Pendientes</p>
               </div>
-              <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '5px', textAlign: 'center' }}>
+              <div style={{ padding: '20px', backgroundColor: '#2d2d2d', borderRadius: '5px', textAlign: 'center' }}>
                 <h4 style={{ fontSize: '32px', color: '#6c757d', marginBottom: '10px' }}>{statistics.completion_rate}%</h4>
-                <p style={{ fontSize: '14px', color: '#666' }}>Tasa de Completitud</p>
+                <p style={{ fontSize: '14px', color: '#ccc' }}>Tasa de Completitud</p>
               </div>
             </div>
           )}
@@ -1038,10 +1038,10 @@ function ClubPanel() {
       )}
 
       {showQRCode && club && (
-        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ marginBottom: '15px' }}>Código QR del Club</h3>
+        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ marginBottom: '15px', color: '#fff' }}>Código QR del Club</h3>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
-            <div style={{ padding: '20px', backgroundColor: 'white', border: '2px solid #ddd', borderRadius: '10px' }}>
+            <div style={{ padding: '20px', backgroundColor: '#2d2d2d', border: '2px solid #444', borderRadius: '10px' }}>
               <QRCodeSVG 
                 value={`https://nexasist.com/club/${club.slug}`}
                 size={200}
@@ -1050,7 +1050,7 @@ function ClubPanel() {
             </div>
             <div style={{ textAlign: 'center' }}>
               <h4 style={{ marginBottom: '10px' }}>{club.name}</h4>
-              <p style={{ fontSize: '14px', color: '#666', marginBottom: '15px' }}>
+              <p style={{ fontSize: '14px', color: '#ccc', marginBottom: '15px' }}>
                 Escanea este código QR para registrarte como socio
               </p>
               <button
@@ -1068,7 +1068,7 @@ function ClubPanel() {
                 Descargar QR
               </button>
             </div>
-            <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '5px', fontSize: '14px', color: '#666' }}>
+            <div style={{ padding: '15px', backgroundColor: '#2d2d2d', borderRadius: '5px', fontSize: '14px', color: '#ccc' }}>
               <p><strong>Instrucciones:</strong></p>
               <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
                 <li>Imprime este código QR</li>
@@ -1082,10 +1082,10 @@ function ClubPanel() {
       )}
 
       {activeTab === 'pagos' && (
-        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           <h3 style={{ marginBottom: '15px' }}>Gestión de Pagos</h3>
           
-          <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
+          <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d2d2d', borderRadius: '5px' }}>
             <h4 style={{ marginBottom: '10px' }}>Registrar Nuevo Pago</h4>
             <form onSubmit={handleCreatePayment}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '10px' }}>
@@ -1095,7 +1095,7 @@ function ClubPanel() {
                     type="text"
                     value={newPayment.user_id}
                     onChange={(e) => setNewPayment({...newPayment, user_id: e.target.value})}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '5px' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #444', borderRadius: '5px' }}
                   />
                 </div>
                 <div>
@@ -1105,7 +1105,7 @@ function ClubPanel() {
                     value={newPayment.amount}
                     onChange={(e) => setNewPayment({...newPayment, amount: e.target.value})}
                     required
-                    style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '5px' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #444', borderRadius: '5px' }}
                   />
                 </div>
                 <div>
@@ -1113,7 +1113,7 @@ function ClubPanel() {
                   <select
                     value={newPayment.method}
                     onChange={(e) => setNewPayment({...newPayment, method: e.target.value})}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '5px' }}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #444', borderRadius: '5px' }}
                   >
                     <option value="card">Tarjeta</option>
                     <option value="cash">Efectivo</option>
@@ -1127,7 +1127,7 @@ function ClubPanel() {
                   type="text"
                   value={newPayment.description}
                   onChange={(e) => setNewPayment({...newPayment, description: e.target.value})}
-                  style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '5px' }}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #444', borderRadius: '5px' }}
                 />
               </div>
               <button
@@ -1161,18 +1161,18 @@ function ClubPanel() {
           <div>
             <h4 style={{ marginBottom: '10px' }}>Historial de Pagos</h4>
             {payments.length === 0 ? (
-              <p style={{ color: '#666' }}>No hay pagos registrados</p>
+              <p style={{ color: '#ccc' }}>No hay pagos registrados</p>
             ) : (
               <ul style={{ listStyle: 'none' }}>
                 {payments.map(payment => (
-                  <li key={payment.id} style={{ padding: '10px', marginBottom: '5px', backgroundColor: '#f8f9fa', borderRadius: '5px', display: 'flex', justifyContent: 'space-between' }}>
+                  <li key={payment.id} style={{ padding: '10px', marginBottom: '5px', backgroundColor: '#2d2d2d', borderRadius: '5px', display: 'flex', justifyContent: 'space-between' }}>
                     <div>
                       <strong>${payment.amount}</strong>
-                      <p style={{ fontSize: '12px', color: '#666' }}>{payment.method === 'card' ? 'Tarjeta' : payment.method === 'cash' ? 'Efectivo' : 'Transferencia'}</p>
+                      <p style={{ fontSize: '12px', color: '#ccc' }}>{payment.method === 'card' ? 'Tarjeta' : payment.method === 'cash' ? 'Efectivo' : 'Transferencia'}</p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <p style={{ fontSize: '12px', color: '#666' }}>{payment.description || 'Sin descripción'}</p>
-                      <p style={{ fontSize: '12px', color: '#666' }}>{new Date(payment.created_at).toLocaleDateString()}</p>
+                      <p style={{ fontSize: '12px', color: '#ccc' }}>{payment.description || 'Sin descripción'}</p>
+                      <p style={{ fontSize: '12px', color: '#ccc' }}>{new Date(payment.created_at).toLocaleDateString()}</p>
                     </div>
                   </li>
                 ))}
@@ -1183,7 +1183,7 @@ function ClubPanel() {
       )}
 
       {activeTab === 'deudas' && (
-        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           <h3 style={{ marginBottom: '15px' }}>Gestión de Deudas</h3>
           
           <div style={{ padding: '15px', backgroundColor: '#dc3545', color: 'white', borderRadius: '5px', textAlign: 'center', marginBottom: '20px' }}>
@@ -1194,16 +1194,16 @@ function ClubPanel() {
           <div>
             <h4 style={{ marginBottom: '10px' }}>Deudores</h4>
             {debts.length === 0 ? (
-              <p style={{ color: '#666' }}>No hay deudas registradas</p>
+              <p style={{ color: '#ccc' }}>No hay deudas registradas</p>
             ) : (
               <ul style={{ listStyle: 'none' }}>
                 {debts.filter(d => !d.paid).map(debt => (
-                  <li key={debt.id} style={{ padding: '15px', marginBottom: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px', border: '1px solid #ddd' }}>
+                  <li key={debt.id} style={{ padding: '15px', marginBottom: '10px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
                         <strong>{debt.user_name || 'Usuario #' + debt.user_id}</strong>
                         <p style={{ fontSize: '14px', color: '#dc3545', fontWeight: 'bold' }}>${debt.amount}</p>
-                        <p style={{ fontSize: '12px', color: '#666' }}>{debt.description || 'Sin descripción'}</p>
+                        <p style={{ fontSize: '12px', color: '#ccc' }}>{debt.description || 'Sin descripción'}</p>
                       </div>
                       <button
                         onClick={() => handleMarkDebtPaid(debt.id)}
@@ -1271,35 +1271,35 @@ function ClubPanel() {
 
       {activeTab === 'inicio' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
-          <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <div style={{ padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
             <h3 style={{ marginBottom: '15px' }}>Canchas ({courts.length})</h3>
             {courts.length === 0 ? (
               <p>No hay canchas registradas</p>
             ) : (
               <ul style={{ listStyle: 'none' }}>
                 {courts.map(court => (
-                  <li key={court.id} style={{ padding: '10px', marginBottom: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
+                  <li key={court.id} style={{ padding: '10px', marginBottom: '10px', backgroundColor: '#2d2d2d', borderRadius: '5px' }}>
                     <strong>{court.name}</strong>
-                    <p style={{ fontSize: '14px', color: '#666' }}>Número: {court.number}</p>
-                    <p style={{ fontSize: '14px', color: '#666' }}>Superficie: {court.surface || 'Sin especificar'}</p>
-                    <p style={{ fontSize: '14px', color: '#666' }}>{court.is_indoor ? 'Techada' : 'Al aire libre'}</p>
+                    <p style={{ fontSize: '14px', color: '#ccc' }}>Número: {court.number}</p>
+                    <p style={{ fontSize: '14px', color: '#ccc' }}>Superficie: {court.surface || 'Sin especificar'}</p>
+                    <p style={{ fontSize: '14px', color: '#ccc' }}>{court.is_indoor ? 'Techada' : 'Al aire libre'}</p>
                   </li>
                 ))}
               </ul>
             )}
           </div>
 
-          <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          <div style={{ padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
             <h3 style={{ marginBottom: '15px' }}>Reservas ({reservations.length})</h3>
             {reservations.length === 0 ? (
               <p>No hay reservas pendientes</p>
             ) : (
               <ul style={{ listStyle: 'none' }}>
                 {reservations.map(reservation => (
-                  <li key={reservation.id} style={{ padding: '10px', marginBottom: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
+                  <li key={reservation.id} style={{ padding: '10px', marginBottom: '10px', backgroundColor: '#2d2d2d', borderRadius: '5px' }}>
                     <strong>Reserva #{reservation.id}</strong>
-                    <p style={{ fontSize: '14px', color: '#666' }}>{reservation.date} - {reservation.start_time}</p>
-                    <p style={{ fontSize: '14px', color: '#666' }}>Precio: ${reservation.price || 'N/A'}</p>
+                    <p style={{ fontSize: '14px', color: '#ccc' }}>{reservation.date} - {reservation.start_time}</p>
+                    <p style={{ fontSize: '14px', color: '#ccc' }}>Precio: ${reservation.price || 'N/A'}</p>
                   </li>
                 ))}
               </ul>
