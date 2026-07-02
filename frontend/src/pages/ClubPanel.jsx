@@ -280,12 +280,8 @@ function ClubPanel() {
     if (isDragging && dragStart && dragEnd) {
       setIsDragging(false)
       setShowReservationModal(true)
+      // NO limpiar los estados de drag - mantener la iluminación visible mientras el modal está abierto
     }
-    setDragStart(null)
-    setDragEnd(null)
-    setSelectedCourt(null)
-    setDragStartY(null)
-    setDragCurrentY(null)
   }
 
   const isSlotSelected = (courtIndex, hourIndex) => {
@@ -325,7 +321,17 @@ function ClubPanel() {
   }
 
   const handleCreateReservation = async () => {
-    if (!club || !dragStart || !dragEnd) return
+    console.log('handleCreateReservation called')
+    console.log('club:', club)
+    console.log('dragStart:', dragStart)
+    console.log('dragEnd:', dragEnd)
+    console.log('selectedCourt:', selectedCourt)
+    console.log('courts:', courts)
+    
+    if (!club || !dragStart || !dragEnd) {
+      console.log('Missing required data')
+      return
+    }
     
     try {
       // Calcular hora inicio y fin
@@ -334,16 +340,21 @@ function ClubPanel() {
       const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
       const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
       
+      console.log('Time range:', `${startHour}:${startMin} - ${endHour}:${endMin}`)
+      
       // Calcular duración en horas
       const startTimeMinutes = startHour * 60 + parseInt(startMin)
       const endTimeMinutes = endHour * 60 + parseInt(endMin)
       const durationHours = (endTimeMinutes - startTimeMinutes) / 60
+      
+      console.log('Duration hours:', durationHours)
       
       // Calcular precio según tipo de reserva
       let price = 0
       if (reservationType === 'clases') {
         // Usar precio de clases según cantidad de jugadores
         const playerCount = players.filter(p => p.name.trim()).length
+        console.log('Player count:', playerCount)
         if (playerCount === 1) {
           price = config.lesson_1_player_price * durationHours
         } else if (playerCount === 2) {
@@ -359,15 +370,20 @@ function ClubPanel() {
         price = isPeakHour ? config.hourly_price_peak * durationHours : config.hourly_price_normal * durationHours
       }
       
+      console.log('Price:', price)
+      
       // Obtener court_id de la cancha seleccionada
       const court = courts[selectedCourt]
+      console.log('Selected court:', court)
       if (!court) {
         alert('Error: No se encontró la cancha')
         return
       }
       
       const token = localStorage.getItem('token')
-      const response = await api.post('/matches/', {
+      console.log('Token:', token ? 'exists' : 'missing')
+      
+      const matchData = {
         club_id: club.id,
         court_id: court.id,
         date: selectedDate,
@@ -377,9 +393,15 @@ function ClubPanel() {
         gender: 'mixed',
         price: Math.round(price),
         created_by: club.id
-      }, {
+      }
+      
+      console.log('Match data to send:', matchData)
+      
+      const response = await api.post('/matches/', matchData, {
         headers: { Authorization: `Bearer ${token}` }
       })
+      
+      console.log('Response:', response)
       
       // Cerrar modal y resetear estado
       setShowReservationModal(false)
@@ -403,6 +425,7 @@ function ClubPanel() {
       fetchReservationsForDate(selectedDate)
     } catch (err) {
       console.error('Error creating reservation:', err)
+      console.error('Error response:', err.response)
       alert('Error al crear la reserva: ' + (err.response?.data?.detail || err.message))
     }
   }
