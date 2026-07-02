@@ -315,32 +315,14 @@ function ClubPanel() {
     }
   }
 
-  const handleCreateReservation = async (e) => {
-    e.preventDefault()
-    if (!club) return
-    
-    try {
-      const token = localStorage.getItem('token')
-      await api.post(`/clubs/${club.id}/reservations`, {
-        ...newReservation,
-        court_id: parseInt(newReservation.court_id),
-        price: newReservation.price ? parseInt(newReservation.price) : null
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      setShowCreateReservation(false)
-      setNewReservation({
-        court_id: '',
-        date: '',
-        start_time: '',
-        end_time: '',
-        price: ''
-      })
-      fetchClubData()
-    } catch (err) {
-      console.error('Error creating reservation:', err)
-      alert('Error al crear la reserva')
-    }
+  const handleCreateReservation = () => {
+    // Por ahora solo cerrar el modal - backend integration pendiente
+    setShowReservationModal(false)
+    setIsDragging(false)
+    setDragStart(null)
+    setDragEnd(null)
+    setSelectedCourt(null)
+    alert('Función de crear reserva pendiente de integración con backend')
   }
 
   const fetchReservationsForDate = async (date) => {
@@ -1026,7 +1008,7 @@ function ClubPanel() {
               })}
             </div>
             
-            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: `repeat(${config.court_count}, 1fr)` }}>
+            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: `repeat(${config.court_count}, 1fr)`, backgroundColor: '#2d2d2d' }}>
               {/* Columnas de canchas */}
               {Array.from({ length: config.court_count }, (_, courtIndex) => (
                 <div 
