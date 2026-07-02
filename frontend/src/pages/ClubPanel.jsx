@@ -1039,7 +1039,7 @@ function ClubPanel() {
                   {/* Contenedor de slots con overlay */}
                   <div 
                     ref={(el) => courtRefs.current[courtIndex] = el}
-                    style={{ position: 'relative' }}
+                    style={{ position: 'relative', backgroundColor: '#2d2d2d' }}
                   >
                     {/* Overlay de iluminación progresiva */}
                     <div style={getDragOverlayStyle(courtIndex, courtRefs.current[courtIndex])}></div>
