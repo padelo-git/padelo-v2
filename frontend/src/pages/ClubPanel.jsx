@@ -1041,7 +1041,10 @@ function ClubPanel() {
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
-                          backgroundColor: '#2d2d2d'
+                          backgroundColor: '#2d2d2d',
+                          WebkitTapHighlightColor: 'transparent',
+                          WebkitUserSelect: 'none',
+                          userSelect: 'none'
                         }}
                       >
                       </div>
@@ -1111,6 +1114,8 @@ function ClubPanel() {
                   setDragStart(null)
                   setDragEnd(null)
                   setSelectedCourt(null)
+                  setDragStartY(null)
+                  setDragCurrentY(null)
                 }}
                 style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
               >
