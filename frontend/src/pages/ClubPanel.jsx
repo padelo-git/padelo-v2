@@ -277,6 +277,10 @@ function ClubPanel() {
     }
     const startIndex = dragStart.hourIndex
     const endIndex = dragEnd.hourIndex
+    // No seleccionar si solo se hizo click sin arrastrar
+    if (startIndex === endIndex) {
+      return false
+    }
     const minIndex = Math.min(startIndex, endIndex)
     const maxIndex = Math.max(startIndex, endIndex)
     return hourIndex >= minIndex && hourIndex <= maxIndex
@@ -1033,6 +1037,19 @@ function ClubPanel() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ backgroundColor: '#1a1a1a', padding: '30px', borderRadius: '10px', width: '90%', maxWidth: '500px', border: '1px solid #333' }}>
             <h3 style={{ marginBottom: '20px', color: '#fff' }}>Crear Reserva</h3>
+            {dragStart && dragEnd && (
+              <div style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
+                <span style={{ color: '#fff', fontSize: '14px' }}>
+                  {(() => {
+                    const startHour = parseInt(config.operating_hours_start) + Math.floor(dragStart.hourIndex / 2)
+                    const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
+                    const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
+                    const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
+                    return `${startHour}:${startMin} - ${endHour}:${endMin}`
+                  })()}
+                </span>
+              </div>
+            )}
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Tipo de Reserva</label>
               <select 
