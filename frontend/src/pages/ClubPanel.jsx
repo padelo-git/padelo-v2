@@ -136,6 +136,15 @@ function ClubPanel() {
   const [dragCurrentY, setDragCurrentY] = useState(null)
   const courtRefs = useRef([])
   const navigate = useNavigate()
+  
+  // Estado para el modal de reserva
+  const [reservationType, setReservationType] = useState('normal')
+  const [players, setPlayers] = useState([
+    { name: '', paymentMethod: 'pendiente' },
+    { name: '', paymentMethod: 'pendiente' },
+    { name: '', paymentMethod: 'pendiente' },
+    { name: '', paymentMethod: 'pendiente' }
+  ])
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -315,14 +324,87 @@ function ClubPanel() {
     }
   }
 
-  const handleCreateReservation = () => {
-    // Por ahora solo cerrar el modal - backend integration pendiente
-    setShowReservationModal(false)
-    setIsDragging(false)
-    setDragStart(null)
-    setDragEnd(null)
-    setSelectedCourt(null)
-    alert('Función de crear reserva pendiente de integración con backend')
+  const handleCreateReservation = async () => {
+    if (!club || !dragStart || !dragEnd) return
+    
+    try {
+      // Calcular hora inicio y fin
+      const startHour = parseInt(config.operating_hours_start) + Math.floor(dragStart.hourIndex / 2)
+      const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
+      const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
+      const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
+      
+      // Calcular duración en horas
+      const startTimeMinutes = startHour * 60 + parseInt(startMin)
+      const endTimeMinutes = endHour * 60 + parseInt(endMin)
+      const durationHours = (endTimeMinutes - startTimeMinutes) / 60
+      
+      // Calcular precio según tipo de reserva
+      let price = 0
+      if (reservationType === 'clases') {
+        // Usar precio de clases según cantidad de jugadores
+        const playerCount = players.filter(p => p.name.trim()).length
+        if (playerCount === 1) {
+          price = config.lesson_1_player_price * durationHours
+        } else if (playerCount === 2) {
+          price = config.lesson_1_2_players_price * durationHours
+        } else if (playerCount === 3) {
+          price = config.lesson_3_players_price * durationHours
+        } else if (playerCount === 4) {
+          price = config.lesson_4_players_price * durationHours
+        }
+      } else {
+        // Reserva normal: usar precio normal o peak según hora
+        const isPeakHour = startHour >= 18 || startHour < 9
+        price = isPeakHour ? config.hourly_price_peak * durationHours : config.hourly_price_normal * durationHours
+      }
+      
+      // Obtener court_id de la cancha seleccionada
+      const court = courts[selectedCourt]
+      if (!court) {
+        alert('Error: No se encontró la cancha')
+        return
+      }
+      
+      const token = localStorage.getItem('token')
+      const response = await api.post('/matches/', {
+        club_id: club.id,
+        court_id: court.id,
+        date: selectedDate,
+        start_time: `${startHour}:${startMin}`,
+        end_time: `${endHour}:${endMin}`,
+        category: reservationType === 'clases' ? 'lesson' : 'normal',
+        gender: 'mixed',
+        price: Math.round(price),
+        created_by: club.id
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      
+      // Cerrar modal y resetear estado
+      setShowReservationModal(false)
+      setIsDragging(false)
+      setDragStart(null)
+      setDragEnd(null)
+      setSelectedCourt(null)
+      setDragStartY(null)
+      setDragCurrentY(null)
+      setReservationType('normal')
+      setPlayers([
+        { name: '', paymentMethod: 'pendiente' },
+        { name: '', paymentMethod: 'pendiente' },
+        { name: '', paymentMethod: 'pendiente' },
+        { name: '', paymentMethod: 'pendiente' }
+      ])
+      
+      alert('Reserva creada exitosamente')
+      
+      // Recargar reservas para mostrar la nueva reserva
+      fetchReservationsForDate(selectedDate)
+    } catch (err) {
+      console.error('Error creating reservation:', err)
+      alert('Error al crear la reserva: ' + (err.response?.data?.detail || err.message))
+    }
   }
 
   const fetchReservationsForDate = async (date) => {
@@ -1079,7 +1161,8 @@ function ClubPanel() {
               <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Tipo de Reserva</label>
               <select 
                 style={{ width: '100%', padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
-                defaultValue="normal"
+                value={reservationType}
+                onChange={(e) => setReservationType(e.target.value)}
               >
                 <option value="normal">Reserva normal</option>
                 <option value="clases">Clases</option>
@@ -1087,16 +1170,27 @@ function ClubPanel() {
             </div>
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Jugadores</label>
-              {[1, 2, 3, 4].map((playerNum) => (
-                <div key={playerNum} style={{ marginBottom: '10px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+              {players.map((player, index) => (
+                <div key={index} style={{ marginBottom: '10px', display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <input 
                     type="text" 
-                    placeholder={`Nombre del jugador ${playerNum}`}
+                    placeholder={`Nombre del jugador ${index + 1}`}
+                    value={player.name}
+                    onChange={(e) => {
+                      const newPlayers = [...players]
+                      newPlayers[index].name = e.target.value
+                      setPlayers(newPlayers)
+                    }}
                     style={{ flex: 1, padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
                   />
                   <select 
                     style={{ padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff', fontSize: '12px', minWidth: '120px' }}
-                    defaultValue="pendiente"
+                    value={player.paymentMethod}
+                    onChange={(e) => {
+                      const newPlayers = [...players]
+                      newPlayers[index].paymentMethod = e.target.value
+                      setPlayers(newPlayers)
+                    }}
                   >
                     <option value="pendiente">Pendiente</option>
                     <option value="efectivo">Efectivo</option>
@@ -1116,6 +1210,13 @@ function ClubPanel() {
                   setSelectedCourt(null)
                   setDragStartY(null)
                   setDragCurrentY(null)
+                  setReservationType('normal')
+                  setPlayers([
+                    { name: '', paymentMethod: 'pendiente' },
+                    { name: '', paymentMethod: 'pendiente' },
+                    { name: '', paymentMethod: 'pendiente' },
+                    { name: '', paymentMethod: 'pendiente' }
+                  ])
                 }}
                 style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
               >
