@@ -993,7 +993,7 @@ function ClubPanel() {
           </div>
 
           {/* Grilla de canchas */}
-          <div style={{ flex: 1, overflow: 'auto', display: 'flex' }}>
+          <div style={{ flex: 1, overflow: 'auto', display: 'flex', backgroundColor: '#1a1a1a' }}>
             <div style={{ minWidth: '60px', borderRight: '1px solid #333', backgroundColor: '#1a1a1a' }}>
               {/* Header vacío para alinear con header de canchas */}
               <div style={{ padding: '15px', borderBottom: '1px solid #333', backgroundColor: '#1a1a1a' }}></div>
@@ -1013,7 +1013,7 @@ function ClubPanel() {
               {Array.from({ length: config.court_count }, (_, courtIndex) => (
                 <div 
                   key={courtIndex} 
-                  style={{ borderRight: courtIndex < config.court_count - 1 ? '1px solid #ddd' : 'none' }}
+                  style={{ borderRight: courtIndex < config.court_count - 1 ? '1px solid #333' : 'none', backgroundColor: '#2d2d2d' }}
                 >
                   <div style={{ padding: '5px', textAlign: 'center', fontWeight: 'bold', borderBottom: '1px solid #333', backgroundColor: '#2d2d2d', color: '#fff' }}>
                     Cancha {courtIndex + 1}
