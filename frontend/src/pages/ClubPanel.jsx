@@ -1208,8 +1208,8 @@ function ClubPanel() {
       )}
 
       {showReservationModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: '#1a1a1a', padding: '30px', borderRadius: '10px', width: '90%', maxWidth: '500px', border: '1px solid #333' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: 'rgba(26, 26, 26, 0.95)', padding: '30px', borderRadius: '10px', width: '90%', maxWidth: '500px', border: '1px solid #333' }}>
             <h3 style={{ marginBottom: '20px', color: '#fff' }}>Crear Reserva</h3>
             {dragStart && dragEnd && (
               <div style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
