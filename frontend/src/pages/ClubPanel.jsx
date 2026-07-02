@@ -364,16 +364,25 @@ function ClubPanel() {
   }
 
   const handleCreateReservation = async () => {
-    console.log('handleCreateReservation called')
+    console.log('=== handleCreateReservation called ===')
     console.log('club:', club)
     console.log('dragStart:', dragStart)
     console.log('dragEnd:', dragEnd)
     console.log('selectedCourt:', selectedCourt)
-    console.log('courts:', courts)
+    console.log('courts array:', courts)
+    console.log('courts length:', courts.length)
+    console.log('selectedCourt type:', typeof selectedCourt)
     
     if (!club || !dragStart || !dragEnd) {
       console.log('Missing required data')
       alert('Error: Faltan datos requeridos')
+      closeModal()
+      return
+    }
+    
+    if (selectedCourt === null || selectedCourt === undefined) {
+      console.log('selectedCourt is null or undefined')
+      alert('Error: No se seleccionó ninguna cancha')
       closeModal()
       return
     }
@@ -420,9 +429,11 @@ function ClubPanel() {
       
       // Obtener court_id de la cancha seleccionada
       const court = courts[selectedCourt]
-      console.log('Selected court:', court)
+      console.log('Court at index', selectedCourt, ':', court)
       if (!court) {
-        alert('Error: No se encontró la cancha. Por favor, recarga la página.')
+        console.error('Court not found at index', selectedCourt)
+        console.error('Available courts:', courts.map((c, i) => `${i}: ${c?.name || 'undefined'}`).join(', '))
+        alert(`Error: No se encontró la cancha en el índice ${selectedCourt}. Por favor, recarga la página.`)
         closeModal()
         return
       }
