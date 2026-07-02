@@ -20,6 +20,7 @@ function ClubPanel() {
     return saved ? JSON.parse(saved) : 'inicio'
   })
   const [showQRCode, setShowQRCode] = useState(false)
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
   const [config, setConfig] = useState({
     court_count: 1,
     name: '',
@@ -846,42 +847,114 @@ function ClubPanel() {
       )}
 
       {activeTab === 'calendario' && (
-        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ marginBottom: '15px' }}>Calendario de Reservas</h3>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Seleccionar Fecha</label>
-            <input
-              type="date"
-              onChange={(e) => {
-                if (e.target.value && club) {
-                  fetchReservationsForDate(e.target.value)
-                }
-              }}
-              style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
-            />
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '15px' }}>
-            {courts.map(court => (
-              <div key={court.id} style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '5px', border: '1px solid #ddd' }}>
-                <h4 style={{ marginBottom: '10px' }}>{court.name}</h4>
-                <p style={{ fontSize: '14px', color: '#666' }}>Número: {court.number}</p>
-                <p style={{ fontSize: '14px', color: '#666' }}>Superficie: {court.surface || 'N/A'}</p>
-                <div style={{ marginTop: '10px' }}>
-                  <strong style={{ fontSize: '12px' }}>Reservas del día:</strong>
-                  {reservations.filter(r => r.court_id === court.id).length === 0 ? (
-                    <p style={{ fontSize: '12px', color: '#28a745' }}>Disponible</p>
-                  ) : (
-                    <ul style={{ fontSize: '12px', listStyle: 'none', padding: 0 }}>
-                      {reservations.filter(r => r.court_id === court.id).map(res => (
-                        <li key={res.id} style={{ padding: '5px 0', borderBottom: '1px solid #ddd' }}>
-                          {res.start_time} - {res.end_time}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
+        <div style={{ height: 'calc(100vh - 200px)', display: 'flex', flexDirection: 'column', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+          {/* Header con navegación de fechas y leyenda */}
+          <div style={{ padding: '15px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button
+                onClick={() => {
+                  const date = new Date(selectedDate)
+                  date.setDate(date.getDate() - 1)
+                  setSelectedDate(date.toISOString().split('T')[0])
+                }}
+                style={{ padding: '8px 12px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer' }}
+              >
+                ←
+              </button>
+              <button
+                onClick={() => setSelectedDate(new Date().toISOString().split('T')[0])}
+                style={{ padding: '8px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+              >
+                Hoy
+              </button>
+              <button
+                onClick={() => {
+                  const date = new Date(selectedDate)
+                  date.setDate(date.getDate() + 1)
+                  setSelectedDate(date.toISOString().split('T')[0])
+                }}
+                style={{ padding: '8px 12px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', borderRadius: '5px', cursor: 'pointer' }}
+              >
+                →
+              </button>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '5px' }}
+              />
+            </div>
+            
+            {/* Leyenda de colores */}
+            <div style={{ display: 'flex', gap: '15px', alignItems: 'center', fontSize: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <div style={{ width: '12px', height: '12px', backgroundColor: '#3B82F6', borderRadius: '2px' }}></div>
+                <span>App móvil</span>
               </div>
-            ))}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <div style={{ width: '12px', height: '12px', backgroundColor: '#10B981', borderRadius: '2px' }}></div>
+                <span>Clases</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <div style={{ width: '12px', height: '12px', backgroundColor: '#F59E0B', borderRadius: '2px' }}></div>
+                <span>Manual</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <div style={{ width: '12px', height: '12px', backgroundColor: '#F97316', borderRadius: '2px' }}></div>
+                <span>Partido</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Grilla de canchas */}
+          <div style={{ flex: 1, overflow: 'auto', display: 'flex' }}>
+            <div style={{ minWidth: '60px', borderRight: '1px solid #ddd', backgroundColor: '#f8f9fa' }}>
+              {/* Columna de horarios */}
+              {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
+                const hour = parseInt(config.operating_hours_start) + i
+                return (
+                  <div key={hour} style={{ height: '60px', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#666' }}>
+                    {hour}:00
+                  </div>
+                )
+              })}
+            </div>
+            
+            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: `repeat(${config.court_count}, 1fr)` }}>
+              {/* Columnas de canchas */}
+              {Array.from({ length: config.court_count }, (_, courtIndex) => (
+                <div key={courtIndex} style={{ borderRight: courtIndex < config.court_count - 1 ? '1px solid #ddd' : 'none' }}>
+                  <div style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', borderBottom: '1px solid #ddd', backgroundColor: '#f8f9fa' }}>
+                    Cancha {courtIndex + 1}
+                  </div>
+                  {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, hourIndex) => {
+                    const hour = parseInt(config.operating_hours_start) + hourIndex
+                    return (
+                      <div 
+                        key={`${courtIndex}-${hour}`}
+                        style={{ 
+                          height: '60px', 
+                          borderBottom: '1px solid #eee', 
+                          borderRight: 'none',
+                          position: 'relative',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {/* Línea sutil entre medias */}
+                        <div style={{ 
+                          position: 'absolute', 
+                          top: '50%', 
+                          left: 0, 
+                          right: 0, 
+                          height: '1px', 
+                          backgroundColor: '#f0f0f0' 
+                        }}></div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
