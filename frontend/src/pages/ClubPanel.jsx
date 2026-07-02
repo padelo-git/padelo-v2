@@ -299,8 +299,9 @@ function ClubPanel() {
       return { display: 'none' }
     }
     const rect = containerRef.getBoundingClientRect()
-    const relativeStartY = dragStartY - rect.top
-    const relativeCurrentY = dragCurrentY - rect.top
+    const headerHeight = 40 // Altura aproximada del header (padding + texto + border)
+    const relativeStartY = dragStartY - rect.top - headerHeight
+    const relativeCurrentY = dragCurrentY - rect.top - headerHeight
     const height = Math.abs(relativeCurrentY - relativeStartY)
     const top = Math.min(relativeStartY, relativeCurrentY)
     return {
