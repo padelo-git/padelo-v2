@@ -871,7 +871,7 @@ function ClubPanel() {
       )}
 
       {activeTab === 'calendario' && (
-        <div style={{ height: 'calc(100vh - 180px)', display: 'flex', flexDirection: 'column', backgroundColor: 'white', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+        <div style={{ height: 'calc(100vh - 140px)', display: 'flex', flexDirection: 'column', backgroundColor: '#f5f5f5', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           {/* Header con navegación de fechas, reloj y leyenda */}
           <div style={{ padding: '15px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -926,21 +926,21 @@ function ClubPanel() {
             </div>
             
             {/* Leyenda de colores */}
-            <div style={{ display: 'flex', gap: '15px', alignItems: 'center', fontSize: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <div style={{ width: '12px', height: '12px', backgroundColor: '#3B82F6', borderRadius: '2px' }}></div>
+            <div style={{ display: 'flex', gap: '20px', alignItems: 'center', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '20px', height: '20px', backgroundColor: '#3B82F6', borderRadius: '4px', border: '2px solid #2563eb' }}></div>
                 <span>App móvil</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <div style={{ width: '12px', height: '12px', backgroundColor: '#10B981', borderRadius: '2px' }}></div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '20px', height: '20px', backgroundColor: '#10B981', borderRadius: '4px', border: '2px solid #059669' }}></div>
                 <span>Clases</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <div style={{ width: '12px', height: '12px', backgroundColor: '#F59E0B', borderRadius: '2px' }}></div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '20px', height: '20px', backgroundColor: '#F59E0B', borderRadius: '4px', border: '2px solid #d97706' }}></div>
                 <span>Manual</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <div style={{ width: '12px', height: '12px', backgroundColor: '#F97316', borderRadius: '2px' }}></div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '20px', height: '20px', backgroundColor: '#F97316', borderRadius: '4px', border: '2px solid #ea580c' }}></div>
                 <span>Partido</span>
               </div>
             </div>
@@ -948,7 +948,7 @@ function ClubPanel() {
 
           {/* Grilla de canchas */}
           <div style={{ flex: 1, overflow: 'auto', display: 'flex' }}>
-            <div style={{ minWidth: '60px', borderRight: '1px solid #ddd', backgroundColor: '#f8f9fa' }}>
+            <div style={{ minWidth: '60px', borderRight: '1px solid #ddd', backgroundColor: '#e9ecef' }}>
               {/* Columna de horarios */}
               {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
                 const hour = parseInt(config.operating_hours_start) + i
