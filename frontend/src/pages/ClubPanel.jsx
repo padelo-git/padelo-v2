@@ -346,12 +346,16 @@ function ClubPanel() {
     
     try {
       // Calcular hora inicio y fin
-      // Ahora cada slot es una hora completa (60px)
-      // slotIndex 0 es 6:00-7:00, slotIndex 1 es 7:00-8:00, etc.
-      const startHour = parseInt(config.operating_hours_start) + dragStart.hourIndex
-      const startMin = '00'
-      const endHour = parseInt(config.operating_hours_start) + dragEnd.hourIndex
-      const endMin = '00'
+      // slotIndex 0 es 6:00-6:30, slotIndex 1 es 6:30-7:00, etc.
+      const startHour = parseInt(config.operating_hours_start) + Math.floor(dragStart.hourIndex / 2)
+      const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
+      let endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
+      let endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
+      // Si el slot final es impar (media hora), incrementar la hora y poner :00
+      if (dragEnd.hourIndex % 2 === 1) {
+        endHour += 1
+        endMin = '00'
+      }
       
       console.log('Time range:', `${startHour}:${startMin} - ${endHour}:${endMin}`)
       
@@ -1144,8 +1148,9 @@ function ClubPanel() {
                   >
                     {/* Overlay de iluminación progresiva */}
                     <div style={getDragOverlayStyle(courtIndex, courtRefs.current[courtIndex])}></div>
-                    {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, slotIndex) => {
-                    const hour = parseInt(config.operating_hours_start) + slotIndex
+                    {Array.from({ length: (parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 2 }, (_, slotIndex) => {
+                    const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
+                    const isHalfHour = slotIndex % 2 === 1
                     const isSelected = isSlotSelected(courtIndex, slotIndex)
                     return (
                       <div
@@ -1154,8 +1159,8 @@ function ClubPanel() {
                         onMouseMove={(e) => handleSlotMouseMove(courtIndex, slotIndex, e)}
                         onMouseUp={handleSlotMouseUp}
                         style={{
-                          height: '60px',
-                          borderBottom: '2px solid #333',
+                          height: '30px',
+                          borderBottom: isHalfHour ? '1px solid #333' : '2px solid #333',
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
@@ -1184,10 +1189,15 @@ function ClubPanel() {
               <div style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
                 <span style={{ color: '#fff', fontSize: '14px' }}>
                   {(() => {
-                    const startHour = parseInt(config.operating_hours_start) + dragStart.hourIndex
-                    const startMin = '00'
-                    const endHour = parseInt(config.operating_hours_start) + dragEnd.hourIndex
-                    const endMin = '00'
+                    const startHour = parseInt(config.operating_hours_start) + Math.floor(dragStart.hourIndex / 2)
+                    const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
+                    let endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
+                    let endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
+                    // Si el slot final es impar (media hora), incrementar la hora y poner :00
+                    if (dragEnd.hourIndex % 2 === 1) {
+                      endHour += 1
+                      endMin = '00'
+                    }
                     return `${startHour}:${startMin} - ${endHour}:${endMin}`
                   })()}
                 </span>
