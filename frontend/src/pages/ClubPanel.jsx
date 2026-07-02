@@ -456,7 +456,7 @@ function ClubPanel() {
       </header>
 
       {/* Navegación principal */}
-      <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px', padding: '15px', backgroundColor: '#2a2a2a', borderRadius: '10px' }}>
+      <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '0px', padding: '15px', backgroundColor: '#2a2a2a', borderRadius: '10px' }}>
         <button onClick={() => setActiveTab('inicio')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'inicio' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Inicio</button>
         <button onClick={() => setActiveTab('profesores')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'profesores' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Profesores</button>
         <button onClick={() => setActiveTab('configuracion')} style={{ padding: '10px 20px', backgroundColor: activeTab === 'configuracion' ? '#0056b3' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Configuración</button>
@@ -953,7 +953,7 @@ function ClubPanel() {
               {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
                 const hour = parseInt(config.operating_hours_start) + i
                 return (
-                  <div key={hour} style={{ height: '60px', borderBottom: '2px solid #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#666', fontWeight: 'bold' }}>
+                  <div key={hour} style={{ height: '60px', borderBottom: '2px solid #ccc', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '5px', fontSize: '12px', color: '#666', fontWeight: 'bold' }}>
                     {hour}:00
                   </div>
                 )
