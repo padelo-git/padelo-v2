@@ -940,12 +940,14 @@ function ClubPanel() {
 
           {/* Grilla de canchas */}
           <div style={{ flex: 1, overflow: 'auto', display: 'flex' }}>
-            <div style={{ minWidth: '60px', borderRight: '1px solid #333', backgroundColor: '#2d2d2d' }}>
+            <div style={{ minWidth: '60px', borderRight: '1px solid #333', backgroundColor: '#1a1a1a' }}>
+              {/* Header vacío para alinear con header de canchas */}
+              <div style={{ padding: '5px', borderBottom: '1px solid #333', backgroundColor: '#1a1a1a' }}></div>
               {/* Columna de horarios */}
               {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
                 const hour = parseInt(config.operating_hours_start) + i
                 return (
-                  <div key={hour} style={{ height: '60px', borderBottom: '2px solid #444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#ccc', fontWeight: 'bold' }}>
+                  <div key={hour} style={{ height: '60px', borderBottom: '2px solid #444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#000', fontWeight: 'bold' }}>
                     {hour}:00
                   </div>
                 )
