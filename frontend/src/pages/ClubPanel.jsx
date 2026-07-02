@@ -1184,10 +1184,10 @@ function ClubPanel() {
               <div style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
                 <span style={{ color: '#fff', fontSize: '14px' }}>
                   {(() => {
-                    const startHour = parseInt(config.operating_hours_start) + Math.floor(dragStart.hourIndex / 2)
-                    const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
-                    const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
-                    const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
+                    const startHour = parseInt(config.operating_hours_start) + dragStart.hourIndex
+                    const startMin = '00'
+                    const endHour = parseInt(config.operating_hours_start) + dragEnd.hourIndex
+                    const endMin = '00'
                     return `${startHour}:${startMin} - ${endHour}:${endMin}`
                   })()}
                 </span>
