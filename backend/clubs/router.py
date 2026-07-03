@@ -441,18 +441,11 @@ async def create_reservation(
             hourly_rate = club.premium_hourly_price if is_peak_hour and club.premium_hourly_price else club.hourly_price
             price = int(float(hourly_rate) * duration_hours) if hourly_rate else 0
         
-        # Convert date string to datetime if needed
-        from datetime import datetime
-        if isinstance(reservation.date, str):
-            date_obj = datetime.fromisoformat(reservation.date.replace('Z', '+00:00'))
-        else:
-            date_obj = reservation.date
-        
         db_reservation = Reservation(
             club_id=reservation.club_id,
             court_id=reservation.court_id,
             user_id=reservation.user_id,
-            date=date_obj,
+            date=reservation.date,  # Now uses string directly like old system
             start_time=reservation.start_time,
             end_time=reservation.end_time,
             price=price,

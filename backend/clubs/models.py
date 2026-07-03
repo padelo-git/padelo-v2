@@ -84,7 +84,7 @@ class Reservation(Base):
     club_id = Column(Integer, ForeignKey("clubs.id"), nullable=False)
     court_id = Column(Integer, ForeignKey("courts.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    date = Column(DateTime, nullable=False)
+    date = Column(String, nullable=False)  # Changed from DateTime to String like old system
     start_time = Column(String, nullable=False)  # "14:00"
     end_time = Column(String, nullable=False)    # "15:00"
     status = Column(String, default="pending")   # pending, confirmed, cancelled
