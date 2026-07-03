@@ -422,7 +422,7 @@ function ClubPanel() {
       } else {
         // Reserva normal: usar precio normal o peak según hora
         const isPeakHour = startHour >= 18 || startHour < 9
-        price = isPeakHour ? config.hourly_price_peak * durationHours : config.hourly_price_normal * durationHours
+        price = isPeakHour ? (config.premium_hourly_price || config.hourly_price) * durationHours : config.hourly_price * durationHours
       }
       
       console.log('Price:', price)
