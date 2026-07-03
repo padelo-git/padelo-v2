@@ -441,7 +441,7 @@ async def create_reservation(
         price = int(hourly_rate * duration_hours) if hourly_rate else 0
     
     db_reservation = Reservation(
-        club_id=court.club_id,
+        club_id=reservation.club_id,
         court_id=reservation.court_id,
         user_id=reservation.user_id,
         date=reservation.date,
