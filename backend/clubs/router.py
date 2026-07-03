@@ -413,6 +413,33 @@ async def create_reservation(
             detail="Court not found"
         )
     
+    # Get club data for pricing
+    result = await db.execute(select(Club).where(Club.id == court.club_id))
+    club = result.scalar_one_or_none()
+    if not club:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Club not found"
+        )
+    
+    # Calculate price if not provided
+    price = reservation.price
+    if price is None:
+        # Calculate duration in hours
+        start_hour = int(reservation.start_time.split(':')[0])
+        start_min = int(reservation.start_time.split(':')[1])
+        end_hour = int(reservation.end_time.split(':')[0])
+        end_min = int(reservation.end_time.split(':')[1])
+        
+        start_minutes = start_hour * 60 + start_min
+        end_minutes = end_hour * 60 + end_min
+        duration_hours = (end_minutes - start_minutes) / 60
+        
+        # Use peak or normal price
+        is_peak_hour = start_hour >= 18 or start_hour < 9
+        hourly_rate = club.premium_hourly_price if is_peak_hour and club.premium_hourly_price else club.hourly_price
+        price = int(hourly_rate * duration_hours) if hourly_rate else 0
+    
     db_reservation = Reservation(
         club_id=court.club_id,
         court_id=reservation.court_id,
@@ -420,7 +447,7 @@ async def create_reservation(
         date=reservation.date,
         start_time=reservation.start_time,
         end_time=reservation.end_time,
-        price=reservation.price,
+        price=price,
         notes=reservation.notes
     )
     db.add(db_reservation)
