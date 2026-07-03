@@ -401,10 +401,9 @@ async def update_court(court_id: int, court_update: CourtUpdate, current_club: C
 @router.post("/reservations", response_model=ReservationResponse)
 async def create_reservation(
     reservation: ReservationCreate,
-    current_club: Club = Depends(get_current_club),
     db: AsyncSession = Depends(get_db)
 ):
-    """Create a new reservation for the authenticated club"""
+    """Create a new reservation"""
     # Check if court exists
     result = await db.execute(select(Court).where(Court.id == reservation.court_id))
     court = result.scalar_one_or_none()
@@ -415,7 +414,7 @@ async def create_reservation(
         )
     
     db_reservation = Reservation(
-        club_id=current_club.id,
+        club_id=court.club_id,
         court_id=reservation.court_id,
         user_id=reservation.user_id,
         date=reservation.date,
