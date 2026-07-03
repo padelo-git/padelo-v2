@@ -439,7 +439,7 @@ async def create_reservation(
             # Use peak or normal price
             is_peak_hour = start_hour >= 18 or start_hour < 9
             hourly_rate = club.premium_hourly_price if is_peak_hour and club.premium_hourly_price else club.hourly_price
-            price = int(hourly_rate * duration_hours) if hourly_rate else 0
+            price = int(float(hourly_rate) * duration_hours) if hourly_rate else 0
         
         db_reservation = Reservation(
             club_id=reservation.club_id,
