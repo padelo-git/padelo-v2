@@ -441,21 +441,19 @@ function ClubPanel() {
       const token = localStorage.getItem('token')
       console.log('Token:', token ? 'exists' : 'missing')
       
-      const matchData = {
-        club_id: club.id,
+      const reservationData = {
         court_id: court.id,
+        user_id: club.id, // Using club.id as user_id for now
         date: selectedDate,
         start_time: `${startHour}:${startMin}`,
         end_time: `${endHour}:${endMin}`,
-        category: reservationType === 'clases' ? 'lesson' : 'normal',
-        gender: 'mixed',
         price: Math.round(price),
-        created_by: club.id
+        notes: reservationType === 'clases' ? 'Clase' : 'Reserva normal'
       }
       
-      console.log('Match data to send:', matchData)
+      console.log('Reservation data to send:', reservationData)
       
-      const response = await api.post('/matches/', matchData, {
+      const response = await api.post(`/clubs/${club.id}/reservations`, reservationData, {
         headers: { Authorization: `Bearer ${token}` }
       })
       
