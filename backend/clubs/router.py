@@ -268,6 +268,14 @@ async def get_club(club_id: int, db: AsyncSession = Depends(get_db)):
     )
 
 
+@router.get("/{club_id}/courts", response_model=List[CourtResponse])
+async def get_club_courts(club_id: int, db: AsyncSession = Depends(get_db)):
+    """Get all courts for a specific club"""
+    result = await db.execute(select(Court).where(Court.club_id == club_id))
+    courts = result.scalars().all()
+    return courts
+
+
 @router.put("/{club_id}", response_model=ClubResponse)
 async def update_club(
     club_id: int, 
