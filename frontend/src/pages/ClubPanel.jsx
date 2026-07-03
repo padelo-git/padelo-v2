@@ -467,7 +467,9 @@ function ClubPanel() {
     } catch (err) {
       console.error('Error creating reservation:', err)
       console.error('Error response:', err.response)
-      alert('Error al crear la reserva: ' + (err.response?.data?.detail || err.message))
+      console.error('Error data:', err.response?.data)
+      const errorMessage = err.response?.data?.detail || err.response?.data?.message || err.message || JSON.stringify(err.response?.data || err)
+      alert('Error al crear la reserva: ' + errorMessage)
       closeModal()
     }
   }
