@@ -405,27 +405,42 @@ async def create_reservation(
 ):
     """Create a new reservation"""
     try:
+        print(f"=== CREATE RESERVATION START ===")
+        print(f"Reservation data: {reservation}")
+        print(f"club_id: {reservation.club_id}")
+        print(f"court_id: {reservation.court_id}")
+        print(f"date: {reservation.date}")
+        print(f"start_time: {reservation.start_time}")
+        print(f"end_time: {reservation.end_time}")
+        print(f"price: {reservation.price}")
+        print(f"user_id: {reservation.user_id}")
+        
         # Check if court exists
         result = await db.execute(select(Court).where(Court.id == reservation.court_id))
         court = result.scalar_one_or_none()
         if not court:
+            print(f"ERROR: Court not found with id {reservation.court_id}")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Court not found"
             )
+        print(f"Court found: {court}")
         
         # Get club data for pricing
         result = await db.execute(select(Club).where(Club.id == court.club_id))
         club = result.scalar_one_or_none()
         if not club:
+            print(f"ERROR: Club not found with id {court.club_id}")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Club not found"
             )
+        print(f"Club found: {club}")
         
         # Calculate price if not provided
         price = reservation.price
         if price is None:
+            print("Calculating price...")
             # Calculate duration in hours
             start_hour = int(reservation.start_time.split(':')[0])
             start_min = int(reservation.start_time.split(':')[1])
@@ -440,7 +455,9 @@ async def create_reservation(
             is_peak_hour = start_hour >= 18 or start_hour < 9
             hourly_rate = club.premium_hourly_price if is_peak_hour and club.premium_hourly_price else club.hourly_price
             price = int(float(hourly_rate) * duration_hours) if hourly_rate else 0
+            print(f"Calculated price: {price}")
         
+        print(f"Creating reservation with price: {price}")
         db_reservation = Reservation(
             club_id=reservation.club_id,
             court_id=reservation.court_id,
@@ -451,12 +468,24 @@ async def create_reservation(
             price=price,
             notes=reservation.notes
         )
-        db.add(db_reservation)
-        await db.commit()
-        await db.refresh(db_reservation)
+        print(f"Reservation object created: {db_reservation}")
         
+        db.add(db_reservation)
+        print("Reservation added to session")
+        
+        await db.commit()
+        print("Commit successful")
+        
+        await db.refresh(db_reservation)
+        print(f"Reservation refreshed: {db_reservation}")
+        
+        print(f"=== CREATE RESERVATION SUCCESS ===")
         return db_reservation
     except Exception as e:
+        print(f"=== CREATE RESERVATION ERROR ===")
+        print(f"Error type: {type(e).__name__}")
+        print(f"Error message: {str(e)}")
+        print(f"Error details: {e}")
         await db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
