@@ -444,7 +444,7 @@ async def create_reservation(
         db_reservation = Reservation(
             club_id=reservation.club_id,
             court_id=reservation.court_id,
-            user_id=reservation.user_id,
+            user_id=None,  # Always set to None to avoid foreign key errors
             date=reservation.date,  # Now uses string directly like old system
             start_time=reservation.start_time,
             end_time=reservation.end_time,
