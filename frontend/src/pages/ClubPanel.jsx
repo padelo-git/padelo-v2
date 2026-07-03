@@ -165,21 +165,21 @@ function ClubPanel() {
     const durationHours = durationMinutes / 60
 
     if (reservationType === 'clases') {
-      // Para clases: precio fijo según número de jugadores
+      // Para clases: precio fijo según número de jugadores (usando config del club)
       const activePlayers = players.filter(p => p.name.trim() !== '').length
       if (activePlayers <= 2) {
-        return 800
+        return config.lesson_1_2_players_price || 800
       } else if (activePlayers === 3) {
-        return 1200
+        return config.lesson_3_players_price || 1200
       } else if (activePlayers === 4) {
-        return 1400
+        return config.lesson_4_players_price || 1400
       }
-      return 800
+      return config.lesson_1_2_players_price || 800
     } else {
-      // Para reservas normales: precio según hora
-      // 6AM-5PM = 220, después de 5PM = 400
+      // Para reservas normales: precio según hora (usando config del club)
+      // Determinar si es hora peak (después de las 5PM o antes de las 6AM)
       const isPeakHour = startHour >= 17 || startHour < 6
-      const hourlyRate = isPeakHour ? 400 : 220
+      const hourlyRate = isPeakHour ? (config.hourly_price_peak || 400) : (config.hourly_price_normal || 220)
       return Math.round(hourlyRate * durationHours)
     }
   }
