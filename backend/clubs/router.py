@@ -404,104 +404,64 @@ async def create_reservation(
     db: AsyncSession = Depends(get_db)
 ):
     """Create a new reservation"""
-    # Check if court exists
-    result = await db.execute(select(Court).where(Court.id == reservation.court_id))
-    court = result.scalar_one_or_none()
-    if not court:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Court not found"
-        )
-    
-    # Get club data for pricing
-    result = await db.execute(select(Club).where(Club.id == court.club_id))
-    club = result.scalar_one_or_none()
-    if not club:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Club not found"
-        )
-    
-    # Calculate price if not provided
-    price = reservation.price
-    if price is None:
-        # Calculate duration in hours
-        start_hour = int(reservation.start_time.split(':')[0])
-        start_min = int(reservation.start_time.split(':')[1])
-        end_hour = int(reservation.end_time.split(':')[0])
-        end_min = int(reservation.end_time.split(':')[1])
+    try:
+        # Check if court exists
+        result = await db.execute(select(Court).where(Court.id == reservation.court_id))
+        court = result.scalar_one_or_none()
+        if not court:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Court not found"
+            )
         
-        start_minutes = start_hour * 60 + start_min
-        end_minutes = end_hour * 60 + end_min
-        duration_hours = (end_minutes - start_minutes) / 60
+        # Get club data for pricing
+        result = await db.execute(select(Club).where(Club.id == court.club_id))
+        club = result.scalar_one_or_none()
+        if not club:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Club not found"
+            )
         
-        # Use peak or normal price
-        is_peak_hour = start_hour >= 18 or start_hour < 9
-        hourly_rate = club.premium_hourly_price if is_peak_hour and club.premium_hourly_price else club.hourly_price
-        price = int(hourly_rate * duration_hours) if hourly_rate else 0
-    
-    db_reservation = Reservation(
-        club_id=reservation.club_id,
-        court_id=reservation.court_id,
-        user_id=reservation.user_id,
-        date=reservation.date,
-        start_time=reservation.start_time,
-        end_time=reservation.end_time,
-        price=price,
-        notes=reservation.notes
-    )
-    db.add(db_reservation)
-    await db.commit()
-    await db.refresh(db_reservation)
-    
-    # Try automatic payment via Stripe if price is set
-    if reservation.price and reservation.price > 0:
-        try:
-            from payments.stripe_service import get_stripe_service
-            stripe_service = get_stripe_service()
+        # Calculate price if not provided
+        price = reservation.price
+        if price is None:
+            # Calculate duration in hours
+            start_hour = int(reservation.start_time.split(':')[0])
+            start_min = int(reservation.start_time.split(':')[1])
+            end_hour = int(reservation.end_time.split(':')[0])
+            end_min = int(reservation.end_time.split(':')[1])
             
-            if stripe_service:
-                payment_result = await stripe_service.process_match_payment(
-                    user_id=reservation.user_id,
-                    match_id=db_reservation.id,
-                    amount=int(reservation.price * 100),
-                    currency="usd"
-                )
-                
-                if payment_result["success"]:
-                    # Create payment record
-                    payment = Payment(
-                        club_id=current_club.id,
-                        user_id=reservation.user_id,
-                        amount=reservation.price,
-                        method="card",
-                        description=f"Reserva automática - Cancha #{reservation.court_id}",
-                        created_at=func.now()
-                    )
-                    db.add(payment)
-                    await db.commit()
-                    
-                    # Update reservation status
-                    db_reservation.status = "confirmed"
-                    await db.commit()
-                    
-                    return {
-                        **db_reservation.__dict__,
-                        "payment_status": "paid",
-                        "payment_method": "system",
-                        "client_secret": payment_result.get("client_secret")
-                    }
-        except Exception as e:
-            # If automatic payment fails, allow manual payment
-            print(f"Automatic payment failed: {e}")
-            return {
-                **db_reservation.__dict__,
-                "payment_status": "pending",
-                "payment_method": "manual",
-                "message": "Payment failed, please pay manually"
-            }
-    
-    return db_reservation
+            start_minutes = start_hour * 60 + start_min
+            end_minutes = end_hour * 60 + end_min
+            duration_hours = (end_minutes - start_minutes) / 60
+            
+            # Use peak or normal price
+            is_peak_hour = start_hour >= 18 or start_hour < 9
+            hourly_rate = club.premium_hourly_price if is_peak_hour and club.premium_hourly_price else club.hourly_price
+            price = int(hourly_rate * duration_hours) if hourly_rate else 0
+        
+        db_reservation = Reservation(
+            club_id=reservation.club_id,
+            court_id=reservation.court_id,
+            user_id=reservation.user_id,
+            date=reservation.date,
+            start_time=reservation.start_time,
+            end_time=reservation.end_time,
+            price=price,
+            notes=reservation.notes
+        )
+        db.add(db_reservation)
+        await db.commit()
+        await db.refresh(db_reservation)
+        
+        return db_reservation
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error creating reservation: {str(e)}"
+        )
 
 
 @router.get("/reservations", response_model=List[ReservationResponse])
