@@ -467,6 +467,8 @@ function ClubPanel() {
       console.error('Error creating reservation:', err)
       console.error('Error response:', err.response)
       console.error('Error data:', err.response?.data)
+      console.error('Error status:', err.response?.status)
+      console.error('Error statusText:', err.response?.statusText)
       const errorMessage = err.response?.data?.detail || err.response?.data?.message || err.message || JSON.stringify(err.response?.data || err)
       alert('Error al crear la reserva: ' + errorMessage)
       closeModal()
