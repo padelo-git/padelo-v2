@@ -148,6 +148,41 @@ function ClubPanel() {
     { name: '', paymentMethod: 'pendiente' },
     { name: '', paymentMethod: 'pendiente' }
   ])
+  const [calculatedPrice, setCalculatedPrice] = useState(0)
+
+  // Función para calcular el precio según las reglas del usuario
+  const calculatePrice = () => {
+    if (!dragStart || !dragEnd) return 0
+
+    const startHour = parseInt(config.operating_hours_start) + Math.floor(dragStart.hourIndex / 2)
+    const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
+    const startMin = dragStart.hourIndex % 2 === 0 ? 0 : 30
+    const endMin = dragEnd.hourIndex % 2 === 0 ? 0 : 30
+
+    const startMinutes = startHour * 60 + startMin
+    const endMinutes = endHour * 60 + endMin
+    const durationMinutes = endMinutes - startMinutes
+    const durationHours = durationMinutes / 60
+
+    if (reservationType === 'clases') {
+      // Para clases: precio fijo según número de jugadores
+      const activePlayers = players.filter(p => p.name.trim() !== '').length
+      if (activePlayers <= 2) {
+        return 800
+      } else if (activePlayers === 3) {
+        return 1200
+      } else if (activePlayers === 4) {
+        return 1400
+      }
+      return 800
+    } else {
+      // Para reservas normales: precio según hora
+      // 6AM-5PM = 220, después de 5PM = 400
+      const isPeakHour = startHour >= 17 || startHour < 6
+      const hourlyRate = isPeakHour ? 400 : 220
+      return Math.round(hourlyRate * durationHours)
+    }
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -158,6 +193,12 @@ function ClubPanel() {
 
     fetchClubData()
   }, [navigate])
+
+  // Actualizar precio calculado cuando cambie el tipo de reserva o los jugadores
+  useEffect(() => {
+    const price = calculatePrice()
+    setCalculatedPrice(price)
+  }, [reservationType, players, dragStart, dragEnd])
 
   useEffect(() => {
     localStorage.setItem('activeTab', JSON.stringify(activeTab))
@@ -470,8 +511,22 @@ function ClubPanel() {
       console.error('Error data:', err.response?.data)
       console.error('Error status:', err.response?.status)
       console.error('Error statusText:', err.response?.statusText)
-      const errorMessage = err.response?.data?.detail || err.response?.data?.message || err.message || JSON.stringify(err.response?.data || err)
-      alert('Error al crear la reserva: ' + errorMessage)
+      
+      // Build detailed error message
+      let errorDetails = 'Error al crear la reserva:\n\n'
+      errorDetails += `Status: ${err.response?.status}\n`
+      errorDetails += `StatusText: ${err.response?.statusText}\n`
+      errorDetails += `Message: ${err.message}\n`
+      if (err.response?.data) {
+        errorDetails += `Data: ${JSON.stringify(err.response.data, null, 2)}\n`
+      }
+      
+      // Show in alert and log to console for easy copying
+      alert(errorDetails)
+      console.log('=== FULL ERROR DETAILS (copy this) ===')
+      console.log(errorDetails)
+      console.log('=== END ERROR DETAILS ===')
+      
       closeModal()
     }
   }
@@ -1223,6 +1278,9 @@ function ClubPanel() {
                     const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
                     return `${startHour}:${startMin} - ${endHour}:${endMin}`
                   })()}
+                </span>
+                <span style={{ color: '#28a745', fontSize: '16px', fontWeight: 'bold', marginLeft: '10px' }}>
+                  ${calculatedPrice}
                 </span>
               </div>
             )}
