@@ -443,7 +443,6 @@ function ClubPanel() {
       
       const reservationData = {
         court_id: court.id,
-        user_id: club.id, // Using club.id as user_id for now
         date: selectedDate,
         start_time: `${startHour}:${startMin}`,
         end_time: `${endHour}:${endMin}`,
