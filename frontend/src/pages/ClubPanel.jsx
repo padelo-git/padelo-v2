@@ -447,7 +447,6 @@ function ClubPanel() {
         date: selectedDate,
         start_time: `${startHour}:${startMin}`,
         end_time: `${endHour}:${endMin}`,
-        price: Math.round(price),
         notes: reservationType === 'clases' ? 'Clase' : 'Reserva normal'
       }
       
