@@ -68,7 +68,8 @@ jobs:
         script: |
           cd ~/padelo-v2
           git checkout ${{ env.BRANCH }}
-          git pull origin ${{ env.BRANCH }}
+          git fetch origin ${{ env.BRANCH }}
+          git reset --hard origin/${{ env.BRANCH }}
           
           if [ "${{ env.ENVIRONMENT }}" == "preproduction" ]; then
             # Deploy to preproduction
