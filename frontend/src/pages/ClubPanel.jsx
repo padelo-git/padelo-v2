@@ -453,7 +453,7 @@ function ClubPanel() {
       
       console.log('Reservation data to send:', reservationData)
       
-      const response = await api.post(`/clubs/${club.id}/reservations`, reservationData, {
+      const response = await api.post('/clubs/reservations', reservationData, {
         headers: { Authorization: `Bearer ${token}` }
       })
       
