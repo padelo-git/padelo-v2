@@ -442,6 +442,7 @@ function ClubPanel() {
       console.log('Token:', token ? 'exists' : 'missing')
       
       const reservationData = {
+        club_id: club.id,
         court_id: court.id,
         user_id: club.id, // Using club.id as user_id for now
         date: selectedDate,
