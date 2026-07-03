@@ -438,33 +438,8 @@ function ClubPanel() {
       
       console.log('Time range:', `${startHour}:${startMin} - ${endHour}:${endMin}`)
       
-      // Calcular duración en horas
-      const startTimeMinutes = startHour * 60 + parseInt(startMin)
-      const endTimeMinutes = endHour * 60 + parseInt(endMin)
-      const durationHours = (endTimeMinutes - startTimeMinutes) / 60
-      
-      console.log('Duration hours:', durationHours)
-      
-      // Calcular precio según tipo de reserva
-      let price = 0
-      if (reservationType === 'clases') {
-        // Usar precio de clases según cantidad de jugadores
-        const playerCount = players.filter(p => p.name.trim()).length
-        console.log('Player count:', playerCount)
-        if (playerCount === 1) {
-          price = config.lesson_1_player_price * durationHours
-        } else if (playerCount === 2) {
-          price = config.lesson_1_2_players_price * durationHours
-        } else if (playerCount === 3) {
-          price = config.lesson_3_players_price * durationHours
-        } else if (playerCount === 4) {
-          price = config.lesson_4_players_price * durationHours
-        }
-      } else {
-        // Reserva normal: usar precio normal o peak según hora
-        const isPeakHour = startHour >= 18 || startHour < 9
-        price = isPeakHour ? (config.premium_hourly_price || config.hourly_price) * durationHours : config.hourly_price * durationHours
-      }
+      // Usar el precio calculado por la función calculatePrice
+      const price = calculatedPrice
       
       console.log('Price:', price)
       
