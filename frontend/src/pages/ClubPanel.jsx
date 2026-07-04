@@ -291,14 +291,22 @@ function ClubPanel() {
 
   const fetchReservationsForDate = async (date) => {
     try {
+      console.log('=== fetchReservationsForDate called ===')
+      console.log('Fetching reservations for date:', date)
       const reservationsResponse = await api.get('/clubs/reservations')
       const allReservations = reservationsResponse.data
+      console.log('All reservations from API:', allReservations)
+      console.log('Number of reservations:', allReservations.length)
       // Filter reservations for the selected date
       const filteredReservations = allReservations.filter(r => {
         const reservationDate = new Date(r.date)
         const selectedDateObj = new Date(date)
-        return reservationDate.toDateString() === selectedDateObj.toDateString()
+        const matches = reservationDate.toDateString() === selectedDateObj.toDateString()
+        console.log(`Reservation date: ${reservationDate.toDateString()}, Selected date: ${selectedDateObj.toDateString()}, Matches: ${matches}`)
+        return matches
       })
+      console.log('Filtered reservations:', filteredReservations)
+      console.log('Number of filtered reservations:', filteredReservations.length)
       setReservations(filteredReservations)
     } catch (err) {
       console.error('Error fetching reservations:', err)
@@ -393,14 +401,26 @@ function ClubPanel() {
     const isHalfHour = slotIndex % 2 === 1
     const timeStr = isHalfHour ? `${hour}:30` : `${hour}:00`
     
+    console.log(`=== getReservationForSlot ===`)
+    console.log(`courtIndex: ${courtIndex}, slotIndex: ${slotIndex}`)
+    console.log(`court:`, court)
+    console.log(`hour: ${hour}, isHalfHour: ${isHalfHour}, timeStr: ${timeStr}`)
+    console.log(`reservations:`, reservations)
+    
     // Find reservation for this court, date, and time
-    return reservations.find(r => {
-      if (r.court_id !== court.id) return false
+    const found = reservations.find(r => {
+      console.log(`Checking reservation:`, r)
+      if (r.court_id !== court.id) {
+        console.log(`  - court_id mismatch: ${r.court_id} !== ${court.id}`)
+        return false
+      }
       
       // Check if the reservation date matches the selected date
       const reservationDate = new Date(r.date)
       const selectedDateObj = new Date(selectedDate)
-      if (reservationDate.toDateString() !== selectedDateObj.toDateString()) return false
+      const dateMatches = reservationDate.toDateString() === selectedDateObj.toDateString()
+      console.log(`  - date: ${reservationDate.toDateString()} vs ${selectedDateObj.toDateString()}, matches: ${dateMatches}`)
+      if (!dateMatches) return false
       
       // Check if the reservation covers this time slot
       const resStartHour = parseInt(r.start_time.split(':')[0])
@@ -412,8 +432,14 @@ function ClubPanel() {
       const resStartMinutes = resStartHour * 60 + resStartMin
       const resEndMinutes = resEndHour * 60 + resEndMin
       
-      return slotMinutes >= resStartMinutes && slotMinutes < resEndMinutes
+      const timeMatches = slotMinutes >= resStartMinutes && slotMinutes < resEndMinutes
+      console.log(`  - time: slot ${slotMinutes}min, reservation ${resStartMinutes}-${resEndMinutes}min, matches: ${timeMatches}`)
+      
+      return timeMatches
     })
+    
+    console.log(`Found reservation:`, found)
+    return found
   }
 
   const getDragOverlayStyle = (courtIndex, containerRef) => {
