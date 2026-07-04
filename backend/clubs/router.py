@@ -492,9 +492,21 @@ async def create_reservation(
 @router.get("/reservations", response_model=List[ReservationResponse])
 async def get_reservations(db: AsyncSession = Depends(get_db)):
     """Get all reservations"""
-    result = await db.execute(select(Reservation))
-    reservations = result.scalars().all()
-    return reservations
+    try:
+        print("=== GET /clubs/reservations START ===")
+        result = await db.execute(select(Reservation))
+        reservations = result.scalars().all()
+        print(f"Found {len(reservations)} reservations")
+        for r in reservations:
+            print(f"Reservation: id={r.id}, club_id={r.club_id}, court_id={r.court_id}, user_id={r.user_id}, date={r.date}, start_time={r.start_time}, end_time={r.end_time}")
+        print("=== GET /clubs/reservations END ===")
+        return reservations
+    except Exception as e:
+        print(f"=== GET /clubs/reservations ERROR ===")
+        print(f"Error type: {type(e).__name__}")
+        print(f"Error message: {str(e)}")
+        print(f"Error details: {e}")
+        raise
 
 
 @router.put("/reservations/{reservation_id}", response_model=ReservationResponse)
