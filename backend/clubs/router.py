@@ -4,6 +4,7 @@ from sqlalchemy import select, func
 from typing import List, Optional
 from core.database import get_db
 from core.security import get_current_user, get_current_club_admin, get_current_club, verify_password, create_access_token
+from auth.models import User
 from clubs.models import Club, Court, Reservation, Payment, Debt, CashRegister, Penalty
 from clubs.schemas import (
     ClubCreate, ClubUpdate, ClubResponse, ClubWithCourts,
@@ -401,13 +402,13 @@ async def update_court(court_id: int, court_update: CourtUpdate, current_club: C
 @router.post("/reservations", response_model=ReservationResponse)
 async def create_reservation(
     reservation: ReservationCreate,
-    current_club: Club = Depends(get_current_club),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Create a new reservation"""
     try:
         print(f"=== CREATE RESERVATION START ===")
-        print(f"Current club: {current_club}")
+        print(f"Current user: {current_user}")
         print(f"Reservation data: {reservation}")
         print(f"club_id: {reservation.club_id}")
         print(f"court_id: {reservation.court_id}")
@@ -417,9 +418,9 @@ async def create_reservation(
         print(f"price: {reservation.price}")
         print(f"user_id: {reservation.user_id}")
         
-        # Verify that the reservation belongs to the authenticated club
-        if reservation.club_id != current_club.id:
-            print(f"ERROR: Reservation club_id {reservation.club_id} does not match current club id {current_club.id}")
+        # Verify that the reservation belongs to the user's club
+        if current_user.club_id != reservation.club_id:
+            print(f"ERROR: User club_id {current_user.club_id} does not match reservation club_id {reservation.club_id}")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You can only create reservations for your own club"
