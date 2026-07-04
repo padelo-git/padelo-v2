@@ -293,21 +293,17 @@ function ClubPanel() {
     try {
       console.log('=== fetchReservationsForDate called ===')
       console.log('Fetching reservations for date:', date)
-      const reservationsResponse = await api.get('/clubs/reservations')
+      console.log('Club:', club)
+      if (!club || !club.id) {
+        console.log('Club not available yet, skipping fetch')
+        return
+      }
+      const dateStr = date.toISOString ? date.toISOString().split('T')[0] : date
+      const reservationsResponse = await api.get(`/clubs/${club.id}/reservations-by-date?date=${dateStr}`)
       const allReservations = reservationsResponse.data
-      console.log('All reservations from API:', allReservations)
+      console.log('Reservations from new endpoint:', allReservations)
       console.log('Number of reservations:', allReservations.length)
-      // Filter reservations for the selected date
-      const filteredReservations = allReservations.filter(r => {
-        const reservationDate = new Date(r.date)
-        const selectedDateObj = new Date(date)
-        const matches = reservationDate.toDateString() === selectedDateObj.toDateString()
-        console.log(`Reservation date: ${reservationDate.toDateString()}, Selected date: ${selectedDateObj.toDateString()}, Matches: ${matches}`)
-        return matches
-      })
-      console.log('Filtered reservations:', filteredReservations)
-      console.log('Number of filtered reservations:', filteredReservations.length)
-      setReservations(filteredReservations)
+      setReservations(allReservations)
     } catch (err) {
       console.error('Error fetching reservations:', err)
     }
