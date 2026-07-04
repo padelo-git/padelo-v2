@@ -116,6 +116,7 @@ class CourtResponse(CourtBase):
 class ReservationBase(BaseModel):
     club_id: int
     court_id: int
+    user_id: Optional[int] = None
     date: datetime
     start_time: str
     end_time: str
