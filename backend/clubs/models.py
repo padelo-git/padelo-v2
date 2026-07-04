@@ -83,7 +83,7 @@ class Reservation(Base):
     id = Column(Integer, primary_key=True, index=True)
     club_id = Column(Integer, ForeignKey("clubs.id"), nullable=False)
     court_id = Column(Integer, ForeignKey("courts.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     date = Column(DateTime(timezone=True), nullable=False)
     start_time = Column(String, nullable=False)  # "14:00"
     end_time = Column(String, nullable=False)    # "15:00"

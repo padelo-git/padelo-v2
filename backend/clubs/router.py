@@ -403,6 +403,7 @@ async def update_court(court_id: int, court_update: CourtUpdate, current_club: C
 @router.post("/reservations", response_model=ReservationResponse)
 async def create_reservation(
     reservation: ReservationCreate,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Create a new reservation"""
@@ -415,7 +416,11 @@ async def create_reservation(
         print(f"start_time: {reservation.start_time}")
         print(f"end_time: {reservation.end_time}")
         print(f"price: {reservation.price}")
-        print(f"user_id: {reservation.user_id}")
+        print(f"user_id from request: {reservation.user_id}")
+        print(f"current_user.id: {current_user.id}")
+        
+        # Use user_id from authenticated user
+        user_id = current_user.id
         
         # Convert date string to datetime if needed
         if isinstance(reservation.date, str):
@@ -454,7 +459,7 @@ async def create_reservation(
         db_reservation = Reservation(
             club_id=reservation.club_id,
             court_id=reservation.court_id,
-            user_id=None,  # Always set to None to avoid foreign key errors
+            user_id=user_id,
             date=reservation_date,
             start_time=reservation.start_time,
             end_time=reservation.end_time,
