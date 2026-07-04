@@ -386,9 +386,14 @@ function ClubPanel() {
     const isHalfHour = slotIndex % 2 === 1
     const timeStr = isHalfHour ? `${hour}:30` : `${hour}:00`
     
-    // Find reservation for this court and time
+    // Find reservation for this court, date, and time
     return reservations.find(r => {
       if (r.court_id !== court.id) return false
+      
+      // Check if the reservation date matches the selected date
+      const reservationDate = new Date(r.date)
+      const selectedDateObj = new Date(selectedDate)
+      if (reservationDate.toDateString() !== selectedDateObj.toDateString()) return false
       
       // Check if the reservation covers this time slot
       const resStartHour = parseInt(r.start_time.split(':')[0])
