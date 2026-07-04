@@ -417,8 +417,8 @@ async def create_reservation(
         print(f"price: {reservation.price}")
         print(f"user_id from request: {reservation.user_id}")
         
-        # Use user_id from request or default to 1 (temporary fix)
-        user_id = reservation.user_id if reservation.user_id is not None else 1
+        # Use user_id from request or None
+        user_id = reservation.user_id
         
         # Convert date string to datetime if needed
         if isinstance(reservation.date, str):
