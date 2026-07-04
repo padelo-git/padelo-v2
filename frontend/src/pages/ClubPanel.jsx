@@ -378,6 +378,32 @@ function ClubPanel() {
     return hourIndex >= minIndex && hourIndex <= maxIndex
   }
 
+  const getReservationForSlot = (courtIndex, slotIndex) => {
+    if (!courts[courtIndex] || !reservations) return null
+    
+    const court = courts[courtIndex]
+    const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
+    const isHalfHour = slotIndex % 2 === 1
+    const timeStr = isHalfHour ? `${hour}:30` : `${hour}:00`
+    
+    // Find reservation for this court and time
+    return reservations.find(r => {
+      if (r.court_id !== court.id) return false
+      
+      // Check if the reservation covers this time slot
+      const resStartHour = parseInt(r.start_time.split(':')[0])
+      const resStartMin = parseInt(r.start_time.split(':')[1])
+      const resEndHour = parseInt(r.end_time.split(':')[0])
+      const resEndMin = parseInt(r.end_time.split(':')[1])
+      
+      const slotMinutes = hour * 60 + (isHalfHour ? 30 : 0)
+      const resStartMinutes = resStartHour * 60 + resStartMin
+      const resEndMinutes = resEndHour * 60 + resEndMin
+      
+      return slotMinutes >= resStartMinutes && slotMinutes < resEndMinutes
+    })
+  }
+
   const getDragOverlayStyle = (courtIndex, containerRef) => {
     // Mostrar overlay tanto durante drag como cuando el modal está abierto
     if (!isDragging && !showSelectionOverlay) {
@@ -1218,6 +1244,7 @@ function ClubPanel() {
                     const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
                     const isHalfHour = slotIndex % 2 === 1
                     const isSelected = isSlotSelected(courtIndex, slotIndex)
+                    const reservation = getReservationForSlot(courtIndex, slotIndex)
                     return (
                       <div
                         key={`${courtIndex}-${slotIndex}`}
@@ -1230,12 +1257,30 @@ function ClubPanel() {
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
-                          backgroundColor: '#2d2d2d',
+                          backgroundColor: reservation ? '#F59E0B' : '#2d2d2d',
                           WebkitTapHighlightColor: 'transparent',
                           WebkitUserSelect: 'none',
                           userSelect: 'none'
                         }}
                       >
+                        {reservation && (
+                          <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '11px',
+                            color: '#fff',
+                            fontWeight: 'bold',
+                            padding: '2px'
+                          }}>
+                            {reservation.notes || 'Reserva'}
+                          </div>
+                        )}
                       </div>
                     )
                   })}
