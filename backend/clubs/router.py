@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from typing import List, Optional
+from datetime import datetime
 from core.database import get_db
 from core.security import get_current_user, get_current_club_admin, get_current_club, verify_password, create_access_token
 from auth.models import User
@@ -416,6 +417,13 @@ async def create_reservation(
         print(f"price: {reservation.price}")
         print(f"user_id: {reservation.user_id}")
         
+        # Convert date string to datetime if needed
+        if isinstance(reservation.date, str):
+            reservation_date = datetime.strptime(reservation.date, "%Y-%m-%d")
+        else:
+            reservation_date = reservation.date
+        print(f"Converted date: {reservation_date}")
+        
         # Check if court exists
         result = await db.execute(select(Court).where(Court.id == reservation.court_id))
         court = result.scalar_one_or_none()
@@ -447,7 +455,7 @@ async def create_reservation(
             club_id=reservation.club_id,
             court_id=reservation.court_id,
             user_id=None,  # Always set to None to avoid foreign key errors
-            date=reservation.date,  # Now uses string directly like old system
+            date=reservation_date,
             start_time=reservation.start_time,
             end_time=reservation.end_time,
             price=price,

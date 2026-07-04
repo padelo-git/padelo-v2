@@ -116,7 +116,7 @@ class CourtResponse(CourtBase):
 class ReservationBase(BaseModel):
     club_id: int
     court_id: int
-    date: str  # Changed from datetime to str like old system
+    date: datetime
     start_time: str
     end_time: str
     price: Optional[int] = None
