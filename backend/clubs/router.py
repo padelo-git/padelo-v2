@@ -437,25 +437,9 @@ async def create_reservation(
             )
         print(f"Club found: {club}")
         
-        # Calculate price if not provided
-        price = reservation.price
-        if price is None:
-            print("Calculating price...")
-            # Calculate duration in hours
-            start_hour = int(reservation.start_time.split(':')[0])
-            start_min = int(reservation.start_time.split(':')[1])
-            end_hour = int(reservation.end_time.split(':')[0])
-            end_min = int(reservation.end_time.split(':')[1])
-            
-            start_minutes = start_hour * 60 + start_min
-            end_minutes = end_hour * 60 + end_min
-            duration_hours = (end_minutes - start_minutes) / 60
-            
-            # Use peak or normal price
-            is_peak_hour = start_hour >= 18 or start_hour < 9
-            hourly_rate = club.premium_hourly_price if is_peak_hour and club.premium_hourly_price else club.hourly_price
-            price = int(float(hourly_rate) * duration_hours) if hourly_rate else 0
-            print(f"Calculated price: {price}")
+        # Use price from frontend (already calculated)
+        price = reservation.price if reservation.price is not None else 0
+        print(f"Using price from frontend: {price}")
         
         print(f"Creating reservation with price: {price}")
         db_reservation = Reservation(
