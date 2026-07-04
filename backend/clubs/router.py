@@ -490,9 +490,9 @@ async def create_reservation(
 
 
 @router.get("/reservations", response_model=List[ReservationResponse])
-async def get_reservations(current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
-    """Get all reservations for the authenticated club"""
-    result = await db.execute(select(Reservation).where(Reservation.club_id == current_club.id))
+async def get_reservations(db: AsyncSession = Depends(get_db)):
+    """Get all reservations"""
+    result = await db.execute(select(Reservation))
     reservations = result.scalars().all()
     return reservations
 
