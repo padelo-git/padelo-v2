@@ -227,12 +227,12 @@ function ClubPanel() {
     return () => clearInterval(interval)
   }, [])
 
-  // Load reservations when selected date changes
+  // Load reservations when selected date changes or club is loaded
   useEffect(() => {
-    if (selectedDate) {
+    if (selectedDate && club && club.id) {
       fetchReservationsForDate(selectedDate)
     }
-  }, [selectedDate])
+  }, [selectedDate, club])
 
   const fetchClubData = async () => {
     try {
