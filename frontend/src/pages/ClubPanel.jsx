@@ -273,11 +273,28 @@ function ClubPanel() {
         const courtsResponse = await api.get(`/clubs/${clubId}/courts`)
         setCourts(courtsResponse.data)
         
-        // Fetch reservations (mock for now)
-        setReservations([])
+        // Fetch reservations for this club
+        const reservationsResponse = await api.get('/clubs/reservations')
+        setReservations(reservationsResponse.data)
       }
     } catch (err) {
       console.error('Error fetching club data:', err)
+    }
+  }
+
+  const fetchReservationsForDate = async (date) => {
+    try {
+      const reservationsResponse = await api.get('/clubs/reservations')
+      const allReservations = reservationsResponse.data
+      // Filter reservations for the selected date
+      const filteredReservations = allReservations.filter(r => {
+        const reservationDate = new Date(r.date)
+        const selectedDateObj = new Date(date)
+        return reservationDate.toDateString() === selectedDateObj.toDateString()
+      })
+      setReservations(filteredReservations)
+    } catch (err) {
+      console.error('Error fetching reservations:', err)
     }
   }
 
