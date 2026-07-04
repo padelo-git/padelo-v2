@@ -298,7 +298,7 @@ function ClubPanel() {
         console.log('Club not available yet, skipping fetch')
         return
       }
-      const dateStr = date.toISOString ? date.toISOString().split('T')[0] : date
+      const dateStr = typeof date === 'string' ? date : (date.toISOString ? date.toISOString().split('T')[0] : date)
       const reservationsResponse = await api.get(`/clubs/${club.id}/reservations-by-date?date=${dateStr}`)
       const allReservations = reservationsResponse.data
       console.log('Reservations from new endpoint:', allReservations)
