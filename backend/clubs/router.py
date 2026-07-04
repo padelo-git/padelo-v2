@@ -489,7 +489,7 @@ async def create_reservation(
         )
 
 
-@router.get("/reservations", response_model=List[ReservationResponse])
+@router.get("/reservations")
 async def get_reservations(db: AsyncSession = Depends(get_db)):
     """Get all reservations"""
     try:
