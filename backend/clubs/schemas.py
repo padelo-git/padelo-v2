@@ -138,7 +138,7 @@ class ReservationResponse(ReservationBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
     user_id: Optional[int] = None
-    status: str
+    status: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 
