@@ -402,13 +402,11 @@ async def update_court(court_id: int, court_update: CourtUpdate, current_club: C
 @router.post("/reservations", response_model=ReservationResponse)
 async def create_reservation(
     reservation: ReservationCreate,
-    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Create a new reservation"""
     try:
         print(f"=== CREATE RESERVATION START ===")
-        print(f"Current user: {current_user}")
         print(f"Reservation data: {reservation}")
         print(f"club_id: {reservation.club_id}")
         print(f"court_id: {reservation.court_id}")
@@ -417,14 +415,6 @@ async def create_reservation(
         print(f"end_time: {reservation.end_time}")
         print(f"price: {reservation.price}")
         print(f"user_id: {reservation.user_id}")
-        
-        # Verify that the reservation belongs to the user's club
-        if current_user.club_id != reservation.club_id:
-            print(f"ERROR: User club_id {current_user.club_id} does not match reservation club_id {reservation.club_id}")
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You can only create reservations for your own club"
-            )
         
         # Check if court exists
         result = await db.execute(select(Court).where(Court.id == reservation.court_id))
