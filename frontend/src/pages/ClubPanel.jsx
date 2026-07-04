@@ -523,15 +523,6 @@ function ClubPanel() {
     }
   }
 
-  const fetchReservationsForDate = async (date) => {
-    try {
-      const response = await api.get(`/clubs/${club.id}/reservations?date=${date}`)
-      setReservations(response.data)
-    } catch (err) {
-      console.error('Error fetching reservations:', err)
-    }
-  }
-
   const fetchStatistics = async () => {
     if (!club) return
     try {
