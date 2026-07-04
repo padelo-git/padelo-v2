@@ -509,6 +509,57 @@ async def get_reservations(db: AsyncSession = Depends(get_db)):
         raise
 
 
+@router.get("/{club_id}/reservations-by-date")
+async def get_reservations_by_date(club_id: int, date: str, db: AsyncSession = Depends(get_db)):
+    """Get reservations for a specific club and date"""
+    try:
+        print(f"=== GET /clubs/{club_id}/reservations-by-date START ===")
+        print(f"Club ID: {club_id}, Date: {date}")
+        
+        # Parse the date string to datetime
+        from datetime import datetime
+        date_obj = datetime.strptime(date, "%Y-%m-%d")
+        
+        # Query reservations for the specific club and date
+        result = await db.execute(
+            select(Reservation)
+            .where(Reservation.club_id == club_id)
+            .where(func.date(Reservation.date) == date_obj.date())
+        )
+        reservations = result.scalars().all()
+        
+        print(f"Found {len(reservations)} reservations")
+        for r in reservations:
+            print(f"Reservation: id={r.id}, court_id={r.court_id}, date={r.date}, start_time={r.start_time}, end_time={r.end_time}")
+        
+        # Convert to dict to avoid Pydantic validation issues
+        reservations_data = []
+        for r in reservations:
+            reservations_data.append({
+                "id": r.id,
+                "club_id": r.club_id,
+                "court_id": r.court_id,
+                "user_id": r.user_id,
+                "date": r.date.isoformat() if r.date else None,
+                "start_time": r.start_time,
+                "end_time": r.end_time,
+                "status": r.status,
+                "price": r.price,
+                "notes": r.notes,
+                "created_at": r.created_at.isoformat() if r.created_at else None,
+                "updated_at": r.updated_at.isoformat() if r.updated_at else None
+            })
+        
+        print("=== GET /clubs/{club_id}/reservations-by-date END ===")
+        return reservations_data
+    except Exception as e:
+        print(f"=== GET /clubs/{club_id}/reservations-by-date ERROR ===")
+        print(f"Error type: {type(e).__name__}")
+        print(f"Error message: {str(e)}")
+        print(f"Error details: {e}")
+        raise
+
+
 @router.put("/reservations/{reservation_id}", response_model=ReservationResponse)
 async def update_reservation(reservation_id: int, reservation_update: ReservationUpdate, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
     """Update reservation (only for the authenticated club)"""
