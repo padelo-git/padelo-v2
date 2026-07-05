@@ -10,6 +10,7 @@ function ClubPanel() {
   const [courts, setCourts] = useState([])
   const [courtsById, setCourtsById] = useState({})
   const [reservations, setReservations] = useState([])
+  const [reservationsBySlot, setReservationsBySlot] = useState({})
   const [statistics, setStatistics] = useState(null)
   const [payments, setPayments] = useState([])
   const [debts, setDebts] = useState([])
@@ -320,6 +321,25 @@ function ClubPanel() {
       console.log('Reservations from new endpoint:', allReservations)
       console.log('Number of reservations:', allReservations.length)
       setReservations(allReservations)
+      
+      // Pre-calculate reservations by slot for direct access
+      const slotMap = {}
+      allReservations.forEach(r => {
+        const resStartHour = parseInt(r.start_time.split(':')[0])
+        const resStartMin = parseInt(r.start_time.split(':')[1])
+        const resEndHour = parseInt(r.end_time.split(':')[0])
+        const resEndMin = parseInt(r.end_time.split(':')[1])
+        
+        const startSlotIndex = (resStartHour - parseInt(config.operating_hours_start)) * 2 + (resStartMin === 30 ? 1 : 0)
+        const endSlotIndex = (resEndHour - parseInt(config.operating_hours_start)) * 2 + (resEndMin === 30 ? 1 : 0)
+        
+        for (let slotIdx = startSlotIndex; slotIdx < endSlotIndex; slotIdx++) {
+          const key = `${r.court_id}-${slotIdx}`
+          slotMap[key] = r
+        }
+      })
+      setReservationsBySlot(slotMap)
+      console.log('Reservations by slot map:', slotMap)
     } catch (err) {
       console.error('Error fetching reservations:', err)
     }
@@ -1279,13 +1299,7 @@ function ClubPanel() {
                     const isHalfHour = slotIndex % 2 === 1
                     const isSelected = isSlotSelected(courtIndex, slotIndex)
                     const courtId = courts[courtIndex]?.id
-                    const reservation = courtId ? getReservationForSlot(courtId, slotIndex) : null
-                    if (slotIndex === 0 && courtIndex === 0) {
-                      console.log('=== First slot rendering ===')
-                      console.log('courts:', courts)
-                      console.log('courtId:', courtId)
-                      console.log('reservations:', reservations)
-                    }
+                    const reservation = courtId ? reservationsBySlot[`${courtId}-${slotIndex}`] : null
                     return (
                       <div
                         key={`${courtIndex}-${slotIndex}`}
