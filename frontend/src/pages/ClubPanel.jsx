@@ -229,8 +229,15 @@ function ClubPanel() {
 
   // Load reservations when selected date changes or club is loaded
   useEffect(() => {
+    console.log('=== useEffect for reservations ===')
+    console.log('selectedDate:', selectedDate)
+    console.log('club:', club)
+    console.log('club.id:', club?.id)
     if (selectedDate && club && club.id) {
+      console.log('Calling fetchReservationsForDate')
       fetchReservationsForDate(selectedDate)
+    } else {
+      console.log('Not calling fetchReservationsForDate - missing data')
     }
   }, [selectedDate, club])
 
