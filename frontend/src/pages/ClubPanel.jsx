@@ -406,33 +406,19 @@ function ClubPanel() {
   }
 
   const getReservationForSlot = (courtId, slotIndex) => {
-    if (!courtsById[courtId] || !reservations) return null
+    if (!reservations || !courtId) return null
     
-    const court = courtsById[courtId]
     const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
     const isHalfHour = slotIndex % 2 === 1
-    const timeStr = isHalfHour ? `${hour}:30` : `${hour}:00`
-    
-    console.log(`=== getReservationForSlot ===`)
-    console.log(`courtId: ${courtId}, slotIndex: ${slotIndex}`)
-    console.log(`courtsById:`, courtsById)
-    console.log(`court:`, court)
-    console.log(`hour: ${hour}, isHalfHour: ${isHalfHour}, timeStr: ${timeStr}`)
-    console.log(`reservations:`, reservations)
     
     // Find reservation for this court, date, and time
     const found = reservations.find(r => {
-      console.log(`Checking reservation:`, r)
-      if (r.court_id !== courtId) {
-        console.log(`  - court_id mismatch: ${r.court_id} !== ${courtId}`)
-        return false
-      }
+      if (r.court_id !== courtId) return false
       
       // Check if the reservation date matches the selected date
       const reservationDate = new Date(r.date)
       const selectedDateObj = new Date(selectedDate)
       const dateMatches = reservationDate.toDateString() === selectedDateObj.toDateString()
-      console.log(`  - date: ${reservationDate.toDateString()} vs ${selectedDateObj.toDateString()}, matches: ${dateMatches}`)
       if (!dateMatches) return false
       
       // Check if the reservation covers this time slot
@@ -446,12 +432,9 @@ function ClubPanel() {
       const resEndMinutes = resEndHour * 60 + resEndMin
       
       const timeMatches = slotMinutes >= resStartMinutes && slotMinutes < resEndMinutes
-      console.log(`  - time: slot ${slotMinutes}min, reservation ${resStartMinutes}-${resEndMinutes}min, matches: ${timeMatches}`)
-      
       return timeMatches
     })
     
-    console.log(`Found reservation:`, found)
     return found
   }
 
