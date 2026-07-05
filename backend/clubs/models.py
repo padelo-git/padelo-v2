@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey, Numeric, Time
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey, Numeric, Time, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from core.database import Base
@@ -90,6 +90,7 @@ class Reservation(Base):
     status = Column(String, default="pending")   # pending, confirmed, cancelled
     price = Column(Integer)
     notes = Column(Text)
+    players = Column(JSON, nullable=True)  # Array of player names
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
