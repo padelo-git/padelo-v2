@@ -458,35 +458,6 @@ function ClubPanel() {
     return found
   }
 
-  const getReservationBlocksForCourt = (courtId) => {
-    if (!reservations || !courtId) return []
-    
-    const courtReservations = reservations.filter(r => {
-      if (r.court_id !== courtId) return false
-      
-      const reservationDate = new Date(r.date)
-      const selectedDateObj = new Date(selectedDate)
-      return reservationDate.toDateString() === selectedDateObj.toDateString()
-    })
-    
-    return courtReservations.map(r => {
-      const resStartHour = parseInt(r.start_time.split(':')[0])
-      const resStartMin = parseInt(r.start_time.split(':')[1])
-      const resEndHour = parseInt(r.end_time.split(':')[0])
-      const resEndMin = parseInt(r.end_time.split(':')[1])
-      
-      const startSlotIndex = (resStartHour - parseInt(config.operating_hours_start)) * 2 + (resStartMin === 30 ? 1 : 0)
-      const endSlotIndex = (resEndHour - parseInt(config.operating_hours_start)) * 2 + (resEndMin === 30 ? 1 : 0)
-      
-      return {
-        reservation: r,
-        startSlotIndex,
-        endSlotIndex,
-        height: (endSlotIndex - startSlotIndex) * 30
-      }
-    })
-  }
-
   const getDragOverlayStyle = (courtIndex, containerRef) => {
     // Mostrar overlay tanto durante drag como cuando el modal está abierto
     if (!isDragging && !showSelectionOverlay) {
@@ -1323,43 +1294,12 @@ function ClubPanel() {
                   >
                     {/* Overlay de iluminación progresiva */}
                     <div style={getDragOverlayStyle(courtIndex, courtRefs.current[courtIndex])}></div>
-                    
-                    {/* Bloques de reservaciones */}
-                    {(() => {
-                      const courtId = courts[courtIndex]?.id
-                      if (!courtId) return null
-                      const reservationBlocks = getReservationBlocksForCourt(courtId)
-                      return reservationBlocks.map((block, idx) => (
-                        <div
-                          key={`reservation-${block.reservation.id}`}
-                          style={{
-                            position: 'absolute',
-                            top: block.startSlotIndex * 30,
-                            left: 0,
-                            right: 0,
-                            height: block.height,
-                            backgroundColor: '#F59E0B',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '11px',
-                            color: '#fff',
-                            fontWeight: 'bold',
-                            padding: '2px',
-                            zIndex: 10,
-                            cursor: 'pointer'
-                          }}
-                          title={`${block.reservation.start_time} - ${block.reservation.end_time}`}
-                        >
-                          {block.reservation.notes || 'Reserva'}
-                        </div>
-                      ))
-                    })()}
-                    
                     {Array.from({ length: (parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 2 }, (_, slotIndex) => {
                     const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
                     const isHalfHour = slotIndex % 2 === 1
                     const isSelected = isSlotSelected(courtIndex, slotIndex)
+                    const courtId = courts[courtIndex]?.id
+                    const reservation = courtId ? reservationsBySlot[`${courtId}-${slotIndex}`] : null
                     return (
                       <div
                         key={`${courtIndex}-${slotIndex}`}
@@ -1372,12 +1312,30 @@ function ClubPanel() {
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
-                          backgroundColor: '#2d2d2d',
+                          backgroundColor: reservation ? '#F59E0B' : '#2d2d2d',
                           WebkitTapHighlightColor: 'transparent',
                           WebkitUserSelect: 'none',
                           userSelect: 'none'
                         }}
                       >
+                        {reservation && (
+                          <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '11px',
+                            color: '#fff',
+                            fontWeight: 'bold',
+                            padding: '2px'
+                          }}>
+                            {reservation.notes || 'Reserva'}
+                          </div>
+                        )}
                       </div>
                     )
                   })}
