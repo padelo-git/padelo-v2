@@ -8,6 +8,7 @@ function ClubPanel() {
   const { t, i18n } = useTranslation()
   const [club, setClub] = useState(null)
   const [courts, setCourts] = useState([])
+  const [courtsById, setCourtsById] = useState({})
   const [reservations, setReservations] = useState([])
   const [statistics, setStatistics] = useState(null)
   const [payments, setPayments] = useState([])
@@ -289,6 +290,14 @@ function ClubPanel() {
         console.log('Courts data:', courtsResponse.data)
         setCourts(courtsResponse.data)
         
+        // Create a map of courts by ID for robust lookup
+        const courtsMap = {}
+        courtsResponse.data.forEach(court => {
+          courtsMap[court.id] = court
+        })
+        setCourtsById(courtsMap)
+        console.log('Courts by ID map:', courtsMap)
+        
         // Reservations are now loaded separately by fetchReservationsForDate
       }
     } catch (err) {
@@ -396,17 +405,17 @@ function ClubPanel() {
     return hourIndex >= minIndex && hourIndex <= maxIndex
   }
 
-  const getReservationForSlot = (courtIndex, slotIndex) => {
-    if (!courts[courtIndex] || !reservations) return null
+  const getReservationForSlot = (courtId, slotIndex) => {
+    if (!courtsById[courtId] || !reservations) return null
     
-    const court = courts[courtIndex]
+    const court = courtsById[courtId]
     const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
     const isHalfHour = slotIndex % 2 === 1
     const timeStr = isHalfHour ? `${hour}:30` : `${hour}:00`
     
     console.log(`=== getReservationForSlot ===`)
-    console.log(`courtIndex: ${courtIndex}, slotIndex: ${slotIndex}`)
-    console.log(`courts array:`, courts)
+    console.log(`courtId: ${courtId}, slotIndex: ${slotIndex}`)
+    console.log(`courtsById:`, courtsById)
     console.log(`court:`, court)
     console.log(`hour: ${hour}, isHalfHour: ${isHalfHour}, timeStr: ${timeStr}`)
     console.log(`reservations:`, reservations)
@@ -414,8 +423,8 @@ function ClubPanel() {
     // Find reservation for this court, date, and time
     const found = reservations.find(r => {
       console.log(`Checking reservation:`, r)
-      if (r.court_id !== court.id) {
-        console.log(`  - court_id mismatch: ${r.court_id} !== ${court.id}`)
+      if (r.court_id !== courtId) {
+        console.log(`  - court_id mismatch: ${r.court_id} !== ${courtId}`)
         return false
       }
       
@@ -1286,7 +1295,8 @@ function ClubPanel() {
                     const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
                     const isHalfHour = slotIndex % 2 === 1
                     const isSelected = isSlotSelected(courtIndex, slotIndex)
-                    const reservation = getReservationForSlot(courtIndex, slotIndex)
+                    const courtId = courts[courtIndex]?.id
+                    const reservation = courtId ? getReservationForSlot(courtId, slotIndex) : null
                     return (
                       <div
                         key={`${courtIndex}-${slotIndex}`}
