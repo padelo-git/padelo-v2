@@ -1301,6 +1301,8 @@ function ClubPanel() {
                     const isSelected = isSlotSelected(courtIndex, slotIndex)
                     const courtId = courts[courtIndex]?.id
                     const reservation = courtId ? reservationsBySlot[`${courtId}-${slotIndex}`] : null
+                    const previousReservation = slotIndex > 0 ? reservationsBySlot[`${courtId}-${slotIndex - 1}`] : null
+                    const isSameReservation = reservation && previousReservation && reservation.id === previousReservation.id
                     return (
                       <div
                         key={`${courtIndex}-${slotIndex}`}
@@ -1309,7 +1311,7 @@ function ClubPanel() {
                         onMouseUp={handleSlotMouseUp}
                         style={{
                           height: '30px',
-                          borderBottom: isHalfHour ? '1px solid #333' : '3px solid #555',
+                          borderBottom: isSameReservation ? 'none' : (isHalfHour ? '1px solid #333' : '3px solid #555'),
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
