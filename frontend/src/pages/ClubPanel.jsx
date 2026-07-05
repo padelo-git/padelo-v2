@@ -287,9 +287,7 @@ function ClubPanel() {
         const courtsResponse = await api.get(`/clubs/${clubId}/courts`)
         setCourts(courtsResponse.data)
         
-        // Fetch reservations for this club
-        const reservationsResponse = await api.get('/clubs/reservations')
-        setReservations(reservationsResponse.data)
+        // Reservations are now loaded separately by fetchReservationsForDate
       }
     } catch (err) {
       console.error('Error fetching club data:', err)
