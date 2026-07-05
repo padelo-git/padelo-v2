@@ -1280,6 +1280,12 @@ function ClubPanel() {
                     const isSelected = isSlotSelected(courtIndex, slotIndex)
                     const courtId = courts[courtIndex]?.id
                     const reservation = courtId ? getReservationForSlot(courtId, slotIndex) : null
+                    if (slotIndex === 0 && courtIndex === 0) {
+                      console.log('=== First slot rendering ===')
+                      console.log('courts:', courts)
+                      console.log('courtId:', courtId)
+                      console.log('reservations:', reservations)
+                    }
                     return (
                       <div
                         key={`${courtIndex}-${slotIndex}`}
