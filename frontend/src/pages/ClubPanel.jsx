@@ -561,7 +561,8 @@ function ClubPanel() {
         start_time: `${startHour}:${startMin}`,
         end_time: `${endHour}:${endMin}`,
         price: Math.round(price),
-        notes: reservationType === 'clases' ? 'Clase' : 'Reserva normal'
+        notes: reservationType === 'clases' ? 'Clase' : 'Reserva normal',
+        players: players.filter(p => p.name.trim() !== '').map(p => p.name)
       }
       
       console.log('Reservation data to send:', reservationData)
@@ -1333,7 +1334,9 @@ function ClubPanel() {
                             fontWeight: 'bold',
                             padding: '2px'
                           }}>
-                            {reservation.notes || 'Reserva'}
+                            {reservation.players && reservation.players.length > 0 
+                              ? reservation.players.join(', ') 
+                              : (reservation.notes || 'Reserva')}
                           </div>
                         )}
                       </div>
