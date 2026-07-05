@@ -1303,6 +1303,9 @@ function ClubPanel() {
                     const reservation = courtId ? reservationsBySlot[`${courtId}-${slotIndex}`] : null
                     const previousReservation = slotIndex > 0 ? reservationsBySlot[`${courtId}-${slotIndex - 1}`] : null
                     const isSameReservation = reservation && previousReservation && reservation.id === previousReservation.id
+                    if (courtIndex === 0 && slotIndex >= 0 && slotIndex <= 5) {
+                      console.log(`Slot ${slotIndex}: reservation=${reservation?.id}, previous=${previousReservation?.id}, isSame=${isSameReservation}, isHalfHour=${isHalfHour}`)
+                    }
                     return (
                       <div
                         key={`${courtIndex}-${slotIndex}`}
