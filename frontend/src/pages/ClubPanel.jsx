@@ -404,6 +404,7 @@ function ClubPanel() {
     
     console.log(`=== getReservationForSlot ===`)
     console.log(`courtIndex: ${courtIndex}, slotIndex: ${slotIndex}`)
+    console.log(`courts array:`, courts)
     console.log(`court:`, court)
     console.log(`hour: ${hour}, isHalfHour: ${isHalfHour}, timeStr: ${timeStr}`)
     console.log(`reservations:`, reservations)
