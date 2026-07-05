@@ -336,7 +336,7 @@ async def create_court(court: CourtCreate, db: AsyncSession = Depends(get_db)):
 @router.get("/courts", response_model=List[CourtResponse])
 async def get_courts(db: AsyncSession = Depends(get_db)):
     """Get all courts for club 7 (temporary: no authentication)"""
-    result = await db.execute(select(Court).where(Court.club_id == 7))
+    result = await db.execute(select(Court).where(Court.club_id == 7).order_by(Court.id))
     courts = result.scalars().all()
     return courts
 

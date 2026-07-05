@@ -285,6 +285,8 @@ function ClubPanel() {
         
         // Fetch courts for this club
         const courtsResponse = await api.get(`/clubs/${clubId}/courts`)
+        console.log('=== Courts loaded ===')
+        console.log('Courts data:', courtsResponse.data)
         setCourts(courtsResponse.data)
         
         // Reservations are now loaded separately by fetchReservationsForDate
