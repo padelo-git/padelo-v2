@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
-from typing import Optional, List
+from typing import Optional, List, Any
 from datetime import datetime
 
 
@@ -122,6 +122,7 @@ class ReservationBase(BaseModel):
     end_time: str
     price: Optional[int] = None
     notes: Optional[str] = None
+    players: Optional[Any] = None
 
 
 class ReservationCreate(ReservationBase):
@@ -139,6 +140,7 @@ class ReservationResponse(ReservationBase):
     id: Optional[int] = None
     user_id: Optional[int] = None
     status: Optional[str] = None
+    players: Optional[Any] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 

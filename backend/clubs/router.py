@@ -462,7 +462,8 @@ async def create_reservation(
             start_time=reservation.start_time,
             end_time=reservation.end_time,
             price=price,
-            notes=reservation.notes
+            notes=reservation.notes,
+            players=reservation.players
         )
         print(f"Reservation object created: {db_reservation}")
         
@@ -546,6 +547,7 @@ async def get_reservations_by_date(club_id: int, date: str, db: AsyncSession = D
                 "status": r.status,
                 "price": r.price,
                 "notes": r.notes,
+                "players": r.players,
                 "created_at": r.created_at.isoformat() if r.created_at else None,
                 "updated_at": r.updated_at.isoformat() if r.updated_at else None
             })
