@@ -151,6 +151,7 @@ function ClubPanel() {
     { name: '', paymentMethod: 'pendiente' }
   ])
   const [calculatedPrice, setCalculatedPrice] = useState(0)
+  const [selectedReservation, setSelectedReservation] = useState(null)
 
   // Función para calcular el precio según las reglas del usuario
   const calculatePrice = () => {
@@ -369,14 +370,6 @@ function ClubPanel() {
   }
 
   const handleSlotMouseDown = (courtIndex, hourIndex, e) => {
-    console.log('=== handleSlotMouseDown ===')
-    console.log('courtIndex:', courtIndex)
-    console.log('hourIndex:', hourIndex)
-    console.log('config.operating_hours_start:', config.operating_hours_start)
-    const calculatedHour = parseInt(config.operating_hours_start) + Math.floor(hourIndex / 2)
-    const calculatedMin = hourIndex % 2 === 0 ? '00' : '30'
-    console.log('Calculated time:', `${calculatedHour}:${calculatedMin}`)
-    
     setIsDragging(true)
     setDragStart({ courtIndex, hourIndex })
     setDragEnd(null)
@@ -392,10 +385,18 @@ function ClubPanel() {
     }
   }
 
-  const handleSlotMouseUp = () => {
+  const handleSlotMouseUp = (courtIndex, slotIndex) => {
+    const courtId = courts[courtIndex]?.id
+    const reservation = courtId ? reservationsBySlot[`${courtId}-${slotIndex}`] : null
+
     if (isDragging && dragStart && dragEnd) {
+      // Es un drag para crear nueva reserva
       setIsDragging(false)
-      setShowSelectionOverlay(true) // Activar overlay mientras modal está abierto
+      setShowSelectionOverlay(true)
+      setShowReservationModal(true)
+    } else if (reservation && dragStart && dragStart.hourIndex === slotIndex) {
+      // Es un click simple en una reserva existente
+      setSelectedReservation(reservation)
       setShowReservationModal(true)
     }
   }
@@ -493,6 +494,7 @@ function ClubPanel() {
       { name: '', paymentMethod: 'pendiente' },
       { name: '', paymentMethod: 'pendiente' }
     ])
+    setSelectedReservation(null)
   }
 
   const handleCreateReservation = async () => {
@@ -599,6 +601,52 @@ function ClubPanel() {
       console.log('=== END ERROR DETAILS ===')
       
       closeModal()
+    }
+  }
+
+  const handleDeleteReservation = async (reservationId) => {
+    if (!window.confirm('¿Estás seguro de eliminar esta reserva?')) {
+      return
+    }
+
+    try {
+      const token = localStorage.getItem('token')
+      await api.delete(`/clubs/reservations/${reservationId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      alert('Reserva eliminada exitosamente')
+      closeModal()
+      fetchReservationsForDate(selectedDate)
+    } catch (err) {
+      console.error('Error deleting reservation:', err)
+      alert('Error al eliminar la reserva')
+    }
+  }
+
+  const handleGeneratePayments = async (reservation) => {
+    try {
+      const token = localStorage.getItem('token')
+      
+      // Generar pagos para cada jugador
+      if (reservation.players && reservation.players.length > 0) {
+        for (const playerName of reservation.players) {
+          await api.post(`/clubs/${club.id}/payments`, {
+            user_id: null, // TODO: Implementar sistema de usuarios
+            amount: reservation.price / reservation.players.length,
+            method: 'sistema',
+            description: `Pago de reserva: ${playerName}`
+          }, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+        }
+      }
+      
+      alert('Pagos generados exitosamente')
+      closeModal()
+      fetchPayments()
+    } catch (err) {
+      console.error('Error generating payments:', err)
+      alert('Error al generar los pagos')
     }
   }
 
@@ -1307,7 +1355,7 @@ function ClubPanel() {
                         key={`${courtIndex}-${slotIndex}`}
                         onMouseDown={(e) => handleSlotMouseDown(courtIndex, slotIndex, e)}
                         onMouseMove={(e) => handleSlotMouseMove(courtIndex, slotIndex, e)}
-                        onMouseUp={handleSlotMouseUp}
+                        onMouseUp={() => handleSlotMouseUp(courtIndex, slotIndex)}
                         style={{
                           height: '30px',
                           borderBottom: isSameReservation ? 'none' : (isHalfHour ? '1px solid #333' : '3px solid #555'),
@@ -1354,83 +1402,129 @@ function ClubPanel() {
       {showReservationModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ backgroundColor: '#1a1a1a', padding: '30px', borderRadius: '10px', width: '90%', maxWidth: '500px', border: '1px solid #333' }}>
-            <h3 style={{ marginBottom: '20px', color: '#fff' }}>Crear Reserva</h3>
-            {dragStart && dragEnd && (
-              <div style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
-                <span style={{ color: '#fff', fontSize: '14px' }}>
-                  {(() => {
-                    const startHour = parseInt(config.operating_hours_start) + Math.floor(dragStart.hourIndex / 2)
-                    const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
-                    const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
-                    const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
-                    // Ajustar hora de fin: si el slot final es impar (media hora), usar la hora siguiente
-                    const finalEndHour = dragEnd.hourIndex % 2 === 1 ? endHour + 1 : endHour
-                    const finalEndMin = dragEnd.hourIndex % 2 === 1 ? '00' : endMin
-                    return `${startHour}:${startMin} - ${finalEndHour}:${finalEndMin}`
-                  })()}
-                </span>
-                <span style={{ color: '#28a745', fontSize: '16px', fontWeight: 'bold', marginLeft: '10px' }}>
-                  ${calculatedPrice}
-                </span>
-              </div>
-            )}
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Tipo de Reserva</label>
-              <select 
-                style={{ width: '100%', padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
-                value={reservationType}
-                onChange={(e) => setReservationType(e.target.value)}
-              >
-                <option value="normal">Reserva normal</option>
-                <option value="clases">Clases</option>
-              </select>
-            </div>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Jugadores</label>
-              {players.map((player, index) => (
-                <div key={index} style={{ marginBottom: '10px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                  <input 
-                    type="text" 
-                    placeholder={`Nombre del jugador ${index + 1}`}
-                    value={player.name}
-                    onChange={(e) => {
-                      const newPlayers = [...players]
-                      newPlayers[index].name = e.target.value
-                      setPlayers(newPlayers)
-                    }}
-                    style={{ flex: 1, padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
-                  />
-                  <select 
-                    style={{ padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff', fontSize: '12px', minWidth: '120px' }}
-                    value={player.paymentMethod}
-                    onChange={(e) => {
-                      const newPlayers = [...players]
-                      newPlayers[index].paymentMethod = e.target.value
-                      setPlayers(newPlayers)
-                    }}
+            <h3 style={{ marginBottom: '20px', color: '#fff' }}>
+              {selectedReservation ? 'Editar Reserva' : 'Crear Reserva'}
+            </h3>
+            
+            {selectedReservation ? (
+              // Vista de reserva existente
+              <div>
+                <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
+                  <p style={{ color: '#fff', fontSize: '14px', marginBottom: '10px' }}>
+                    <strong>Horario:</strong> {selectedReservation.start_time} - {selectedReservation.end_time}
+                  </p>
+                  <p style={{ color: '#fff', fontSize: '14px', marginBottom: '10px' }}>
+                    <strong>Jugadores:</strong> {selectedReservation.players && selectedReservation.players.length > 0 
+                      ? selectedReservation.players.join(', ') 
+                      : (selectedReservation.notes || 'Sin jugadores')}
+                  </p>
+                  <p style={{ color: '#fff', fontSize: '14px' }}>
+                    <strong>Notas:</strong> {selectedReservation.notes || 'Sin notas'}
+                  </p>
+                </div>
+                
+                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                  <button
+                    onClick={closeModal}
+                    style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                   >
-                    <option value="pendiente">Pendiente</option>
-                    <option value="efectivo">Efectivo</option>
-                    <option value="club">Club</option>
-                    <option value="sistema">Sistema</option>
+                    Cerrar
+                  </button>
+                  <button
+                    onClick={() => handleDeleteReservation(selectedReservation.id)}
+                    style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                  >
+                    🗑️ Eliminar Reserva
+                  </button>
+                  <button
+                    onClick={() => handleGeneratePayments(selectedReservation)}
+                    style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                  >
+                    💳 Generar Pagos
+                  </button>
+                </div>
+              </div>
+            ) : (
+              // Vista de crear nueva reserva
+              <div>
+                {dragStart && dragEnd && (
+                  <div style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
+                    <span style={{ color: '#fff', fontSize: '14px' }}>
+                      {(() => {
+                        const startHour = parseInt(config.operating_hours_start) + Math.floor(dragStart.hourIndex / 2)
+                        const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
+                        const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
+                        const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
+                        // Ajustar hora de fin: si el slot final es impar (media hora), usar la hora siguiente
+                        const finalEndHour = dragEnd.hourIndex % 2 === 1 ? endHour + 1 : endHour
+                        const finalEndMin = dragEnd.hourIndex % 2 === 1 ? '00' : endMin
+                        return `${startHour}:${startMin} - ${finalEndHour}:${finalEndMin}`
+                      })()}
+                    </span>
+                    <span style={{ color: '#28a745', fontSize: '16px', fontWeight: 'bold', marginLeft: '10px' }}>
+                      ${calculatedPrice}
+                    </span>
+                  </div>
+                )}
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Tipo de Reserva</label>
+                  <select 
+                    style={{ width: '100%', padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
+                    value={reservationType}
+                    onChange={(e) => setReservationType(e.target.value)}
+                  >
+                    <option value="normal">Reserva normal</option>
+                    <option value="clases">Clases</option>
                   </select>
                 </div>
-              ))}
-            </div>
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-              <button
-                onClick={closeModal}
-                style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleCreateReservation}
-                style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-              >
-                Crear Reserva
-              </button>
-            </div>
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Jugadores</label>
+                  {players.map((player, index) => (
+                    <div key={index} style={{ marginBottom: '10px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      <input 
+                        type="text" 
+                        placeholder={`Nombre del jugador ${index + 1}`}
+                        value={player.name}
+                        onChange={(e) => {
+                          const newPlayers = [...players]
+                          newPlayers[index].name = e.target.value
+                          setPlayers(newPlayers)
+                        }}
+                        style={{ flex: 1, padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
+                      />
+                      <select 
+                        style={{ padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff', fontSize: '12px', minWidth: '120px' }}
+                        value={player.paymentMethod}
+                        onChange={(e) => {
+                          const newPlayers = [...players]
+                          newPlayers[index].paymentMethod = e.target.value
+                          setPlayers(newPlayers)
+                        }}
+                      >
+                        <option value="pendiente">Pendiente</option>
+                        <option value="efectivo">Efectivo</option>
+                        <option value="club">Club</option>
+                        <option value="sistema">Sistema</option>
+                      </select>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                  <button
+                    onClick={closeModal}
+                    style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleCreateReservation}
+                    style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                  >
+                    Crear Reserva
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
