@@ -1303,9 +1303,7 @@ function ClubPanel() {
                     const reservation = courtId ? reservationsBySlot[`${courtId}-${slotIndex}`] : null
                     const previousReservation = slotIndex > 0 ? reservationsBySlot[`${courtId}-${slotIndex - 1}`] : null
                     const isSameReservation = reservation && previousReservation && reservation.id === previousReservation.id
-                    if (courtIndex === 0 && slotIndex >= 0 && slotIndex <= 5) {
-                      console.log(`Slot ${slotIndex}: reservation=${reservation?.id}, previous=${previousReservation?.id}, isSame=${isSameReservation}, isHalfHour=${isHalfHour}`)
-                    }
+                    const isFirstSlotOfReservation = reservation && (!previousReservation || previousReservation.id !== reservation.id)
                     return (
                       <div
                         key={`${courtIndex}-${slotIndex}`}
@@ -1324,7 +1322,7 @@ function ClubPanel() {
                           userSelect: 'none'
                         }}
                       >
-                        {reservation && (
+                        {reservation && isFirstSlotOfReservation && (
                           <div style={{
                             position: 'absolute',
                             top: 0,
