@@ -1322,7 +1322,7 @@ function ClubPanel() {
                 const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
                 const isHalfHour = slotIndex % 2 === 1
                 return (
-                  <div key={slotIndex} style={{ height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#fff', fontWeight: 'bold', borderBottom: isHalfHour ? '1px solid #333' : '3px solid #555' }}>
+                  <div key={slotIndex} style={{ height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#fff', fontWeight: 'bold', borderBottom: isHalfHour ? '3px solid #555' : '1px solid #333' }}>
                     {isHalfHour ? `${hour}:30` : `${hour}:00`}
                   </div>
                 )
@@ -1363,7 +1363,7 @@ function ClubPanel() {
                         onMouseUp={() => handleSlotMouseUp(courtIndex, slotIndex)}
                         style={{
                           height: '30px',
-                          borderBottom: isSameReservation ? 'none' : (isHalfHour ? '1px solid #333' : '3px solid #555'),
+                          borderBottom: isSameReservation ? 'none' : (isHalfHour ? '3px solid #555' : '1px solid #333'),
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
