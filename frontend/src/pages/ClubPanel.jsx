@@ -1318,11 +1318,12 @@ function ClubPanel() {
               {/* Header vacío para alinear con header de canchas */}
               <div style={{ padding: '15px', borderBottom: '1px solid #333', backgroundColor: '#1a1a1a' }}></div>
               {/* Columna de horarios */}
-              {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
-                const hour = parseInt(config.operating_hours_start) + i
+              {Array.from({ length: (parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 2 }, (_, slotIndex) => {
+                const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
+                const isHalfHour = slotIndex % 2 === 1
                 return (
-                  <div key={hour} style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
-                    {hour}:00
+                  <div key={slotIndex} style={{ height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#fff', fontWeight: 'bold', borderBottom: isHalfHour ? '1px solid #333' : '3px solid #555' }}>
+                    {isHalfHour ? `${hour}:30` : `${hour}:00`}
                   </div>
                 )
               })}
