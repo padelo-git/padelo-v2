@@ -1351,7 +1351,10 @@ function ClubPanel() {
                     const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
                     const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
                     const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
-                    return `${startHour}:${startMin} - ${endHour}:${endMin}`
+                    // Si el endMin es '00', usar la hora exacta. Si es '30', usar la hora siguiente
+                    const displayEndHour = endMin === '00' ? endHour : endHour
+                    const displayEndMin = endMin === '00' ? '00' : '30'
+                    return `${startHour}:${startMin} - ${displayEndHour}:${displayEndMin}`
                   })()}
                 </span>
                 <span style={{ color: '#28a745', fontSize: '16px', fontWeight: 'bold', marginLeft: '10px' }}>
