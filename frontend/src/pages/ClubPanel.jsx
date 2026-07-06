@@ -369,20 +369,6 @@ function ClubPanel() {
   }
 
   const handleSlotMouseDown = (courtIndex, hourIndex, e) => {
-    // Tolerancia: si el clic está cerca del inicio de una hora (slot par), ajustar a ese slot
-    const tolerance = 10 // 10px de tolerancia
-    const slotHeight = 30 // altura de cada slot (media hora)
-    
-    // Obtener posición del clic relativa al slot
-    const slotElement = e.currentTarget
-    const rect = slotElement.getBoundingClientRect()
-    const clickY = e.clientY - rect.top
-    
-    // Si estamos en un slot impar (media hora) y el clic está cerca del inicio, ajustar al slot par anterior
-    if (hourIndex % 2 === 1 && clickY < tolerance) {
-      hourIndex = hourIndex - 1
-    }
-    
     setIsDragging(true)
     setDragStart({ courtIndex, hourIndex })
     setDragEnd(null)
