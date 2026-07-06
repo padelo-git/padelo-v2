@@ -370,6 +370,13 @@ function ClubPanel() {
   }
 
   const handleSlotMouseDown = (courtIndex, hourIndex, e) => {
+    console.log('=== handleSlotMouseDown ===')
+    console.log('courtIndex:', courtIndex)
+    console.log('hourIndex (slotIndex):', hourIndex)
+    console.log('config.operating_hours_start:', config.operating_hours_start)
+    const calculatedHour = parseInt(config.operating_hours_start) + Math.floor(hourIndex / 2)
+    const calculatedMin = hourIndex % 2 === 0 ? '00' : '30'
+    console.log('Calculated time:', `${calculatedHour}:${calculatedMin}`)
     setIsDragging(true)
     setDragStart({ courtIndex, hourIndex })
     setDragEnd(null)
