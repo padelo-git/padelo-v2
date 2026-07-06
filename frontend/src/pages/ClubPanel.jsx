@@ -1323,7 +1323,6 @@ function ClubPanel() {
                           backgroundColor: (() => {
                             if (!reservation) return '#2d2d2d'
                             const type = reservation.reservation_type || 'normal'
-                            console.log('Reservation type:', type, 'Reservation:', reservation)
                             if (type === 'class') return '#8B5CF6' // violeta para clases
                             if (type === 'auto_match') return '#3B82F6' // azul para partidos automáticos
                             return '#10B981' // verde para reservas normales

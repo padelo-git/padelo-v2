@@ -473,6 +473,7 @@ async def create_reservation(
             date=reservation_date,
             start_time=reservation.start_time,
             end_time=reservation.end_time,
+            reservation_type=reservation.reservation_type or 'normal',
             price=price,
             notes=reservation.notes,
             players=reservation.players
