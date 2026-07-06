@@ -362,27 +362,30 @@ function ClubPanel() {
   }
 
   const handleSlotMouseDown = (courtIndex, hourIndex, e) => {
-    // Calcular posición relativa al contenedor de la cancha
+    // Usar arquitectura del sistema viejo: calcular minutos absolutos desde posición relativa
     const courtElement = courtRefs.current[courtIndex]
     if (!courtElement) return
 
     const rect = courtElement.getBoundingClientRect()
-    const clickPosition = e.clientY - rect.top
-    const slotHeight = 30 // altura de cada slot en px
-    const tolerance = 10 // 10px de tolerancia
+    const clientY = e.clientY
+    const ratio = (clientY - rect.top) / rect.height
 
-    // Calcular qué slot debería ser basado en la posición del click
-    const calculatedSlotIndex = Math.floor(clickPosition / slotHeight)
-    const positionInSlot = clickPosition % slotHeight
+    // Calcular minutos desde el inicio del día
+    const dayStartMin = parseInt(config.operating_hours_start) * 60
+    const dayEndMin = parseInt(config.operating_hours_end) * 60
+    const range = dayEndMin - dayStartMin
+    const slot = 30 // 30 minutos por slot
 
-    // Si el click está cerca del inicio del slot (primeros 10px), usar el slot anterior
-    let adjustedHourIndex = calculatedSlotIndex
-    if (positionInSlot < tolerance && calculatedSlotIndex > 0) {
-      adjustedHourIndex = calculatedSlotIndex - 1
-    }
+    let mins = dayStartMin + ratio * range
+    mins = Math.round(mins / slot) * slot
+    if (mins < dayStartMin) mins = dayStartMin
+    if (mins > dayEndMin) mins = dayEndMin
+
+    // Convertir minutos a slotIndex
+    const slotIndex = Math.floor((mins - dayStartMin) / slot)
 
     setIsDragging(true)
-    setDragStart({ courtIndex, hourIndex: adjustedHourIndex })
+    setDragStart({ courtIndex, hourIndex: slotIndex, mins })
     setDragEnd(null)
     setSelectedCourt(courtIndex)
     setDragStartY(e.clientY)
@@ -391,26 +394,29 @@ function ClubPanel() {
 
   const handleSlotMouseMove = (courtIndex, hourIndex, e) => {
     if (isDragging && selectedCourt === courtIndex) {
-      // Calcular posición relativa al contenedor de la cancha
+      // Usar arquitectura del sistema viejo: calcular minutos absolutos desde posición relativa
       const courtElement = courtRefs.current[courtIndex]
       if (!courtElement) return
 
       const rect = courtElement.getBoundingClientRect()
-      const clickPosition = e.clientY - rect.top
-      const slotHeight = 30 // altura de cada slot en px
-      const tolerance = 10 // 10px de tolerancia
+      const clientY = e.clientY
+      const ratio = (clientY - rect.top) / rect.height
 
-      // Calcular qué slot debería ser basado en la posición del click
-      const calculatedSlotIndex = Math.floor(clickPosition / slotHeight)
-      const positionInSlot = clickPosition % slotHeight
+      // Calcular minutos desde el inicio del día
+      const dayStartMin = parseInt(config.operating_hours_start) * 60
+      const dayEndMin = parseInt(config.operating_hours_end) * 60
+      const range = dayEndMin - dayStartMin
+      const slot = 30 // 30 minutos por slot
 
-      // Si el click está cerca del inicio del slot (primeros 10px), usar el slot anterior
-      let adjustedHourIndex = calculatedSlotIndex
-      if (positionInSlot < tolerance && calculatedSlotIndex > 0) {
-        adjustedHourIndex = calculatedSlotIndex - 1
-      }
+      let mins = dayStartMin + ratio * range
+      mins = Math.round(mins / slot) * slot
+      if (mins < dayStartMin) mins = dayStartMin
+      if (mins > dayEndMin) mins = dayEndMin
 
-      setDragEnd({ courtIndex, hourIndex: adjustedHourIndex })
+      // Convertir minutos a slotIndex
+      const slotIndex = Math.floor((mins - dayStartMin) / slot)
+
+      setDragEnd({ courtIndex, hourIndex: slotIndex, mins })
       setDragCurrentY(e.clientY)
     }
   }
@@ -541,17 +547,20 @@ function ClubPanel() {
     }
     
     try {
-      // Calcular hora inicio y fin
-      // slotIndex 0 es 6:00-6:30, slotIndex 1 es 6:30-7:00, etc.
+      // Usar arquitectura del sistema viejo: calcular tiempos desde minutos absolutos
       console.log('=== DEBUG TIME CALCULATION ===')
-      console.log('dragStart.hourIndex:', dragStart.hourIndex)
-      console.log('dragEnd.hourIndex:', dragEnd.hourIndex)
-      console.log('config.operating_hours_start:', config.operating_hours_start)
-      const startHour = parseInt(config.operating_hours_start) + Math.floor(dragStart.hourIndex / 2)
-      const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
-      const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
-      const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
-      console.log('Calculated time:', `${startHour}:${startMin} - ${endHour}:${endMin}`)
+      console.log('dragStart.mins:', dragStart.mins)
+      console.log('dragEnd.mins:', dragEnd.mins)
+
+      const startHour = Math.floor(dragStart.mins / 60)
+      const startMin = dragStart.mins % 60
+      const endHour = Math.floor(dragEnd.mins / 60)
+      const endMin = dragEnd.mins % 60
+
+      const startTime = `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`
+      const endTime = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`
+
+      console.log('Calculated time:', `${startTime} - ${endTime}`)
       console.log('=== END DEBUG ===')
 
       // La hora de fin es exactamente el slot seleccionado, sin ajustes
@@ -567,13 +576,13 @@ function ClubPanel() {
       }
 
       const token = localStorage.getItem('token')
-      
+
       const reservationData = {
         club_id: club.id,
         court_id: court.id,
         date: selectedDate,
-        start_time: `${startHour}:${startMin}`,
-        end_time: `${endHour}:${endMin}`,
+        start_time: startTime,
+        end_time: endTime,
         reservation_type: reservationType === 'clases' ? 'class' : 'normal',
         price: Math.round(price),
         notes: reservationType === 'clases' ? 'Clase' : 'Reserva normal',
