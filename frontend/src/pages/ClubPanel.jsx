@@ -360,8 +360,20 @@ function ClubPanel() {
   }
 
   const handleSlotMouseDown = (courtIndex, hourIndex, e) => {
+    // Agregar tolerancia: si el click está cerca del inicio del slot (primeros 10px),
+    // usar el slot anterior para que sea más fácil seleccionar horas en punto
+    const slotElement = e.target
+    const rect = slotElement.getBoundingClientRect()
+    const clickPosition = e.clientY - rect.top
+    const tolerance = 10 // 10px de tolerancia
+
+    let adjustedHourIndex = hourIndex
+    if (clickPosition < tolerance && hourIndex > 0) {
+      adjustedHourIndex = hourIndex - 1
+    }
+
     setIsDragging(true)
-    setDragStart({ courtIndex, hourIndex })
+    setDragStart({ courtIndex, hourIndex: adjustedHourIndex })
     setDragEnd(null)
     setSelectedCourt(courtIndex)
     setDragStartY(e.clientY)
@@ -370,7 +382,18 @@ function ClubPanel() {
 
   const handleSlotMouseMove = (courtIndex, hourIndex, e) => {
     if (isDragging && selectedCourt === courtIndex) {
-      setDragEnd({ courtIndex, hourIndex })
+      // Agregar tolerancia también al arrastrar
+      const slotElement = e.target
+      const rect = slotElement.getBoundingClientRect()
+      const clickPosition = e.clientY - rect.top
+      const tolerance = 10 // 10px de tolerancia
+
+      let adjustedHourIndex = hourIndex
+      if (clickPosition < tolerance && hourIndex > 0) {
+        adjustedHourIndex = hourIndex - 1
+      }
+
+      setDragEnd({ courtIndex, hourIndex: adjustedHourIndex })
       setDragCurrentY(e.clientY)
     }
   }
