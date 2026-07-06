@@ -603,6 +603,31 @@ async def update_reservation(reservation_id: int, reservation_update: Reservatio
     return reservation
 
 
+@router.delete("/reservations/{reservation_id}")
+async def delete_reservation(reservation_id: int, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Delete reservation (only for the authenticated club)"""
+    result = await db.execute(select(Reservation).where(Reservation.id == reservation_id))
+    reservation = result.scalar_one_or_none()
+    
+    if not reservation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Reservation not found"
+        )
+    
+    # Verify that the reservation belongs to the authenticated club
+    if reservation.club_id != current_club.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only delete reservations belonging to your club"
+        )
+    
+    await db.delete(reservation)
+    await db.commit()
+    
+    return {"message": "Reservation deleted successfully"}
+
+
 # Payment endpoints
 @router.get("/payments")
 async def get_payments(current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
