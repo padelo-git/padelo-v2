@@ -334,7 +334,7 @@ function ClubPanel() {
         const startSlotIndex = (resStartHour - parseInt(config.operating_hours_start)) * 2 + (resStartMin === 30 ? 1 : 0)
         const endSlotIndex = (resEndHour - parseInt(config.operating_hours_start)) * 2 + (resEndMin === 30 ? 1 : 0)
         
-        for (let slotIdx = startSlotIndex; slotIdx <= endSlotIndex; slotIdx++) {
+        for (let slotIdx = startSlotIndex; slotIdx < endSlotIndex; slotIdx++) {
           const key = `${r.court_id}-${slotIdx}`
           slotMap[key] = r
         }
