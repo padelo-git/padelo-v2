@@ -113,7 +113,7 @@ jobs:
         password: ${{ secrets.PRODUCTION_PASSWORD }}
         script: |
           for i in {1..5}; do
-            if curl -f http://localhost:${{ env.BACKEND_PORT }}/health; then
+            if curl -f http://localhost:${{ env.BACKEND_PORT }}/admin-panel/metrics/public; then
               echo "Backend health check passed on port ${{ env.BACKEND_PORT }}"
               exit 0
             fi
