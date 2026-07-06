@@ -1272,12 +1272,11 @@ function ClubPanel() {
               {/* Header vacío para alinear con header de canchas */}
               <div style={{ padding: '15px', borderBottom: '1px solid #333', backgroundColor: '#1a1a1a' }}></div>
               {/* Columna de horarios */}
-              {Array.from({ length: (parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 2 }, (_, slotIndex) => {
-                const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
-                const isHalfHour = slotIndex % 2 === 1
+              {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
+                const hour = parseInt(config.operating_hours_start) + i
                 return (
-                  <div key={slotIndex} style={{ height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#fff', fontWeight: 'bold', borderBottom: isHalfHour ? '3px solid #555' : '1px solid #333' }}>
-                    {isHalfHour ? `${hour}:30` : `${hour}:00`}
+                  <div key={hour} style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
+                    {hour}:00
                   </div>
                 )
               })}
@@ -1324,6 +1323,7 @@ function ClubPanel() {
                           backgroundColor: (() => {
                             if (!reservation) return '#2d2d2d'
                             const type = reservation.reservation_type || 'normal'
+                            console.log('Reservation type:', type, 'Reservation:', reservation)
                             if (type === 'class') return '#8B5CF6' // violeta para clases
                             if (type === 'auto_match') return '#3B82F6' // azul para partidos automáticos
                             return '#10B981' // verde para reservas normales
