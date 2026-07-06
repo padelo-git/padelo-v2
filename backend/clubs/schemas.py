@@ -120,6 +120,7 @@ class ReservationBase(BaseModel):
     date: datetime
     start_time: str
     end_time: str
+    reservation_type: Optional[str] = "normal"  # normal, class, auto_match
     price: Optional[int] = None
     notes: Optional[str] = None
     players: Optional[Any] = None
@@ -140,6 +141,7 @@ class ReservationResponse(ReservationBase):
     id: Optional[int] = None
     user_id: Optional[int] = None
     status: Optional[str] = None
+    reservation_type: Optional[str] = None
     players: Optional[Any] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None

@@ -79,7 +79,7 @@ class Court(Base):
 
 class Reservation(Base):
     __tablename__ = "reservations"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     club_id = Column(Integer, ForeignKey("clubs.id"), nullable=False)
     court_id = Column(Integer, ForeignKey("courts.id"), nullable=False)
@@ -88,12 +88,13 @@ class Reservation(Base):
     start_time = Column(String, nullable=False)  # "14:00"
     end_time = Column(String, nullable=False)    # "15:00"
     status = Column(String, default="pending")   # pending, confirmed, cancelled
+    reservation_type = Column(String, default="normal")  # normal, class, auto_match
     price = Column(Integer)
     notes = Column(Text)
     players = Column(JSON, nullable=True)  # Array of player names
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
+
     # Relationships
     club = relationship("Club")
     court = relationship("Court", back_populates="reservations")

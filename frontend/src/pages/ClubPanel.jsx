@@ -564,6 +564,7 @@ function ClubPanel() {
         date: selectedDate,
         start_time: `${startHour}:${startMin}`,
         end_time: `${endHour}:${endMin}`,
+        reservation_type: reservationType === 'clases' ? 'class' : 'normal',
         price: Math.round(price),
         notes: reservationType === 'clases' ? 'Clase' : 'Reserva normal',
         players: players.filter(p => p.name.trim() !== '').map(p => p.name)
@@ -1367,7 +1368,13 @@ function ClubPanel() {
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
-                          backgroundColor: reservation ? '#F59E0B' : '#2d2d2d',
+                          backgroundColor: (() => {
+                            if (!reservation) return '#2d2d2d'
+                            const type = reservation.reservation_type || 'normal'
+                            if (type === 'class') return '#8B5CF6' // violeta para clases
+                            if (type === 'auto_match') return '#3B82F6' // azul para partidos automáticos
+                            return '#10B981' // verde para reservas normales
+                          })(),
                           WebkitTapHighlightColor: 'transparent',
                           WebkitUserSelect: 'none',
                           userSelect: 'none'
