@@ -519,7 +519,11 @@ function ClubPanel() {
       const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
       const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
       
-      console.log('Time range:', `${startHour}:${startMin} - ${endHour}:${endMin}`)
+      // Ajustar hora de fin: si el slot final es impar (media hora), usar la hora siguiente
+      const finalEndHour = dragEnd.hourIndex % 2 === 1 ? endHour + 1 : endHour
+      const finalEndMin = dragEnd.hourIndex % 2 === 1 ? '00' : endMin
+      
+      console.log('Time range:', `${startHour}:${startMin} - ${finalEndHour}:${finalEndMin}`)
       
       // Usar el precio calculado por la función calculatePrice
       const price = calculatedPrice
@@ -545,7 +549,7 @@ function ClubPanel() {
         court_id: court.id,
         date: selectedDate,
         start_time: `${startHour}:${startMin}`,
-        end_time: `${endHour}:${endMin}`,
+        end_time: `${finalEndHour}:${finalEndMin}`,
         price: Math.round(price),
         notes: reservationType === 'clases' ? 'Clase' : 'Reserva normal',
         players: players.filter(p => p.name.trim() !== '').map(p => p.name)
@@ -1351,10 +1355,10 @@ function ClubPanel() {
                     const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
                     const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
                     const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
-                    // Si el endMin es '00', usar la hora exacta. Si es '30', usar la hora siguiente
-                    const displayEndHour = endMin === '00' ? endHour : endHour
-                    const displayEndMin = endMin === '00' ? '00' : '30'
-                    return `${startHour}:${startMin} - ${displayEndHour}:${displayEndMin}`
+                    // Ajustar hora de fin: si el slot final es impar (media hora), usar la hora siguiente
+                    const finalEndHour = dragEnd.hourIndex % 2 === 1 ? endHour + 1 : endHour
+                    const finalEndMin = dragEnd.hourIndex % 2 === 1 ? '00' : endMin
+                    return `${startHour}:${startMin} - ${finalEndHour}:${finalEndMin}`
                   })()}
                 </span>
                 <span style={{ color: '#28a745', fontSize: '16px', fontWeight: 'bold', marginLeft: '10px' }}>
