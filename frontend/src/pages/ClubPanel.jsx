@@ -529,11 +529,8 @@ function ClubPanel() {
       const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
       const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
       
-      // Ajustar hora de fin: si el slot final es impar (media hora), usar la hora siguiente
-      const finalEndHour = dragEnd.hourIndex % 2 === 1 ? endHour + 1 : endHour
-      const finalEndMin = dragEnd.hourIndex % 2 === 1 ? '00' : endMin
-      
-      console.log('Time range:', `${startHour}:${startMin} - ${finalEndHour}:${finalEndMin}`)
+      // La hora de fin es exactamente el slot seleccionado, sin ajustes
+      console.log('Time range:', `${startHour}:${startMin} - ${endHour}:${endMin}`)
       
       // Usar el precio calculado por la función calculatePrice
       const price = calculatedPrice
@@ -559,7 +556,7 @@ function ClubPanel() {
         court_id: court.id,
         date: selectedDate,
         start_time: `${startHour}:${startMin}`,
-        end_time: `${finalEndHour}:${finalEndMin}`,
+        end_time: `${endHour}:${endMin}`,
         price: Math.round(price),
         notes: reservationType === 'clases' ? 'Clase' : 'Reserva normal',
         players: players.filter(p => p.name.trim() !== '').map(p => p.name)
@@ -1455,10 +1452,8 @@ function ClubPanel() {
                         const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
                         const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
                         const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
-                        // Ajustar hora de fin: si el slot final es impar (media hora), usar la hora siguiente
-                        const finalEndHour = dragEnd.hourIndex % 2 === 1 ? endHour + 1 : endHour
-                        const finalEndMin = dragEnd.hourIndex % 2 === 1 ? '00' : endMin
-                        return `${startHour}:${startMin} - ${finalEndHour}:${finalEndMin}`
+                        // La hora de fin es exactamente el slot seleccionado, sin ajustes
+                        return `${startHour}:${startMin} - ${endHour}:${endMin}`
                       })()}
                     </span>
                     <span style={{ color: '#28a745', fontSize: '16px', fontWeight: 'bold', marginLeft: '10px' }}>
