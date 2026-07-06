@@ -54,6 +54,7 @@ async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
     """Create a new club"""
     import logging
     import traceback
+    import re
     logger = logging.getLogger(__name__)
     
     try:
@@ -65,13 +66,24 @@ async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
                 detail="Email already registered"
             )
 
-        # Check if slug already exists
-        result = await db.execute(select(Club).where(Club.slug == club.slug))
-        if result.scalar_one_or_none():
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Slug already taken"
-            )
+        # Generate slug automatically from club name if not provided
+        if not club.slug:
+            slug = club.name.lower()
+            slug = re.sub(r'[^a-z0-9\s-]', '', slug)  # Remove special characters
+            slug = re.sub(r'\s+', '-', slug)  # Replace spaces with hyphens
+            slug = slug.strip('-')  # Remove leading/trailing hyphens
+        else:
+            slug = club.slug
+
+        # Check if slug already exists, if so append a number
+        base_slug = slug
+        counter = 1
+        while True:
+            result = await db.execute(select(Club).where(Club.slug == slug))
+            if not result.scalar_one_or_none():
+                break
+            slug = f"{base_slug}-{counter}"
+            counter += 1
 
         # Create club (password should be hashed by auth module)
         from core.security import get_password_hash
@@ -80,11 +92,11 @@ async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
         # Assign language based on country
         language = get_language_from_country(club.country)
 
-        logger.info(f"Creating club: {club.name} with language: {language}")
+        logger.info(f"Creating club: {club.name} with slug: {slug} and language: {language}")
 
         db_club = Club(
             name=club.name,
-            slug=club.slug,
+            slug=slug,
             email=club.email,
             phone=club.phone,
             address=club.address,

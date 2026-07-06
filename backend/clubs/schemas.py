@@ -5,7 +5,7 @@ from datetime import datetime
 
 class ClubBase(BaseModel):
     name: str
-    slug: str
+    slug: Optional[str] = None  # Auto-generated if not provided
     email: EmailStr
     phone: Optional[str] = None
     address: Optional[str] = None
