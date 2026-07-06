@@ -324,7 +324,9 @@ function ClubPanel() {
         
         const startSlotIndex = (resStartHour - parseInt(config.operating_hours_start)) * 2 + (resStartMin === 30 ? 1 : 0)
         const endSlotIndex = (resEndHour - parseInt(config.operating_hours_start)) * 2 + (resEndMin === 30 ? 1 : 0)
-        
+
+        // Incluir todos los slots desde startSlotIndex hasta endSlotIndex - 1
+        // Esto cubre el rango completo de la reserva
         for (let slotIdx = startSlotIndex; slotIdx < endSlotIndex; slotIdx++) {
           const key = `${r.court_id}-${slotIdx}`
           slotMap[key] = r
@@ -360,16 +362,23 @@ function ClubPanel() {
   }
 
   const handleSlotMouseDown = (courtIndex, hourIndex, e) => {
-    // Agregar tolerancia: si el click está cerca del inicio del slot (primeros 10px),
-    // usar el slot anterior para que sea más fácil seleccionar horas en punto
-    const slotElement = e.target
-    const rect = slotElement.getBoundingClientRect()
+    // Calcular posición relativa al contenedor de la cancha
+    const courtElement = courtRefs.current[courtIndex]
+    if (!courtElement) return
+
+    const rect = courtElement.getBoundingClientRect()
     const clickPosition = e.clientY - rect.top
+    const slotHeight = 30 // altura de cada slot en px
     const tolerance = 10 // 10px de tolerancia
 
-    let adjustedHourIndex = hourIndex
-    if (clickPosition < tolerance && hourIndex > 0) {
-      adjustedHourIndex = hourIndex - 1
+    // Calcular qué slot debería ser basado en la posición del click
+    const calculatedSlotIndex = Math.floor(clickPosition / slotHeight)
+    const positionInSlot = clickPosition % slotHeight
+
+    // Si el click está cerca del inicio del slot (primeros 10px), usar el slot anterior
+    let adjustedHourIndex = calculatedSlotIndex
+    if (positionInSlot < tolerance && calculatedSlotIndex > 0) {
+      adjustedHourIndex = calculatedSlotIndex - 1
     }
 
     setIsDragging(true)
@@ -382,15 +391,23 @@ function ClubPanel() {
 
   const handleSlotMouseMove = (courtIndex, hourIndex, e) => {
     if (isDragging && selectedCourt === courtIndex) {
-      // Agregar tolerancia también al arrastrar
-      const slotElement = e.target
-      const rect = slotElement.getBoundingClientRect()
+      // Calcular posición relativa al contenedor de la cancha
+      const courtElement = courtRefs.current[courtIndex]
+      if (!courtElement) return
+
+      const rect = courtElement.getBoundingClientRect()
       const clickPosition = e.clientY - rect.top
+      const slotHeight = 30 // altura de cada slot en px
       const tolerance = 10 // 10px de tolerancia
 
-      let adjustedHourIndex = hourIndex
-      if (clickPosition < tolerance && hourIndex > 0) {
-        adjustedHourIndex = hourIndex - 1
+      // Calcular qué slot debería ser basado en la posición del click
+      const calculatedSlotIndex = Math.floor(clickPosition / slotHeight)
+      const positionInSlot = clickPosition % slotHeight
+
+      // Si el click está cerca del inicio del slot (primeros 10px), usar el slot anterior
+      let adjustedHourIndex = calculatedSlotIndex
+      if (positionInSlot < tolerance && calculatedSlotIndex > 0) {
+        adjustedHourIndex = calculatedSlotIndex - 1
       }
 
       setDragEnd({ courtIndex, hourIndex: adjustedHourIndex })
