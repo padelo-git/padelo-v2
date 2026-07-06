@@ -288,8 +288,6 @@ function ClubPanel() {
         
         // Fetch courts for this club
         const courtsResponse = await api.get(`/clubs/${clubId}/courts`)
-        console.log('=== Courts loaded ===')
-        console.log('Courts data:', courtsResponse.data)
         setCourts(courtsResponse.data)
         
         // Create a map of courts by ID for robust lookup
@@ -298,8 +296,7 @@ function ClubPanel() {
           courtsMap[court.id] = court
         })
         setCourtsById(courtsMap)
-        console.log('Courts by ID map:', courtsMap)
-        
+
         // Reservations are now loaded separately by fetchReservationsForDate
       }
     } catch (err) {
@@ -309,18 +306,12 @@ function ClubPanel() {
 
   const fetchReservationsForDate = async (date) => {
     try {
-      console.log('=== fetchReservationsForDate called ===')
-      console.log('Fetching reservations for date:', date)
-      console.log('Club:', club)
       if (!club || !club.id) {
-        console.log('Club not available yet, skipping fetch')
         return
       }
       const dateStr = typeof date === 'string' ? date : (date.toISOString ? date.toISOString().split('T')[0] : date)
       const reservationsResponse = await api.get(`/clubs/${club.id}/reservations-by-date?date=${dateStr}`)
       const allReservations = reservationsResponse.data
-      console.log('Reservations from new endpoint:', allReservations)
-      console.log('Number of reservations:', allReservations.length)
       setReservations(allReservations)
       
       // Pre-calculate reservations by slot for direct access
@@ -340,7 +331,6 @@ function ClubPanel() {
         }
       })
       setReservationsBySlot(slotMap)
-      console.log('Reservations by slot map:', slotMap)
     } catch (err) {
       console.error('Error fetching reservations:', err)
     }
@@ -370,13 +360,6 @@ function ClubPanel() {
   }
 
   const handleSlotMouseDown = (courtIndex, hourIndex, e) => {
-    console.log('=== handleSlotMouseDown ===')
-    console.log('courtIndex:', courtIndex)
-    console.log('hourIndex (slotIndex):', hourIndex)
-    console.log('config.operating_hours_start:', config.operating_hours_start)
-    const calculatedHour = parseInt(config.operating_hours_start) + Math.floor(hourIndex / 2)
-    const calculatedMin = hourIndex % 2 === 0 ? '00' : '30'
-    console.log('Calculated time:', `${calculatedHour}:${calculatedMin}`)
     setIsDragging(true)
     setDragStart({ courtIndex, hourIndex })
     setDragEnd(null)
@@ -505,24 +488,13 @@ function ClubPanel() {
   }
 
   const handleCreateReservation = async () => {
-    console.log('=== handleCreateReservation called ===')
-    console.log('club:', club)
-    console.log('dragStart:', dragStart)
-    console.log('dragEnd:', dragEnd)
-    console.log('selectedCourt:', selectedCourt)
-    console.log('courts array:', courts)
-    console.log('courts length:', courts.length)
-    console.log('selectedCourt type:', typeof selectedCourt)
-    
     if (!club || !dragStart || !dragEnd) {
-      console.log('Missing required data')
       alert('Error: Faltan datos requeridos')
       closeModal()
       return
     }
-    
+
     if (selectedCourt === null || selectedCourt === undefined) {
-      console.log('selectedCourt is null or undefined')
       alert('Error: No se seleccionó ninguna cancha')
       closeModal()
       return
@@ -535,28 +507,20 @@ function ClubPanel() {
       const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
       const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
       const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
-      
+
       // La hora de fin es exactamente el slot seleccionado, sin ajustes
-      console.log('Time range:', `${startHour}:${startMin} - ${endHour}:${endMin}`)
-      
       // Usar el precio calculado por la función calculatePrice
       const price = calculatedPrice
-      
-      console.log('Price:', price)
-      
+
       // Obtener court_id de la cancha seleccionada
       const court = courts[selectedCourt]
-      console.log('Court at index', selectedCourt, ':', court)
       if (!court) {
-        console.error('Court not found at index', selectedCourt)
-        console.error('Available courts:', courts.map((c, i) => `${i}: ${c?.name || 'undefined'}`).join(', '))
         alert(`Error: No se encontró la cancha en el índice ${selectedCourt}. Por favor, recarga la página.`)
         closeModal()
         return
       }
-      
+
       const token = localStorage.getItem('token')
-      console.log('Token:', token ? 'exists' : 'missing')
       
       const reservationData = {
         club_id: club.id,
@@ -569,27 +533,19 @@ function ClubPanel() {
         notes: reservationType === 'clases' ? 'Clase' : 'Reserva normal',
         players: players.filter(p => p.name.trim() !== '').map(p => p.name)
       }
-      
-      console.log('Reservation data to send:', reservationData)
-      
+
       const response = await api.post('/clubs/reservations', reservationData, {
         headers: { Authorization: `Bearer ${token}` }
       })
-      
-      console.log('Response:', response)
-      
+
       alert('Reserva creada exitosamente')
       closeModal()
-      
+
       // Recargar reservas para mostrar la nueva reserva
       fetchReservationsForDate(selectedDate)
     } catch (err) {
       console.error('Error creating reservation:', err)
-      console.error('Error response:', err.response)
-      console.error('Error data:', err.response?.data)
-      console.error('Error status:', err.response?.status)
-      console.error('Error statusText:', err.response?.statusText)
-      
+
       // Build detailed error message
       let errorDetails = 'Error al crear la reserva:\n\n'
       errorDetails += `Status: ${err.response?.status}\n`
@@ -598,13 +554,10 @@ function ClubPanel() {
       if (err.response?.data) {
         errorDetails += `Data: ${JSON.stringify(err.response.data, null, 2)}\n`
       }
-      
-      // Show in alert and log to console for easy copying
+
+      // Show in alert
       alert(errorDetails)
-      console.log('=== FULL ERROR DETAILS (copy this) ===')
-      console.log(errorDetails)
-      console.log('=== END ERROR DETAILS ===')
-      
+
       closeModal()
     }
   }
