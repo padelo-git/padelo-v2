@@ -543,10 +543,16 @@ function ClubPanel() {
     try {
       // Calcular hora inicio y fin
       // slotIndex 0 es 6:00-6:30, slotIndex 1 es 6:30-7:00, etc.
+      console.log('=== DEBUG TIME CALCULATION ===')
+      console.log('dragStart.hourIndex:', dragStart.hourIndex)
+      console.log('dragEnd.hourIndex:', dragEnd.hourIndex)
+      console.log('config.operating_hours_start:', config.operating_hours_start)
       const startHour = parseInt(config.operating_hours_start) + Math.floor(dragStart.hourIndex / 2)
       const startMin = dragStart.hourIndex % 2 === 0 ? '00' : '30'
       const endHour = parseInt(config.operating_hours_start) + Math.floor(dragEnd.hourIndex / 2)
       const endMin = dragEnd.hourIndex % 2 === 0 ? '00' : '30'
+      console.log('Calculated time:', `${startHour}:${startMin} - ${endHour}:${endMin}`)
+      console.log('=== END DEBUG ===')
 
       // La hora de fin es exactamente el slot seleccionado, sin ajustes
       // Usar el precio calculado por la función calculatePrice
