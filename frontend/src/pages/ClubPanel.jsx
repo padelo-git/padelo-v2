@@ -577,7 +577,10 @@ function ClubPanel() {
       fetchReservationsForDate(selectedDate)
     } catch (err) {
       console.error('Error deleting reservation:', err)
-      alert('Error al eliminar la reserva')
+      console.error('Error response:', err.response)
+      console.error('Error status:', err.response?.status)
+      console.error('Error data:', err.response?.data)
+      alert(`Error al eliminar la reserva: ${err.response?.data?.detail || err.message}`)
     }
   }
 
@@ -1316,7 +1319,7 @@ function ClubPanel() {
                         onMouseUp={() => handleSlotMouseUp(courtIndex, slotIndex)}
                         style={{
                           height: '30px',
-                          borderBottom: isSameReservation ? 'none' : (isHalfHour ? '3px solid #555' : '1px solid #333'),
+                          borderBottom: isSameReservation ? 'none' : (isHalfHour ? '1px solid #333' : '3px solid #555'),
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
