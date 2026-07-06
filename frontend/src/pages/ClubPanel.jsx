@@ -362,30 +362,16 @@ function ClubPanel() {
   }
 
   const handleSlotMouseDown = (courtIndex, hourIndex, e) => {
-    // Usar arquitectura del sistema viejo: calcular minutos absolutos desde posición relativa
-    const courtElement = courtRefs.current[courtIndex]
-    if (!courtElement) return
-
-    const rect = courtElement.getBoundingClientRect()
-    const clientY = e.clientY
-    const ratio = (clientY - rect.top) / rect.height
-
-    // Calcular minutos desde el inicio del día
+    // Simplificar: usar directamente el slotIndex pasado por el evento
+    // slotIndex 0 = 6:00-6:30, slotIndex 1 = 6:30-7:00, etc.
     const dayStartMin = parseInt(config.operating_hours_start) * 60
-    const dayEndMin = parseInt(config.operating_hours_end) * 60
-    const range = dayEndMin - dayStartMin
     const slot = 30 // 30 minutos por slot
 
-    let mins = dayStartMin + ratio * range
-    mins = Math.round(mins / slot) * slot
-    if (mins < dayStartMin) mins = dayStartMin
-    if (mins > dayEndMin) mins = dayEndMin
-
-    // Convertir minutos a slotIndex
-    const slotIndex = Math.floor((mins - dayStartMin) / slot)
+    // Calcular minutos directamente desde el slotIndex
+    const mins = dayStartMin + hourIndex * slot
 
     setIsDragging(true)
-    setDragStart({ courtIndex, hourIndex: slotIndex, mins })
+    setDragStart({ courtIndex, hourIndex, mins })
     setDragEnd(null)
     setSelectedCourt(courtIndex)
     setDragStartY(e.clientY)
@@ -394,29 +380,14 @@ function ClubPanel() {
 
   const handleSlotMouseMove = (courtIndex, hourIndex, e) => {
     if (isDragging && selectedCourt === courtIndex) {
-      // Usar arquitectura del sistema viejo: calcular minutos absolutos desde posición relativa
-      const courtElement = courtRefs.current[courtIndex]
-      if (!courtElement) return
-
-      const rect = courtElement.getBoundingClientRect()
-      const clientY = e.clientY
-      const ratio = (clientY - rect.top) / rect.height
-
-      // Calcular minutos desde el inicio del día
+      // Simplificar: usar directamente el slotIndex pasado por el evento
       const dayStartMin = parseInt(config.operating_hours_start) * 60
-      const dayEndMin = parseInt(config.operating_hours_end) * 60
-      const range = dayEndMin - dayStartMin
       const slot = 30 // 30 minutos por slot
 
-      let mins = dayStartMin + ratio * range
-      mins = Math.round(mins / slot) * slot
-      if (mins < dayStartMin) mins = dayStartMin
-      if (mins > dayEndMin) mins = dayEndMin
+      // Calcular minutos directamente desde el slotIndex
+      const mins = dayStartMin + hourIndex * slot
 
-      // Convertir minutos a slotIndex
-      const slotIndex = Math.floor((mins - dayStartMin) / slot)
-
-      setDragEnd({ courtIndex, hourIndex: slotIndex, mins })
+      setDragEnd({ courtIndex, hourIndex, mins })
       setDragCurrentY(e.clientY)
     }
   }
@@ -1364,8 +1335,13 @@ function ClubPanel() {
                     const courtId = courts[courtIndex]?.id
                     const reservation = courtId ? reservationsBySlot[`${courtId}-${slotIndex}`] : null
                     const previousReservation = slotIndex > 0 ? reservationsBySlot[`${courtId}-${slotIndex - 1}`] : null
+                    const nextReservation = slotIndex < (parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 2 - 1 ? reservationsBySlot[`${courtId}-${slotIndex + 1}`] : null
                     const isSameReservation = reservation && previousReservation && reservation.id === previousReservation.id
+                    const isNextSameReservation = reservation && nextReservation && reservation.id === nextReservation.id
                     const isFirstSlotOfReservation = reservation && (!previousReservation || previousReservation.id !== reservation.id)
+                    const isLastSlotOfReservation = reservation && (!nextReservation || nextReservation.id !== reservation.id)
+                    // No dibujar border si estamos en medio de una reserva (no es el último slot)
+                    const shouldDrawBorder = !reservation || isLastSlotOfReservation
                     return (
                       <div
                         key={`${courtIndex}-${slotIndex}`}
@@ -1374,7 +1350,7 @@ function ClubPanel() {
                         onMouseUp={() => handleSlotMouseUp(courtIndex, slotIndex)}
                         style={{
                           height: '30px',
-                          borderBottom: isSameReservation ? 'none' : (isHalfHour ? '1px solid #333' : '3px solid #555'),
+                          borderBottom: shouldDrawBorder ? (isHalfHour ? '1px solid #333' : '3px solid #555') : 'none',
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
