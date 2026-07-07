@@ -313,20 +313,23 @@ function ClubPanel() {
       const reservationsResponse = await api.get(`/clubs/${club.id}/reservations-by-date?date=${dateStr}`)
       const allReservations = reservationsResponse.data
       setReservations(allReservations)
-      
-      // Pre-calculate reservations by slot for direct access
+
+      // Usar arquitectura del sistema viejo: mapear reservas por minutos absolutos
       const slotMap = {}
+      const day0 = parseInt(config.operating_hours_start) * 60
+      const day1 = parseInt(config.operating_hours_end) * 60
+      const slot = 30 // 30 minutos por slot
+
       allReservations.forEach(r => {
-        const resStartHour = parseInt(r.start_time.split(':')[0])
-        const resStartMin = parseInt(r.start_time.split(':')[1])
-        const resEndHour = parseInt(r.end_time.split(':')[0])
-        const resEndMin = parseInt(r.end_time.split(':')[1])
-        
-        const startSlotIndex = (resStartHour - parseInt(config.operating_hours_start)) * 2 + (resStartMin === 30 ? 1 : 0)
-        const endSlotIndex = (resEndHour - parseInt(config.operating_hours_start)) * 2 + (resEndMin === 30 ? 1 : 0)
+        const s = parseHM(r.start_time)
+        const e = parseHM(r.end_time)
+        if (s == null || e == null || e <= s) return
+
+        // Calcular slotIndex desde minutos absolutos (como en el sistema viejo)
+        const startSlotIndex = Math.floor((s - day0) / slot)
+        const endSlotIndex = Math.floor((e - day0) / slot)
 
         // Incluir todos los slots desde startSlotIndex hasta endSlotIndex - 1
-        // Esto cubre el rango completo de la reserva
         for (let slotIdx = startSlotIndex; slotIdx < endSlotIndex; slotIdx++) {
           const key = `${r.court_id}-${slotIdx}`
           slotMap[key] = r
