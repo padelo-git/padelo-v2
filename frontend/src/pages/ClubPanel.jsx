@@ -141,6 +141,14 @@ function ClubPanel() {
   
   // Estado para mantener la selección visible mientras el modal está abierto
   const [showSelectionOverlay, setShowSelectionOverlay] = useState(false)
+
+  // Estado para el tooltip hover
+  const [tooltip, setTooltip] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    reservation: null
+  })
   
   // Estado para el modal de reserva
   const [reservationType, setReservationType] = useState('normal')
@@ -451,6 +459,34 @@ function ClubPanel() {
   const handleViewReservation = (reservation) => {
     setSelectedReservation(reservation)
     setShowReservationModal(true)
+  }
+
+  const handleReservationMouseEnter = (e, reservation) => {
+    setTooltip({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      reservation
+    })
+  }
+
+  const handleReservationMouseMove = (e) => {
+    if (tooltip.visible) {
+      setTooltip(prev => ({
+        ...prev,
+        x: e.clientX,
+        y: e.clientY
+      }))
+    }
+  }
+
+  const handleReservationMouseLeave = () => {
+    setTooltip({
+      visible: false,
+      x: 0,
+      y: 0,
+      reservation: null
+    })
   }
 
   const isSlotSelected = (courtIndex, hourIndex) => {
@@ -1452,6 +1488,9 @@ function ClubPanel() {
                         <div
                           key={r.id}
                           onClick={() => handleViewReservation(r)}
+                          onMouseEnter={(e) => handleReservationMouseEnter(e, r)}
+                          onMouseMove={handleReservationMouseMove}
+                          onMouseLeave={handleReservationMouseLeave}
                           style={{
                             position: 'absolute',
                             top: `${top}%`,
@@ -1473,7 +1512,7 @@ function ClubPanel() {
                             zIndex: 10
                           }}
                         >
-                          {r.players && r.players.length > 0 ? r.players.join(', ') : (r.notes || 'Reserva')}
+                          {r.players && r.players.length > 0 ? r.players.join(', ') : ''}
                         </div>
                       )
                     })}
@@ -1481,6 +1520,42 @@ function ClubPanel() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+
+      {tooltip.visible && tooltip.reservation && (
+        <div
+          style={{
+            position: 'fixed',
+            top: `${tooltip.y + 10}px`,
+            left: `${tooltip.x + 10}px`,
+            backgroundColor: '#fff',
+            color: '#000',
+            padding: '10px',
+            borderRadius: '5px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+            zIndex: 2000,
+            maxWidth: '250px',
+            fontSize: '12px'
+          }}
+        >
+          <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+            {tooltip.reservation.start_time} - {tooltip.reservation.end_time}
+          </div>
+          {tooltip.reservation.players && tooltip.reservation.players.length > 0 ? (
+            <div>
+              {tooltip.reservation.players.map((player, index) => (
+                <div key={index} style={{ marginBottom: '3px' }}>
+                  {player || '-'}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div>Sin jugadores</div>
+          )}
+          <div style={{ marginTop: '5px', fontSize: '11px', color: '#666' }}>
+            {tooltip.reservation.notes || ''}
           </div>
         </div>
       )}
