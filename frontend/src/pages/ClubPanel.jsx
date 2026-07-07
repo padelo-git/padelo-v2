@@ -1383,7 +1383,8 @@ function ClubPanel() {
                           backgroundColor: '#2d2d2d',
                           WebkitTapHighlightColor: 'transparent',
                           WebkitUserSelect: 'none',
-                          userSelect: 'none'
+                          userSelect: 'none',
+                          zIndex: 1
                         }}
                       />
                     )
@@ -1443,7 +1444,8 @@ function ClubPanel() {
                             padding: '2px',
                             WebkitTapHighlightColor: 'transparent',
                             WebkitUserSelect: 'none',
-                            userSelect: 'none'
+                            userSelect: 'none',
+                            zIndex: 10
                           }}
                         >
                           {r.players && r.players.length > 0 ? r.players.join(', ') : (r.notes || 'Reserva')}
