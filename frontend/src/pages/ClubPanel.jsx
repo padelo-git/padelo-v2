@@ -1316,23 +1316,15 @@ function ClubPanel() {
             <div style={{ minWidth: '60px', borderRight: '1px solid #333', backgroundColor: '#1a1a1a' }}>
               {/* Header vacío para alinear con header de canchas */}
               <div style={{ padding: '15px', borderBottom: '1px solid #333', backgroundColor: '#1a1a1a' }}></div>
-              {/* Columna de horarios - usar posición porcentual como el sistema viejo */}
-              <div style={{ position: 'relative', flex: 1 }}>
-                {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
-                  const hour = parseInt(config.operating_hours_start) + i
-                  const day0 = parseInt(config.operating_hours_start) * 60
-                  const day1 = parseInt(config.operating_hours_end) * 60
-                  const range = day1 - day0
-                  const hourMins = hour * 60
-                  const top = ((hourMins - day0) / range) * 100
-                  const height = (60 / range) * 100 // 60 minutos = 1 hora
-                  return (
-                    <div key={hour} style={{ position: 'absolute', top: `${top}%`, height: `${height}%`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
-                      {hour}:00
-                    </div>
-                  )
-                })}
-              </div>
+              {/* Columna de horarios */}
+              {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
+                const hour = parseInt(config.operating_hours_start) + i
+                return (
+                  <div key={hour} style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
+                    {hour}:00
+                  </div>
+                )
+              })}
             </div>
             
             <div style={{ flex: 1, display: 'grid', gridTemplateColumns: `repeat(${config.court_count}, 1fr)`, backgroundColor: '#2d2d2d' }}>
@@ -1348,7 +1340,7 @@ function ClubPanel() {
                   {/* Contenedor de slots con overlay */}
                   <div
                     ref={(el) => courtRefs.current[courtIndex] = el}
-                    style={{ position: 'relative', backgroundColor: '#2d2d2d' }}
+                    style={{ position: 'relative', backgroundColor: '#2d2d2d', height: `${(parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 60}px` }}
                   >
                     {/* Overlay de iluminación progresiva */}
                     <div style={getDragOverlayStyle(courtIndex, courtRefs.current[courtIndex])}></div>
