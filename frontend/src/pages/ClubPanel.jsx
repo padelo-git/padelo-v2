@@ -361,6 +361,24 @@ function ClubPanel() {
     }
   }
 
+  // Helper functions del sistema viejo para conversión de tiempo
+  const parseHM = (s) => {
+    const parts = String(s || "").trim().split(":")
+    if (parts.length !== 2) return null
+    const h = parseInt(parts[0], 10)
+    const m = parseInt(parts[1], 10)
+    if (Number.isNaN(h) || Number.isNaN(m)) return null
+    if (h === 24 && m === 0) return 24 * 60
+    if (h < 0 || h > 23 || m < 0 || m > 59) return null
+    return h * 60 + m
+  }
+
+  const formatHM = (mins) => {
+    const h = Math.floor(mins / 60)
+    const m = mins % 60
+    return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0")
+  }
+
   const handleSlotMouseDown = (courtIndex, hourIndex, e) => {
     // Simplificar: usar directamente el slotIndex pasado por el evento
     // slotIndex 0 = 6:00-6:30, slotIndex 1 = 6:30-7:00, etc.
@@ -518,18 +536,13 @@ function ClubPanel() {
     }
     
     try {
-      // Usar arquitectura del sistema viejo: calcular tiempos desde minutos absolutos
+      // Usar arquitectura del sistema viejo: usar formatHM para conversión de tiempos
       console.log('=== DEBUG TIME CALCULATION ===')
       console.log('dragStart.mins:', dragStart.mins)
       console.log('dragEnd.mins:', dragEnd.mins)
 
-      const startHour = Math.floor(dragStart.mins / 60)
-      const startMin = dragStart.mins % 60
-      const endHour = Math.floor(dragEnd.mins / 60)
-      const endMin = dragEnd.mins % 60
-
-      const startTime = `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`
-      const endTime = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`
+      const startTime = formatHM(dragStart.mins)
+      const endTime = formatHM(dragEnd.mins)
 
       console.log('Calculated time:', `${startTime} - ${endTime}`)
       console.log('=== END DEBUG ===')
