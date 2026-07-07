@@ -362,43 +362,16 @@ function ClubPanel() {
   }
 
   const handleSlotMouseDown = (courtIndex, hourIndex, e) => {
-    // Usar arquitectura del sistema viejo: calcular minutos desde posición relativa del mouse en el track
-    const courtElement = courtRefs.current[courtIndex]
-    if (!courtElement) return
-
-    // Encontrar el track (contenedor de slots)
-    const track = courtElement.querySelector('[style*="position: relative"]')
-    if (!track) return
-
-    const rect = track.getBoundingClientRect()
-    const clientY = e.clientY
-    const ratio = (clientY - rect.top) / rect.height
-
-    // Calcular minutos desde el inicio del día (como en el sistema viejo)
-    const day0 = parseInt(config.operating_hours_start) * 60
-    const day1 = parseInt(config.operating_hours_end) * 60
-    const range = day1 - day0
+    // Simplificar: usar directamente el slotIndex pasado por el evento
+    // slotIndex 0 = 6:00-6:30, slotIndex 1 = 6:30-7:00, etc.
+    const dayStartMin = parseInt(config.operating_hours_start) * 60
     const slot = 30 // 30 minutos por slot
 
-    let mins = day0 + ratio * range
-    mins = Math.round(mins / slot) * slot
-    if (mins < day0) mins = day0
-    if (mins > day1) mins = day1
-
-    // Convertir minutos a slotIndex para compatibilidad
-    const slotIndex = Math.floor((mins - day0) / slot)
-
-    console.log('=== DEBUG MOUSE DOWN (SISTEMA VIEJO) ===')
-    console.log('ratio:', ratio)
-    console.log('day0:', day0)
-    console.log('day1:', day1)
-    console.log('range:', range)
-    console.log('mins:', mins)
-    console.log('slotIndex:', slotIndex)
-    console.log('=== END DEBUG ===')
+    // Calcular minutos directamente desde el slotIndex
+    const mins = dayStartMin + hourIndex * slot
 
     setIsDragging(true)
-    setDragStart({ courtIndex, hourIndex: slotIndex, mins })
+    setDragStart({ courtIndex, hourIndex, mins })
     setDragEnd(null)
     setSelectedCourt(courtIndex)
     setDragStartY(e.clientY)
@@ -407,33 +380,14 @@ function ClubPanel() {
 
   const handleSlotMouseMove = (courtIndex, hourIndex, e) => {
     if (isDragging && selectedCourt === courtIndex) {
-      // Usar arquitectura del sistema viejo: calcular minutos desde posición relativa del mouse en el track
-      const courtElement = courtRefs.current[courtIndex]
-      if (!courtElement) return
-
-      // Encontrar el track (contenedor de slots)
-      const track = courtElement.querySelector('[style*="position: relative"]')
-      if (!track) return
-
-      const rect = track.getBoundingClientRect()
-      const clientY = e.clientY
-      const ratio = (clientY - rect.top) / rect.height
-
-      // Calcular minutos desde el inicio del día (como en el sistema viejo)
-      const day0 = parseInt(config.operating_hours_start) * 60
-      const day1 = parseInt(config.operating_hours_end) * 60
-      const range = day1 - day0
+      // Simplificar: usar directamente el slotIndex pasado por el evento
+      const dayStartMin = parseInt(config.operating_hours_start) * 60
       const slot = 30 // 30 minutos por slot
 
-      let mins = day0 + ratio * range
-      mins = Math.round(mins / slot) * slot
-      if (mins < day0) mins = day0
-      if (mins > day1) mins = day1
+      // Calcular minutos directamente desde el slotIndex
+      const mins = dayStartMin + hourIndex * slot
 
-      // Convertir minutos a slotIndex para compatibilidad
-      const slotIndex = Math.floor((mins - day0) / slot)
-
-      setDragEnd({ courtIndex, hourIndex: slotIndex, mins })
+      setDragEnd({ courtIndex, hourIndex, mins })
       setDragCurrentY(e.clientY)
     }
   }
