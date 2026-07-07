@@ -382,17 +382,34 @@ function ClubPanel() {
     return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0")
   }
 
+  const minsFromEvent = (ev, containerRef) => {
+    if (!containerRef) return null
+    const rect = containerRef.getBoundingClientRect()
+    const clientY = ev.clientY
+    const ratio = (clientY - rect.top) / rect.height
+    const day0 = parseInt(config.operating_hours_start) * 60
+    const day1 = parseInt(config.operating_hours_end) * 60
+    const range = day1 - day0
+    const slot = 30 // 30 minutos por slot
+    let mins = day0 + ratio * range
+    mins = Math.round(mins / slot) * slot
+    if (mins < day0) mins = day0
+    if (mins > day1) mins = day1
+    return mins
+  }
+
   const handleSlotMouseDown = (courtIndex, hourIndex, e) => {
-    // Simplificar: usar directamente el slotIndex pasado por el evento
-    // slotIndex 0 = 6:00-6:30, slotIndex 1 = 6:30-7:00, etc.
+    // Usar minsFromEvent del sistema viejo para calcular minutos desde posición del mouse
+    const containerRef = courtRefs.current[courtIndex]
+    const mins = minsFromEvent(e, containerRef)
+    if (mins == null) return
+
     const dayStartMin = parseInt(config.operating_hours_start) * 60
     const slot = 30 // 30 minutos por slot
-
-    // Calcular minutos directamente desde el slotIndex
-    const mins = dayStartMin + hourIndex * slot
+    const calculatedHourIndex = Math.floor((mins - dayStartMin) / slot)
 
     setIsDragging(true)
-    setDragStart({ courtIndex, hourIndex, mins })
+    setDragStart({ courtIndex, hourIndex: calculatedHourIndex, mins })
     setDragEnd(null)
     setSelectedCourt(courtIndex)
     setDragStartY(e.clientY)
@@ -401,14 +418,16 @@ function ClubPanel() {
 
   const handleSlotMouseMove = (courtIndex, hourIndex, e) => {
     if (isDragging && selectedCourt === courtIndex) {
-      // Simplificar: usar directamente el slotIndex pasado por el evento
+      // Usar minsFromEvent del sistema viejo para calcular minutos desde posición del mouse
+      const containerRef = courtRefs.current[courtIndex]
+      const mins = minsFromEvent(e, containerRef)
+      if (mins == null) return
+
       const dayStartMin = parseInt(config.operating_hours_start) * 60
       const slot = 30 // 30 minutos por slot
+      const calculatedHourIndex = Math.floor((mins - dayStartMin) / slot)
 
-      // Calcular minutos directamente desde el slotIndex
-      const mins = dayStartMin + hourIndex * slot
-
-      setDragEnd({ courtIndex, hourIndex, mins })
+      setDragEnd({ courtIndex, hourIndex: calculatedHourIndex, mins })
       setDragCurrentY(e.clientY)
     }
   }
