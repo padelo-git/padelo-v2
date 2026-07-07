@@ -1445,7 +1445,7 @@ function ClubPanel() {
                         console.log('=== END DEBUG ===')
                       }
 
-                      const type = r.reservation_type || 'normal'
+                      const type = r.reservation_type || (r.notes && r.notes.includes('Clase') ? 'class' : 'normal')
                       const backgroundColor = type === 'class' ? '#8B5CF6' : type === 'auto_match' ? '#3B82F6' : '#F97316'
 
                       return (
