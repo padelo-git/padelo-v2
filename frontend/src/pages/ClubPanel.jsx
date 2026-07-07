@@ -429,6 +429,11 @@ function ClubPanel() {
     }
   }
 
+  const handleViewReservation = (reservation) => {
+    setSelectedReservation(reservation)
+    setShowReservationModal(true)
+  }
+
   const isSlotSelected = (courtIndex, hourIndex) => {
     // Usar showSelectionOverlay cuando el modal está abierto
     if (!isDragging && !showSelectionOverlay) {
@@ -1377,7 +1382,7 @@ function ClubPanel() {
                           height: `${height}%`,
                           left: 0,
                           right: 0,
-                          borderBottom: isHalfHour ? '1px solid #333' : '3px solid #555',
+                          borderBottom: isHalfHour ? '3px solid #555' : '1px solid #333',
                           borderRight: 'none',
                           cursor: 'pointer',
                           backgroundColor: '#2d2d2d',
