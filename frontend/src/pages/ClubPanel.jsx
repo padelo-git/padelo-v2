@@ -525,8 +525,12 @@ function ClubPanel() {
 
       const startHour = Math.floor(dragStart.mins / 60)
       const startMin = dragStart.mins % 60
-      const endHour = Math.floor(dragEnd.mins / 60)
-      const endMin = dragEnd.mins % 60
+
+      // El endTime debe ser el final del slot seleccionado, sumar 30 minutos
+      const slot = 30
+      const endMins = dragEnd.mins + slot
+      const endHour = Math.floor(endMins / 60)
+      const endMin = endMins % 60
 
       const startTime = `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`
       const endTime = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`
