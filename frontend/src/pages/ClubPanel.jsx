@@ -1318,19 +1318,15 @@ function ClubPanel() {
             <div style={{ display: 'flex', gap: '20px', alignItems: 'center', fontSize: '14px', fontWeight: 'bold', color: '#fff' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div style={{ width: '20px', height: '20px', backgroundColor: '#3B82F6', borderRadius: '4px', border: '2px solid #2563eb' }}></div>
-                <span>App móvil</span>
+                <span>Partido</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '20px', height: '20px', backgroundColor: '#10B981', borderRadius: '4px', border: '2px solid #059669' }}></div>
+                <div style={{ width: '20px', height: '20px', backgroundColor: '#8B5CF6', borderRadius: '4px', border: '2px solid #7c3aed' }}></div>
                 <span>Clases</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '20px', height: '20px', backgroundColor: '#F59E0B', borderRadius: '4px', border: '2px solid #d97706' }}></div>
-                <span>Manual</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div style={{ width: '20px', height: '20px', backgroundColor: '#F97316', borderRadius: '4px', border: '2px solid #ea580c' }}></div>
-                <span>Partido</span>
+                <span>Manual / App móvil</span>
               </div>
             </div>
           </div>
@@ -1448,7 +1444,7 @@ function ClubPanel() {
                       }
 
                       const type = r.reservation_type || 'normal'
-                      const backgroundColor = type === 'class' ? '#8B5CF6' : type === 'auto_match' ? '#3B82F6' : '#10B981'
+                      const backgroundColor = type === 'class' ? '#8B5CF6' : type === 'auto_match' ? '#3B82F6' : '#F97316'
 
                       return (
                         <div
