@@ -41,8 +41,10 @@ function ClubPanel() {
     timezone: 'America/Hermosillo',
     operating_hours_start: '08:00',
     operating_hours_end: '22:00',
-    hourly_price: 200,
-    premium_hourly_price: 300,
+    hourly_price_normal: 220,
+    hourly_price_peak: 400,
+    peak_hours_start: '17:00',
+    peak_hours_end: '22:00',
     lesson_1_2_players_price: 800,
     lesson_3_players_price: 1200,
     lesson_4_players_price: 1400,
@@ -498,6 +500,9 @@ function ClubPanel() {
     console.log('type:', type)
     console.log('playerCount:', playerCount)
     console.log('config.hourly_price_normal:', config.hourly_price_normal)
+    console.log('config.hourly_price_peak:', config.hourly_price_peak)
+    console.log('config.peak_hours_start:', config.peak_hours_start)
+    console.log('config.peak_hours_end:', config.peak_hours_end)
 
     if (type === 'class') {
       // Precio de clase según configuración
@@ -511,13 +516,21 @@ function ClubPanel() {
       const e = parseHM(reservation.end_time)
       if (s == null || e == null) return 0
 
+      // Determinar si está en horario pico
+      const peakStart = parseHM(config.peak_hours_start || '17:00')
+      const peakEnd = parseHM(config.peak_hours_end || '22:00')
+      const isPeakHour = s >= peakStart && s < peakEnd
+
       const durationHours = (e - s) / 60
-      const hourlyPrice = config.hourly_price_normal || 220
+      const hourlyPrice = isPeakHour ? (config.hourly_price_peak || 400) : (config.hourly_price_normal || 220)
       const totalPrice = hourlyPrice * durationHours
       const pricePerPlayer = playerCount > 0 ? totalPrice / playerCount : totalPrice
 
       console.log('s (minutes):', s)
       console.log('e (minutes):', e)
+      console.log('peakStart:', peakStart)
+      console.log('peakEnd:', peakEnd)
+      console.log('isPeakHour:', isPeakHour)
       console.log('durationHours:', durationHours)
       console.log('hourlyPrice:', hourlyPrice)
       console.log('totalPrice:', totalPrice)
@@ -851,7 +864,7 @@ function ClubPanel() {
 
   const handleSaveConfig = async () => {
     if (!club) return
-    
+
     try {
       // Update club configuration
       await api.put(`/clubs/${club.id}`, {
@@ -860,12 +873,13 @@ function ClubPanel() {
         timezone: config.timezone,
         operating_hours_start: config.operating_hours_start,
         operating_hours_end: config.operating_hours_end,
-        hourly_price: config.hourly_price_normal,
-        premium_hourly_price: config.hourly_price_peak,
-        lesson_1_player_price: config.lesson_1_2_players_price,
-        lesson_2_player_price: config.lesson_1_2_players_price,
-        lesson_3_player_price: config.lesson_3_players_price,
-        lesson_4_player_price: config.lesson_4_players_price,
+        hourly_price_normal: config.hourly_price_normal,
+        hourly_price_peak: config.hourly_price_peak,
+        peak_hours_start: config.peak_hours_start,
+        peak_hours_end: config.peak_hours_end,
+        lesson_1_2_players_price: config.lesson_1_2_players_price,
+        lesson_3_players_price: config.lesson_3_players_price,
+        lesson_4_players_price: config.lesson_4_players_price,
         tax_id: config.tax_id,
         tax_address: config.tax_address,
         tax_condition: config.tax_condition,
@@ -1059,6 +1073,30 @@ function ClubPanel() {
                 style={{ width: '100%', padding: '12px', border: '1px solid #444', borderRadius: '5px', fontSize: '16px', backgroundColor: '#1a1a1a', color: '#ffffff' }}
               />
               <p style={{ fontSize: '12px', color: '#cccccc', marginTop: '5px' }}>Precio por hora en horario pico</p>
+            </div>
+          </div>
+
+          <h3 style={{ marginTop: '30px', marginBottom: '15px', color: '#ffffff' }}>⏰ Horario Pico</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#ffffff' }}>Inicio Horario Pico</label>
+              <input
+                type="time"
+                value={config.peak_hours_start}
+                onChange={(e) => setConfig({...config, peak_hours_start: e.target.value})}
+                style={{ width: '100%', padding: '12px', border: '1px solid #444', borderRadius: '5px', fontSize: '16px', backgroundColor: '#1a1a1a', color: '#ffffff' }}
+              />
+              <p style={{ fontSize: '12px', color: '#cccccc', marginTop: '5px' }}>Hora de inicio del horario pico</p>
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#ffffff' }}>Fin Horario Pico</label>
+              <input
+                type="time"
+                value={config.peak_hours_end}
+                onChange={(e) => setConfig({...config, peak_hours_end: e.target.value})}
+                style={{ width: '100%', padding: '12px', border: '1px solid #444', borderRadius: '5px', fontSize: '16px', backgroundColor: '#1a1a1a', color: '#ffffff' }}
+              />
+              <p style={{ fontSize: '12px', color: '#cccccc', marginTop: '5px' }}>Hora de fin del horario pico</p>
             </div>
           </div>
 
