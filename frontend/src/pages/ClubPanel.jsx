@@ -367,8 +367,16 @@ function ClubPanel() {
     const dayStartMin = parseInt(config.operating_hours_start) * 60
     const slot = 30 // 30 minutos por slot
 
+    console.log('=== DEBUG MOUSE DOWN ===')
+    console.log('hourIndex:', hourIndex)
+    console.log('dayStartMin:', dayStartMin)
+    console.log('slot:', slot)
+
     // Calcular minutos directamente desde el slotIndex
     const mins = dayStartMin + hourIndex * slot
+
+    console.log('calculated mins:', mins)
+    console.log('=== END DEBUG ===')
 
     setIsDragging(true)
     setDragStart({ courtIndex, hourIndex, mins })
