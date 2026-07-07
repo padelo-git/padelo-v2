@@ -1379,8 +1379,10 @@ function ClubPanel() {
                       const day1 = parseInt(config.operating_hours_end) * 60
                       const range = day1 - day0
 
-                      const top = ((Math.max(s, day0) - day0) / range) * 100
-                      const bottom = ((Math.min(e, day1) - day0) / range) * 100
+                      // Ajustar cálculo de posición para alinear con las líneas de hora
+                      // El sistema viejo usa posición porcentual desde el inicio del día
+                      const top = ((s - day0) / range) * 100
+                      const bottom = ((e - day0) / range) * 100
                       const h = Math.max(0, bottom - top)
 
                       const type = r.reservation_type || 'normal'
