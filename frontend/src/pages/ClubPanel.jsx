@@ -1440,6 +1440,8 @@ function ClubPanel() {
                         console.log('top (%):', top)
                         console.log('bottom (%):', bottom)
                         console.log('height (%):', h)
+                        console.log('reservation_type:', r.reservation_type)
+                        console.log('notes:', r.notes)
                         console.log('=== END DEBUG ===')
                       }
 
