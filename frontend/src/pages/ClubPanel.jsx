@@ -1338,26 +1338,17 @@ function ClubPanel() {
                     Cancha {courtIndex + 1}
                   </div>
                   {/* Contenedor de slots con overlay */}
-                  <div 
+                  <div
                     ref={(el) => courtRefs.current[courtIndex] = el}
                     style={{ position: 'relative', backgroundColor: '#2d2d2d' }}
                   >
                     {/* Overlay de iluminación progresiva */}
                     <div style={getDragOverlayStyle(courtIndex, courtRefs.current[courtIndex])}></div>
+                    {/* Grid de slots para interacción */}
                     {Array.from({ length: (parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 2 }, (_, slotIndex) => {
                     const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
                     const isHalfHour = slotIndex % 2 === 1
                     const isSelected = isSlotSelected(courtIndex, slotIndex)
-                    const courtId = courts[courtIndex]?.id
-                    const reservation = courtId ? reservationsBySlot[`${courtId}-${slotIndex}`] : null
-                    const previousReservation = slotIndex > 0 ? reservationsBySlot[`${courtId}-${slotIndex - 1}`] : null
-                    const nextReservation = slotIndex < (parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 2 - 1 ? reservationsBySlot[`${courtId}-${slotIndex + 1}`] : null
-                    const isSameReservation = reservation && previousReservation && reservation.id === previousReservation.id
-                    const isNextSameReservation = reservation && nextReservation && reservation.id === nextReservation.id
-                    const isFirstSlotOfReservation = reservation && (!previousReservation || previousReservation.id !== reservation.id)
-                    const isLastSlotOfReservation = reservation && (!nextReservation || nextReservation.id !== reservation.id)
-                    // No dibujar border si estamos en medio de una reserva (no es el último slot)
-                    const shouldDrawBorder = !reservation || isLastSlotOfReservation
                     return (
                       <div
                         key={`${courtIndex}-${slotIndex}`}
@@ -1366,45 +1357,63 @@ function ClubPanel() {
                         onMouseUp={() => handleSlotMouseUp(courtIndex, slotIndex)}
                         style={{
                           height: '30px',
-                          borderBottom: shouldDrawBorder ? (isHalfHour ? '1px solid #333' : '3px solid #555') : 'none',
+                          borderBottom: isHalfHour ? '1px solid #333' : '3px solid #555',
                           borderRight: 'none',
                           position: 'relative',
                           cursor: 'pointer',
-                          backgroundColor: (() => {
-                            if (!reservation) return '#2d2d2d'
-                            const type = reservation.reservation_type || 'normal'
-                            if (type === 'class') return '#8B5CF6' // violeta para clases
-                            if (type === 'auto_match') return '#3B82F6' // azul para partidos automáticos
-                            return '#10B981' // verde para reservas normales
-                          })(),
+                          backgroundColor: '#2d2d2d',
                           WebkitTapHighlightColor: 'transparent',
                           WebkitUserSelect: 'none',
                           userSelect: 'none'
                         }}
-                      >
-                        {reservation && isFirstSlotOfReservation && (
-                          <div style={{
+                      />
+                    )
+                  })}
+                    {/* Renderizar reservas usando posición porcentual como el sistema viejo */}
+                    {reservations.filter(r => r.court_id === courts[courtIndex]?.id).map(r => {
+                      const s = parseHM(r.start_time)
+                      const e = parseHM(r.end_time)
+                      if (s == null || e == null || e <= s) return null
+
+                      const day0 = parseInt(config.operating_hours_start) * 60
+                      const day1 = parseInt(config.operating_hours_end) * 60
+                      const range = day1 - day0
+
+                      const top = ((Math.max(s, day0) - day0) / range) * 100
+                      const bottom = ((Math.min(e, day1) - day0) / range) * 100
+                      const h = Math.max(0, bottom - top)
+
+                      const type = r.reservation_type || 'normal'
+                      const backgroundColor = type === 'class' ? '#8B5CF6' : type === 'auto_match' ? '#3B82F6' : '#10B981'
+
+                      return (
+                        <div
+                          key={r.id}
+                          onClick={() => handleViewReservation(r)}
+                          style={{
                             position: 'absolute',
-                            top: 0,
+                            top: `${top}%`,
+                            height: `${h}%`,
                             left: 0,
                             right: 0,
-                            bottom: 0,
+                            backgroundColor,
+                            cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             fontSize: '11px',
                             color: '#fff',
                             fontWeight: 'bold',
-                            padding: '2px'
-                          }}>
-                            {reservation.players && reservation.players.length > 0 
-                              ? reservation.players.join(', ') 
-                              : (reservation.notes || 'Reserva')}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
+                            padding: '2px',
+                            WebkitTapHighlightColor: 'transparent',
+                            WebkitUserSelect: 'none',
+                            userSelect: 'none'
+                          }}
+                        >
+                          {r.players && r.players.length > 0 ? r.players.join(', ') : (r.notes || 'Reserva')}
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               ))}
