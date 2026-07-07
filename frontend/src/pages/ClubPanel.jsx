@@ -1360,17 +1360,20 @@ function ClubPanel() {
             </div>
             
             <div style={{ flex: 1, display: 'grid', gridTemplateColumns: `repeat(${config.court_count}, 1fr)`, backgroundColor: '#2d2d2d' }}>
-              {/* Header vacío para alinear con header de horarios */}
-              <div style={{ gridColumn: `1 / -1`, padding: '15px', borderBottom: '1px solid #333', backgroundColor: '#2d2d2d' }}></div>
-              {/* Columnas de canchas */}
-              {Array.from({ length: config.court_count }, (_, courtIndex) => (
-                <div 
-                  key={courtIndex} 
-                  style={{ borderRight: courtIndex < config.court_count - 1 ? '3px solid #555' : 'none', backgroundColor: '#2d2d2d' }}
-                >
-                  <div style={{ padding: '5px', textAlign: 'center', fontWeight: 'bold', borderBottom: '1px solid #333', backgroundColor: '#2d2d2d', color: '#fff' }}>
+              {/* Header con nombres de canchas alineado con header de horarios */}
+              <div style={{ gridColumn: `1 / -1`, display: 'grid', gridTemplateColumns: `repeat(${config.court_count}, 1fr)`, padding: '15px', borderBottom: '1px solid #333', backgroundColor: '#2d2d2d' }}>
+                {Array.from({ length: config.court_count }, (_, courtIndex) => (
+                  <div key={courtIndex} style={{ textAlign: 'center', fontWeight: 'bold', color: '#fff' }}>
                     Cancha {courtIndex + 1}
                   </div>
+                ))}
+              </div>
+              {/* Columnas de canchas */}
+              {Array.from({ length: config.court_count }, (_, courtIndex) => (
+                <div
+                  key={courtIndex}
+                  style={{ borderRight: courtIndex < config.court_count - 1 ? '3px solid #555' : 'none', backgroundColor: '#2d2d2d' }}
+                >
                   {/* Contenedor de slots con overlay - altura fija como sistema viejo */}
                   <div
                     ref={(el) => courtRefs.current[courtIndex] = el}
