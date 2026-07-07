@@ -489,6 +489,30 @@ function ClubPanel() {
     })
   }
 
+  const calculatePriceForTooltip = (reservation) => {
+    const type = reservation.reservation_type || (reservation.notes && reservation.notes.includes('Clase') ? 'class' : 'normal')
+    const playerCount = reservation.players ? reservation.players.filter(p => p && p.trim() !== '').length : 0
+
+    if (type === 'class') {
+      // Precio de clase según configuración
+      if (playerCount <= 2) return config.lesson_1_2_players_price || 800
+      if (playerCount === 3) return config.lesson_3_players_price || 900
+      if (playerCount >= 4) return config.lesson_4_players_price || 1000
+      return 0
+    } else {
+      // Precio de reserva normal
+      const s = parseHM(reservation.start_time)
+      const e = parseHM(reservation.end_time)
+      if (s == null || e == null) return 0
+
+      const durationHours = (e - s) / 60
+      const hourlyPrice = config.hourly_price_normal || 1000
+      const totalPrice = hourlyPrice * durationHours
+      const pricePerPlayer = playerCount > 0 ? totalPrice / playerCount : totalPrice
+      return pricePerPlayer
+    }
+  }
+
   const isSlotSelected = (courtIndex, hourIndex) => {
     // Usar showSelectionOverlay cuando el modal está abierto
     if (!isDragging && !showSelectionOverlay) {
@@ -1545,17 +1569,23 @@ function ClubPanel() {
           </div>
           {tooltip.reservation.players && tooltip.reservation.players.length > 0 ? (
             <div>
-              {tooltip.reservation.players.map((player, index) => (
-                <div key={index} style={{ marginBottom: '3px' }}>
-                  {player || '-'}
-                </div>
-              ))}
+              {tooltip.reservation.players.map((player, index) => {
+                const pricePerPlayer = calculatePriceForTooltip(tooltip.reservation)
+                return (
+                  <div key={index} style={{ marginBottom: '3px' }}>
+                    {player || '-'} - ${Math.round(pricePerPlayer)}
+                  </div>
+                )
+              })}
             </div>
           ) : (
             <div>Sin jugadores</div>
           )}
           <div style={{ marginTop: '5px', fontSize: '11px', color: '#666' }}>
             {tooltip.reservation.notes || ''}
+          </div>
+          <div style={{ marginTop: '5px', fontSize: '11px', color: tooltip.reservation.payment_status === 'paid' ? '#10B981' : '#EF4444', fontWeight: 'bold' }}>
+            {tooltip.reservation.payment_status === 'paid' ? 'Pagado' : 'No pagado'}
           </div>
         </div>
       )}
