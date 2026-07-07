@@ -1379,11 +1379,26 @@ function ClubPanel() {
                       const day1 = parseInt(config.operating_hours_end) * 60
                       const range = day1 - day0
 
-                      // Ajustar cálculo de posición para alinear con las líneas de hora
-                      // El sistema viejo usa posición porcentual desde el inicio del día
-                      const top = ((s - day0) / range) * 100
-                      const bottom = ((e - day0) / range) * 100
+                      // Usar cálculo exacto del sistema viejo
+                      const top = ((Math.max(s, day0) - day0) / range) * 100
+                      const bottom = ((Math.min(e, day1) - day0) / range) * 100
                       const h = Math.max(0, bottom - top)
+
+                      // Debug log para ver los valores calculados
+                      if (r.start_time === '10:00' && r.end_time === '11:00') {
+                        console.log('=== DEBUG RESERVATION 10:00-11:00 ===')
+                        console.log('start_time:', r.start_time)
+                        console.log('end_time:', r.end_time)
+                        console.log('s (minutes):', s)
+                        console.log('e (minutes):', e)
+                        console.log('day0:', day0)
+                        console.log('day1:', day1)
+                        console.log('range:', range)
+                        console.log('top (%):', top)
+                        console.log('bottom (%):', bottom)
+                        console.log('height (%):', h)
+                        console.log('=== END DEBUG ===')
+                      }
 
                       const type = r.reservation_type || 'normal'
                       const backgroundColor = type === 'class' ? '#8B5CF6' : type === 'auto_match' ? '#3B82F6' : '#10B981'
