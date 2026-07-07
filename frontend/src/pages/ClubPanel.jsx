@@ -512,7 +512,7 @@ function ClubPanel() {
       if (s == null || e == null) return 0
 
       const durationHours = (e - s) / 60
-      const hourlyPrice = config.hourly_price_normal || 1000
+      const hourlyPrice = config.hourly_price_normal || 220
       const totalPrice = hourlyPrice * durationHours
       const pricePerPlayer = playerCount > 0 ? totalPrice / playerCount : totalPrice
 
