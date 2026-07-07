@@ -1316,15 +1316,23 @@ function ClubPanel() {
             <div style={{ minWidth: '60px', borderRight: '1px solid #333', backgroundColor: '#1a1a1a' }}>
               {/* Header vacío para alinear con header de canchas */}
               <div style={{ padding: '15px', borderBottom: '1px solid #333', backgroundColor: '#1a1a1a' }}></div>
-              {/* Columna de horarios */}
-              {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
-                const hour = parseInt(config.operating_hours_start) + i
-                return (
-                  <div key={hour} style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
-                    {hour}:00
-                  </div>
-                )
-              })}
+              {/* Columna de horarios - posición porcentual como sistema viejo */}
+              <div style={{ position: 'relative', height: `${(parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 60}px` }}>
+                {Array.from({ length: parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start) }, (_, i) => {
+                  const hour = parseInt(config.operating_hours_start) + i
+                  const day0 = parseInt(config.operating_hours_start) * 60
+                  const day1 = parseInt(config.operating_hours_end) * 60
+                  const range = day1 - day0
+                  const hourMins = hour * 60
+                  const top = ((hourMins - day0) / range) * 100
+                  const height = (60 / range) * 100
+                  return (
+                    <div key={hour} style={{ position: 'absolute', top: `${top}%`, height: `${height}%`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#fff', fontWeight: 'bold' }}>
+                      {hour}:00
+                    </div>
+                  )
+                })}
+              </div>
             </div>
             
             <div style={{ flex: 1, display: 'grid', gridTemplateColumns: `repeat(${config.court_count}, 1fr)`, backgroundColor: '#2d2d2d' }}>
@@ -1337,16 +1345,22 @@ function ClubPanel() {
                   <div style={{ padding: '5px', textAlign: 'center', fontWeight: 'bold', borderBottom: '1px solid #333', backgroundColor: '#2d2d2d', color: '#fff' }}>
                     Cancha {courtIndex + 1}
                   </div>
-                  {/* Contenedor de slots con overlay */}
+                  {/* Contenedor de slots con overlay - altura fija como sistema viejo */}
                   <div
                     ref={(el) => courtRefs.current[courtIndex] = el}
-                    style={{ position: 'relative', backgroundColor: '#2d2d2d' }}
+                    style={{ position: 'relative', backgroundColor: '#2d2d2d', height: `${(parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 60}px` }}
                   >
                     {/* Overlay de iluminación progresiva */}
                     <div style={getDragOverlayStyle(courtIndex, courtRefs.current[courtIndex])}></div>
-                    {/* Grid de slots para interacción */}
+                    {/* Grid de slots para interacción - posición porcentual como sistema viejo */}
                     {Array.from({ length: (parseInt(config.operating_hours_end) - parseInt(config.operating_hours_start)) * 2 }, (_, slotIndex) => {
-                    const hour = parseInt(config.operating_hours_start) + Math.floor(slotIndex / 2)
+                    const day0 = parseInt(config.operating_hours_start) * 60
+                    const day1 = parseInt(config.operating_hours_end) * 60
+                    const range = day1 - day0
+                    const slot = 30 // 30 minutos por slot
+                    const slotMins = day0 + slotIndex * slot
+                    const top = ((slotMins - day0) / range) * 100
+                    const height = (slot / range) * 100
                     const isHalfHour = slotIndex % 2 === 1
                     const isSelected = isSlotSelected(courtIndex, slotIndex)
                     return (
@@ -1356,10 +1370,13 @@ function ClubPanel() {
                         onMouseMove={(e) => handleSlotMouseMove(courtIndex, slotIndex, e)}
                         onMouseUp={() => handleSlotMouseUp(courtIndex, slotIndex)}
                         style={{
-                          height: '30px',
+                          position: 'absolute',
+                          top: `${top}%`,
+                          height: `${height}%`,
+                          left: 0,
+                          right: 0,
                           borderBottom: isHalfHour ? '1px solid #333' : '3px solid #555',
                           borderRight: 'none',
-                          position: 'relative',
                           cursor: 'pointer',
                           backgroundColor: '#2d2d2d',
                           WebkitTapHighlightColor: 'transparent',
