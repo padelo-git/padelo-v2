@@ -493,6 +493,12 @@ function ClubPanel() {
     const type = reservation.reservation_type || (reservation.notes && reservation.notes.includes('Clase') ? 'class' : 'normal')
     const playerCount = reservation.players ? reservation.players.filter(p => p && p.trim() !== '').length : 0
 
+    console.log('=== DEBUG PRICE CALCULATION ===')
+    console.log('reservation:', reservation)
+    console.log('type:', type)
+    console.log('playerCount:', playerCount)
+    console.log('config.hourly_price_normal:', config.hourly_price_normal)
+
     if (type === 'class') {
       // Precio de clase según configuración
       if (playerCount <= 2) return config.lesson_1_2_players_price || 800
@@ -509,6 +515,15 @@ function ClubPanel() {
       const hourlyPrice = config.hourly_price_normal || 1000
       const totalPrice = hourlyPrice * durationHours
       const pricePerPlayer = playerCount > 0 ? totalPrice / playerCount : totalPrice
+
+      console.log('s (minutes):', s)
+      console.log('e (minutes):', e)
+      console.log('durationHours:', durationHours)
+      console.log('hourlyPrice:', hourlyPrice)
+      console.log('totalPrice:', totalPrice)
+      console.log('pricePerPlayer:', pricePerPlayer)
+      console.log('=== END DEBUG ===')
+
       return pricePerPlayer
     }
   }
