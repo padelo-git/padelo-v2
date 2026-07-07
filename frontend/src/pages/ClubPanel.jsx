@@ -1336,6 +1336,8 @@ function ClubPanel() {
             </div>
             
             <div style={{ flex: 1, display: 'grid', gridTemplateColumns: `repeat(${config.court_count}, 1fr)`, backgroundColor: '#2d2d2d' }}>
+              {/* Header vacío para alinear con header de horarios */}
+              <div style={{ gridColumn: `1 / -1`, padding: '15px', borderBottom: '1px solid #333', backgroundColor: '#2d2d2d' }}></div>
               {/* Columnas de canchas */}
               {Array.from({ length: config.court_count }, (_, courtIndex) => (
                 <div 
