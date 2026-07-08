@@ -797,7 +797,7 @@ function ClubPanel() {
           // Solo generar pago si el jugador tiene nombre y método de pago seleccionado
           if (playerName && playerName.trim() !== '' && payment && payment.method) {
             console.log(`Generating payment for player ${index}: ${playerName} with method ${payment.method}`)
-            await api.post(`/clubs/${club.id}/payments`, {
+            await api.post(`/payments`, {
               user_id: null, // TODO: Implementar sistema de usuarios
               amount: reservation.price / reservation.players.length,
               method: payment.method,
