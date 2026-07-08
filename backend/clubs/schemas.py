@@ -134,6 +134,7 @@ class ReservationUpdate(BaseModel):
     status: Optional[str] = None
     price: Optional[int] = None
     notes: Optional[str] = None
+    players: Optional[Any] = None
 
 
 class ReservationResponse(ReservationBase):
