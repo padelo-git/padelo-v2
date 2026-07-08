@@ -631,9 +631,9 @@ async def delete_reservation(reservation_id: int, current_club: Club = Depends(g
 
 # Payment endpoints
 @router.get("/payments")
-async def get_payments(current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
-    """Get all payments for the authenticated club"""
-    result = await db.execute(select(Payment).where(Payment.club_id == current_club.id))
+async def get_payments(current_user: User = Depends(get_current_club_admin), db: AsyncSession = Depends(get_db)):
+    """Get all payments for the authenticated club admin"""
+    result = await db.execute(select(Payment).where(Payment.club_id == current_user.club_id))
     payments = result.scalars().all()
     
     return [
@@ -650,10 +650,10 @@ async def get_payments(current_club: Club = Depends(get_current_club), db: Async
 
 
 @router.post("/payments")
-async def create_payment(payment_data: dict, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
-    """Create a new payment for the authenticated club"""
+async def create_payment(payment_data: dict, current_user: User = Depends(get_current_club_admin), db: AsyncSession = Depends(get_db)):
+    """Create a new payment for the authenticated club admin"""
     payment = Payment(
-        club_id=current_club.id,
+        club_id=current_user.club_id,
         user_id=payment_data.get("user_id"),
         amount=payment_data.get("amount"),
         method=payment_data.get("method"),
