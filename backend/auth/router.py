@@ -67,7 +67,12 @@ async def login_user(request: Request, user_credentials: UserLogin, db: AsyncSes
     # Create access token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user_row[1], "user_id": user_row[0]},
+        data={
+            "sub": user_row[1], 
+            "user_id": user_row[0],
+            "is_club_admin": user_row[6] if user_row[6] else False,
+            "club_id": user_row[7]
+        },
         expires_delta=access_token_expires
     )
     
