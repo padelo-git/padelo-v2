@@ -1767,7 +1767,7 @@ function ClubPanel() {
                             )}
                           </div>
                           <div style={{ marginLeft: '10px' }}>
-                            {playerPayments[index] ? (
+                            {playerPayments[index] && playerPayments[index].method ? (
                               <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                                 <span style={{ color: '#10B981', fontSize: '12px', fontWeight: 'bold' }}>
                                   {playerPayments[index].method === 'efectivo' ? '💵 Efectivo' :
@@ -1779,6 +1779,33 @@ function ClubPanel() {
                                 <button
                                   onClick={() => setPlayerPayments({...playerPayments, [index]: null})}
                                   style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ) : playerPayments[index] && playerPayments[index].method === null ? (
+                              <div style={{ display: 'flex', gap: '5px' }}>
+                                <button
+                                  onClick={() => setPlayerPayments({...playerPayments, [index]: { method: 'efectivo' } })}
+                                  style={{ padding: '5px 10px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
+                                >
+                                  💵
+                                </button>
+                                <button
+                                  onClick={() => setPlayerPayments({...playerPayments, [index]: { method: 'transferencia' } })}
+                                  style={{ padding: '5px 10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
+                                >
+                                  🏦
+                                </button>
+                                <button
+                                  onClick={() => setPlayerPayments({...playerPayments, [index]: { method: 'tarjeta' } })}
+                                  style={{ padding: '5px 10px', backgroundColor: '#6f42c1', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
+                                >
+                                  💳
+                                </button>
+                                <button
+                                  onClick={() => setPlayerPayments({...playerPayments, [index]: null})}
+                                  style={{ padding: '5px 10px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
                                 >
                                   ✕
                                 </button>
@@ -1797,50 +1824,6 @@ function ClubPanel() {
                     })}
                   </div>
                 </div>
-
-                {Object.keys(playerPayments).some(key => playerPayments[key] && playerPayments[key].method === null) && (
-                  <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
-                    <h4 style={{ color: '#fff', marginBottom: '15px' }}>Seleccionar método de pago</h4>
-                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                      <button
-                        onClick={() => {
-                          const playerIndex = Object.keys(playerPayments).find(key => playerPayments[key] && playerPayments[key].method === null)
-                          setPlayerPayments({...playerPayments, [playerIndex]: { method: 'efectivo' }})
-                        }}
-                        style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-                      >
-                        💵 Efectivo
-                      </button>
-                      <button
-                        onClick={() => {
-                          const playerIndex = Object.keys(playerPayments).find(key => playerPayments[key] && playerPayments[key].method === null)
-                          setPlayerPayments({...playerPayments, [playerIndex]: { method: 'transferencia' }})
-                        }}
-                        style={{ padding: '10px 20px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-                      >
-                        🏦 Transferencia
-                      </button>
-                      <button
-                        onClick={() => {
-                          const playerIndex = Object.keys(playerPayments).find(key => playerPayments[key] && playerPayments[key].method === null)
-                          setPlayerPayments({...playerPayments, [playerIndex]: { method: 'tarjeta' }})
-                        }}
-                        style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-                      >
-                        💳 Tarjeta
-                      </button>
-                      <button
-                        onClick={() => {
-                          const playerIndex = Object.keys(playerPayments).find(key => playerPayments[key] && playerPayments[key].method === null)
-                          setPlayerPayments({...playerPayments, [playerIndex]: { method: 'club' }})
-                        }}
-                        style={{ padding: '10px 20px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-                      >
-                        🏟️ Club
-                      </button>
-                    </div>
-                  </div>
-                )}
 
                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                   <button
