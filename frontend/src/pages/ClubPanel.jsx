@@ -781,21 +781,27 @@ function ClubPanel() {
   const handleGeneratePayments = async (reservation) => {
     try {
       const token = localStorage.getItem('token')
-      
-      // Generar pagos para cada jugador
+
+      // Generar pagos solo para jugadores con método de pago seleccionado
       if (reservation.players && reservation.players.length > 0) {
-        for (const playerName of reservation.players) {
-          await api.post(`/clubs/${club.id}/payments`, {
-            user_id: null, // TODO: Implementar sistema de usuarios
-            amount: reservation.price / reservation.players.length,
-            method: 'sistema',
-            description: `Pago de reserva: ${playerName}`
-          }, {
-            headers: { Authorization: `Bearer ${token}` }
-          })
+        for (let index = 0; index < reservation.players.length; index++) {
+          const playerName = reservation.players[index]
+          const payment = playerPayments[index]
+
+          // Solo generar pago si el jugador tiene nombre y método de pago seleccionado
+          if (playerName && playerName.trim() !== '' && payment && payment.method) {
+            await api.post(`/clubs/${club.id}/payments`, {
+              user_id: null, // TODO: Implementar sistema de usuarios
+              amount: reservation.price / reservation.players.length,
+              method: payment.method,
+              description: `Pago de reserva: ${playerName}`
+            }, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+          }
         }
       }
-      
+
       alert('Pagos generados exitosamente')
       closeModal()
       fetchPayments()
