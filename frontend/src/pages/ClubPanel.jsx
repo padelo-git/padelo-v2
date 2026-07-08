@@ -731,7 +731,10 @@ function ClubPanel() {
 
     try {
       const token = localStorage.getItem('token')
-      console.log('Token:', token ? 'Token exists' : 'No token')
+      console.log('=== DELETE RESERVATION DEBUG ===')
+      console.log('Token exists:', !!token)
+      console.log('Token length:', token?.length || 0)
+      console.log('Token (first 50 chars):', token?.substring(0, 50) || 'No token')
       console.log('Deleting reservation ID:', reservationId)
 
       await api.delete(`/clubs/reservations/${reservationId}`, {
@@ -741,6 +744,7 @@ function ClubPanel() {
       closeModal()
       fetchReservationsForDate(selectedDate)
     } catch (err) {
+      console.error('=== DELETE RESERVATION ERROR ===')
       console.error('Error deleting reservation:', err)
       console.error('Error response:', err.response)
       console.error('Error status:', err.response?.status)
