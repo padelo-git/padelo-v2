@@ -848,7 +848,7 @@ function ClubPanel() {
   const fetchPayments = async () => {
     if (!club) return
     try {
-      const response = await api.get(`/clubs/${club.id}/payments`)
+      const response = await api.get(`/clubs/payments`)
       setPayments(response.data)
     } catch (err) {
       console.error('Error fetching payments:', err)
