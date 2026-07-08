@@ -1676,15 +1676,27 @@ function ClubPanel() {
                     <strong>Horario:</strong> {selectedReservation.start_time} - {selectedReservation.end_time}
                   </p>
                   <p style={{ color: '#fff', fontSize: '14px', marginBottom: '10px' }}>
-                    <strong>Jugadores:</strong> {selectedReservation.players && selectedReservation.players.length > 0 
-                      ? selectedReservation.players.join(', ') 
+                    <strong>Jugadores:</strong> {selectedReservation.players && selectedReservation.players.length > 0
+                      ? selectedReservation.players.join(', ')
                       : (selectedReservation.notes || 'Sin jugadores')}
+                  </p>
+                  <p style={{ color: '#fff', fontSize: '14px', marginBottom: '10px' }}>
+                    <strong>Teléfono:</strong> {selectedReservation.phone || 'No especificado'}
+                  </p>
+                  <p style={{ color: '#fff', fontSize: '14px', marginBottom: '10px' }}>
+                    <strong>Estado de Pago:</strong> {selectedReservation.payment_status === 'paid' ? 'Pagado' : 'No pagado'}
+                  </p>
+                  <p style={{ color: '#fff', fontSize: '14px', marginBottom: '10px' }}>
+                    <strong>Precio:</strong> ${selectedReservation.price || 'N/A'}
+                  </p>
+                  <p style={{ color: '#fff', fontSize: '14px', marginBottom: '10px' }}>
+                    <strong>Origen:</strong> {selectedReservation.origin || 'Manual'}
                   </p>
                   <p style={{ color: '#fff', fontSize: '14px' }}>
                     <strong>Notas:</strong> {selectedReservation.notes || 'Sin notas'}
                   </p>
                 </div>
-                
+
                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                   <button
                     onClick={closeModal}
