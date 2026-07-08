@@ -151,6 +151,9 @@ function ClubPanel() {
     y: 0,
     reservation: null
   })
+
+  // Estado para manejar pagos por jugador en el modal
+  const [playerPayments, setPlayerPayments] = useState({})
   
   // Estado para el modal de reserva
   const [reservationType, setReservationType] = useState('normal')
@@ -462,6 +465,7 @@ function ClubPanel() {
 
   const handleViewReservation = (reservation) => {
     setSelectedReservation(reservation)
+    setPlayerPayments({})
     setShowReservationModal(true)
   }
 
@@ -1665,7 +1669,7 @@ function ClubPanel() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ backgroundColor: '#1a1a1a', padding: '30px', borderRadius: '10px', width: '90%', maxWidth: '500px', border: '1px solid #333' }}>
             <h3 style={{ marginBottom: '20px', color: '#fff' }}>
-              {selectedReservation ? 'Editar Reserva' : 'Crear Reserva'}
+              {selectedReservation ? 'Detalle de Reserva' : 'Crear Reserva'}
             </h3>
             
             {selectedReservation ? (
@@ -1676,15 +1680,7 @@ function ClubPanel() {
                     <strong>Horario:</strong> {selectedReservation.start_time} - {selectedReservation.end_time}
                   </p>
                   <p style={{ color: '#fff', fontSize: '14px', marginBottom: '10px' }}>
-                    <strong>Jugadores:</strong> {selectedReservation.players && selectedReservation.players.length > 0
-                      ? selectedReservation.players.join(', ')
-                      : (selectedReservation.notes || 'Sin jugadores')}
-                  </p>
-                  <p style={{ color: '#fff', fontSize: '14px', marginBottom: '10px' }}>
                     <strong>Teléfono:</strong> {selectedReservation.phone || 'No especificado'}
-                  </p>
-                  <p style={{ color: '#fff', fontSize: '14px', marginBottom: '10px' }}>
-                    <strong>Estado de Pago:</strong> {selectedReservation.payment_status === 'paid' ? 'Pagado' : 'No pagado'}
                   </p>
                   <p style={{ color: '#fff', fontSize: '14px', marginBottom: '10px' }}>
                     <strong>Precio:</strong> ${selectedReservation.price || 'N/A'}
@@ -1697,12 +1693,108 @@ function ClubPanel() {
                   </p>
                 </div>
 
+                <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
+                  <h4 style={{ color: '#fff', marginBottom: '15px' }}>Jugadores y Pagos</h4>
+                  {selectedReservation.players && selectedReservation.players.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {selectedReservation.players.map((player, index) => (
+                        <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: '#1a1a1a', borderRadius: '5px' }}>
+                          <div style={{ flex: 1 }}>
+                            <span style={{ color: '#fff', fontSize: '14px' }}>{player || `Jugador ${index + 1}`}</span>
+                          </div>
+                          <div style={{ marginLeft: '10px' }}>
+                            {playerPayments[index] ? (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <span style={{ color: '#10B981', fontSize: '12px', fontWeight: 'bold' }}>
+                                  {playerPayments[index].method === 'efectivo' ? '💵 Efectivo' :
+                                   playerPayments[index].method === 'transferencia' ? '🏦 Transferencia' :
+                                   playerPayments[index].method === 'tarjeta' ? '💳 Tarjeta' :
+                                   playerPayments[index].method === 'sistema' ? '📱 Sistema' :
+                                   playerPayments[index].method === 'club' ? '🏟️ Club' : 'Pagado'}
+                                </span>
+                                <button
+                                  onClick={() => setPlayerPayments({...playerPayments, [index]: null})}
+                                  style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => setPlayerPayments({...playerPayments, [index]: { method: null } })}
+                                style={{ padding: '5px 10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+                              >
+                                💳 Pagar
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p style={{ color: '#ccc', fontSize: '14px' }}>Sin jugadores</p>
+                  )}
+                </div>
+
+                {Object.keys(playerPayments).some(key => playerPayments[key] && playerPayments[key].method === null) && (
+                  <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
+                    <h4 style={{ color: '#fff', marginBottom: '15px' }}>Seleccionar método de pago</h4>
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                      <button
+                        onClick={() => {
+                          const playerIndex = Object.keys(playerPayments).find(key => playerPayments[key] && playerPayments[key].method === null)
+                          setPlayerPayments({...playerPayments, [playerIndex]: { method: 'efectivo' }})
+                        }}
+                        style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                      >
+                        💵 Efectivo
+                      </button>
+                      <button
+                        onClick={() => {
+                          const playerIndex = Object.keys(playerPayments).find(key => playerPayments[key] && playerPayments[key].method === null)
+                          setPlayerPayments({...playerPayments, [playerIndex]: { method: 'transferencia' }})
+                        }}
+                        style={{ padding: '10px 20px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                      >
+                        🏦 Transferencia
+                      </button>
+                      <button
+                        onClick={() => {
+                          const playerIndex = Object.keys(playerPayments).find(key => playerPayments[key] && playerPayments[key].method === null)
+                          setPlayerPayments({...playerPayments, [playerIndex]: { method: 'tarjeta' }})
+                        }}
+                        style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                      >
+                        💳 Tarjeta
+                      </button>
+                      <button
+                        onClick={() => {
+                          const playerIndex = Object.keys(playerPayments).find(key => playerPayments[key] && playerPayments[key].method === null)
+                          setPlayerPayments({...playerPayments, [playerIndex]: { method: 'club' }})
+                        }}
+                        style={{ padding: '10px 20px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                      >
+                        🏟️ Club
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                   <button
                     onClick={closeModal}
                     style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                   >
                     Cerrar
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedReservation(null)
+                      setShowReservationModal(true)
+                    }}
+                    style={{ padding: '10px 20px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                  >
+                    ✏️ Editar Reserva
                   </button>
                   <button
                     onClick={() => handleDeleteReservation(selectedReservation.id)}
