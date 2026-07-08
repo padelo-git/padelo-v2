@@ -92,6 +92,7 @@ class Reservation(Base):
     price = Column(Integer)
     notes = Column(Text)
     players = Column(JSON, nullable=True)  # Array of player names
+    payment_status = Column(String, default="unpaid")  # unpaid, paid
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
