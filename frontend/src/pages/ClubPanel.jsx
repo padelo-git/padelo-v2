@@ -782,6 +782,9 @@ function ClubPanel() {
     try {
       const token = localStorage.getItem('token')
       console.log('=== GENERATE PAYMENTS DEBUG ===')
+      console.log('Token exists:', !!token)
+      console.log('Token length:', token?.length || 0)
+      console.log('Token (first 50 chars):', token?.substring(0, 50) || 'No token')
       console.log('Reservation:', reservation)
       console.log('PlayerPayments:', playerPayments)
       console.log('Club ID:', club?.id)
