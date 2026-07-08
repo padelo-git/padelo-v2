@@ -158,10 +158,10 @@ function ClubPanel() {
   // Estado para el modal de reserva
   const [reservationType, setReservationType] = useState('normal')
   const [players, setPlayers] = useState([
-    { name: '', paymentMethod: 'pendiente' },
-    { name: '', paymentMethod: 'pendiente' },
-    { name: '', paymentMethod: 'pendiente' },
-    { name: '', paymentMethod: 'pendiente' }
+    { name: '' },
+    { name: '' },
+    { name: '' },
+    { name: '' }
   ])
   const [calculatedPrice, setCalculatedPrice] = useState(0)
   const [selectedReservation, setSelectedReservation] = useState(null)
@@ -1695,12 +1695,25 @@ function ClubPanel() {
 
                 <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
                   <h4 style={{ color: '#fff', marginBottom: '15px' }}>Jugadores y Pagos</h4>
-                  {selectedReservation.players && selectedReservation.players.length > 0 ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      {selectedReservation.players.map((player, index) => (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {[0, 1, 2, 3].map((index) => {
+                      const player = selectedReservation.players && selectedReservation.players[index] ? selectedReservation.players[index] : ''
+                      const pricePerPlayer = selectedReservation.price ? (selectedReservation.price / (selectedReservation.players?.length || 4)).toFixed(0) : 0
+                      return (
                         <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: '#1a1a1a', borderRadius: '5px' }}>
                           <div style={{ flex: 1 }}>
-                            <span style={{ color: '#fff', fontSize: '14px' }}>{player || `Jugador ${index + 1}`}</span>
+                            <input
+                              type="text"
+                              value={player}
+                              onChange={(e) => {
+                                const newPlayers = [...(selectedReservation.players || ['', '', '', ''])]
+                                newPlayers[index] = e.target.value
+                                setSelectedReservation({...selectedReservation, players: newPlayers})
+                              }}
+                              placeholder={`Jugador ${index + 1}`}
+                              style={{ width: '100%', padding: '5px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '3px', color: '#fff', fontSize: '14px' }}
+                            />
+                            <span style={{ color: '#ccc', fontSize: '12px' }}>Precio: ${pricePerPlayer}</span>
                           </div>
                           <div style={{ marginLeft: '10px' }}>
                             {playerPayments[index] ? (
@@ -1729,11 +1742,9 @@ function ClubPanel() {
                             )}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p style={{ color: '#ccc', fontSize: '14px' }}>Sin jugadores</p>
-                  )}
+                      )
+                    })}
+                  </div>
                 </div>
 
                 {Object.keys(playerPayments).some(key => playerPayments[key] && playerPayments[key].method === null) && (
@@ -1844,9 +1855,9 @@ function ClubPanel() {
                 <div style={{ marginBottom: '20px' }}>
                   <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Jugadores</label>
                   {players.map((player, index) => (
-                    <div key={index} style={{ marginBottom: '10px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                      <input 
-                        type="text" 
+                    <div key={index} style={{ marginBottom: '10px' }}>
+                      <input
+                        type="text"
                         placeholder={`Nombre del jugador ${index + 1}`}
                         value={player.name}
                         onChange={(e) => {
@@ -1854,22 +1865,8 @@ function ClubPanel() {
                           newPlayers[index].name = e.target.value
                           setPlayers(newPlayers)
                         }}
-                        style={{ flex: 1, padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
+                        style={{ width: '100%', padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
                       />
-                      <select 
-                        style={{ padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff', fontSize: '12px', minWidth: '120px' }}
-                        value={player.paymentMethod}
-                        onChange={(e) => {
-                          const newPlayers = [...players]
-                          newPlayers[index].paymentMethod = e.target.value
-                          setPlayers(newPlayers)
-                        }}
-                      >
-                        <option value="pendiente">Pendiente</option>
-                        <option value="efectivo">Efectivo</option>
-                        <option value="club">Club</option>
-                        <option value="sistema">Sistema</option>
-                      </select>
                     </div>
                   ))}
                 </div>
