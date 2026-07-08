@@ -63,17 +63,24 @@ async def get_current_user(
     payload = decode_access_token(token)
     
     if payload is None:
+        print(f"DEBUG: Token decode failed")
         raise credentials_exception
+    
+    print(f"DEBUG: Token payload: {payload}")
     
     email: str = payload.get("sub")
     if email is None:
+        print(f"DEBUG: No 'sub' in token payload")
         raise credentials_exception
     
     result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
     
     if user is None:
+        print(f"DEBUG: User not found for email: {email}")
         raise credentials_exception
+    
+    print(f"DEBUG: User found: {user.email}, is_club_admin: {user.is_club_admin}, club_id: {user.club_id}")
     
     if not user.is_active:
         raise HTTPException(
@@ -106,11 +113,14 @@ async def get_current_admin_user(current_user: User = Depends(get_current_user))
 
 async def get_current_club_admin(current_user: User = Depends(get_current_user)) -> User:
     """Get current club admin user - requires is_club_admin or admin role"""
+    print(f"DEBUG: get_current_club_admin called - user: {current_user.email}, is_club_admin: {current_user.is_club_admin}, role: {current_user.role}")
     if not (current_user.is_club_admin or current_user.role == UserRole.ADMIN):
+        print(f"DEBUG: User not authorized - is_club_admin: {current_user.is_club_admin}, role: {current_user.role}")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to access club admin panel"
         )
+    print(f"DEBUG: User authorized as club admin")
     return current_user
 
 
