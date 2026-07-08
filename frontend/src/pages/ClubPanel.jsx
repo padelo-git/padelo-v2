@@ -731,6 +731,9 @@ function ClubPanel() {
 
     try {
       const token = localStorage.getItem('token')
+      console.log('Token:', token ? 'Token exists' : 'No token')
+      console.log('Deleting reservation ID:', reservationId)
+
       await api.delete(`/clubs/reservations/${reservationId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -742,6 +745,7 @@ function ClubPanel() {
       console.error('Error response:', err.response)
       console.error('Error status:', err.response?.status)
       console.error('Error data:', err.response?.data)
+      console.error('Error message:', err.message)
       alert(`Error al eliminar la reserva: ${err.response?.data?.detail || err.message}`)
     }
   }
