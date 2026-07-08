@@ -103,15 +103,15 @@ class Reservation(Base):
 
 class Payment(Base):
     __tablename__ = "payments"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     club_id = Column(Integer, ForeignKey("clubs.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Made nullable for manual club payments
     amount = Column(Numeric(10, 2), nullable=False)
     method = Column(String, nullable=False)  # card, cash, transfer
     description = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
+
     # Relationships
     club = relationship("Club")
     user = relationship("User")
