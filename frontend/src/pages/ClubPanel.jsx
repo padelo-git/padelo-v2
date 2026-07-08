@@ -2059,41 +2059,9 @@ function ClubPanel() {
       )}
 
       {activeTab === 'inicio' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
-          <div style={{ padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-            <h3 style={{ marginBottom: '15px' }}>Canchas ({courts.length})</h3>
-            {courts.length === 0 ? (
-              <p>No hay canchas registradas</p>
-            ) : (
-              <ul style={{ listStyle: 'none' }}>
-                {courts.map(court => (
-                  <li key={court.id} style={{ padding: '10px', marginBottom: '10px', backgroundColor: '#2d2d2d', borderRadius: '5px' }}>
-                    <strong>{court.name}</strong>
-                    <p style={{ fontSize: '14px', color: '#ccc' }}>Número: {court.number}</p>
-                    <p style={{ fontSize: '14px', color: '#ccc' }}>Superficie: {court.surface || 'Sin especificar'}</p>
-                    <p style={{ fontSize: '14px', color: '#ccc' }}>{court.is_indoor ? 'Techada' : 'Al aire libre'}</p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div style={{ padding: '20px', backgroundColor: '#1a1a1a', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-            <h3 style={{ marginBottom: '15px' }}>Reservas ({reservations.length})</h3>
-            {reservations.length === 0 ? (
-              <p>No hay reservas pendientes</p>
-            ) : (
-              <ul style={{ listStyle: 'none' }}>
-                {reservations.map(reservation => (
-                  <li key={reservation.id} style={{ padding: '10px', marginBottom: '10px', backgroundColor: '#2d2d2d', borderRadius: '5px' }}>
-                    <strong>Reserva #{reservation.id}</strong>
-                    <p style={{ fontSize: '14px', color: '#ccc' }}>{reservation.date} - {reservation.start_time}</p>
-                    <p style={{ fontSize: '14px', color: '#ccc' }}>Precio: ${reservation.price || 'N/A'}</p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+        <div style={{ padding: '30px', backgroundColor: '#2a2a2a', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}>
+          <h2 style={{ marginBottom: '20px', color: '#ffffff' }}>🏠 Inicio</h2>
+          <p style={{ color: '#cccccc' }}>Próximamente...</p>
         </div>
       )}
     </div>
