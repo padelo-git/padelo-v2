@@ -135,6 +135,7 @@ class ReservationUpdate(BaseModel):
     price: Optional[int] = None
     notes: Optional[str] = None
     players: Optional[Any] = None
+    payment_status: Optional[str] = None
 
 
 class ReservationResponse(ReservationBase):
@@ -144,6 +145,7 @@ class ReservationResponse(ReservationBase):
     status: Optional[str] = None
     reservation_type: Optional[str] = None
     players: Optional[Any] = None
+    payment_status: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
