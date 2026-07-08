@@ -802,6 +802,7 @@ function ClubPanel() {
             console.log(`Generating payment for player ${index}: ${playerName} with method ${payment.method}`)
             await api.post(`/clubs/payments`, {
               user_id: null, // TODO: Implementar sistema de usuarios
+              reservation_id: reservation.id, // Vincular pago a la reserva como en el sistema viejo
               amount: reservation.price / reservation.players.length,
               method: payment.method,
               description: `Pago de reserva: ${playerName}`
@@ -814,12 +815,8 @@ function ClubPanel() {
         }
       }
 
-      // Actualizar estado de pago de la reserva a 'paid'
-      await api.put(`/clubs/reservations/${reservation.id}`, {
-        payment_status: 'paid'
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      // El backend ahora calcula automáticamente el estado de pago basándose en los pagos
+      // No necesitamos actualizar manualmente el estado de pago
 
       alert('Pagos generados exitosamente')
       closeModal()

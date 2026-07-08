@@ -108,6 +108,7 @@ class Payment(Base):
     id = Column(Integer, primary_key=True, index=True)
     club_id = Column(Integer, ForeignKey("clubs.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Made nullable for manual club payments
+    reservation_id = Column(Integer, ForeignKey("reservations.id"), nullable=True)  # Link to reservation
     amount = Column(Numeric(10, 2), nullable=False)
     method = Column(String, nullable=False)  # card, cash, transfer
     description = Column(Text)
@@ -116,6 +117,7 @@ class Payment(Base):
     # Relationships
     club = relationship("Club")
     user = relationship("User")
+    reservation = relationship("Reservation")
 
 
 class Debt(Base):

@@ -655,6 +655,7 @@ async def create_payment(payment_data: dict, current_user: User = Depends(get_cu
     payment = Payment(
         club_id=current_user.club_id,
         user_id=payment_data.get("user_id"),
+        reservation_id=payment_data.get("reservation_id"),
         amount=payment_data.get("amount"),
         method=payment_data.get("method"),
         description=payment_data.get("description")
@@ -664,14 +665,58 @@ async def create_payment(payment_data: dict, current_user: User = Depends(get_cu
     await db.commit()
     await db.refresh(payment)
     
+    # Si el pago está vinculado a una reserva, actualizar el estado de pago de la reserva
+    if payment.reservation_id:
+        await _update_reservation_payment_status(db, payment.reservation_id, current_user.club_id)
+    
     return {
         "id": payment.id,
         "user_id": payment.user_id,
+        "reservation_id": payment.reservation_id,
         "amount": float(payment.amount),
         "method": payment.method,
         "description": payment.description,
         "created_at": payment.created_at.isoformat() if payment.created_at else None
     }
+
+
+async def _update_reservation_payment_status(db: AsyncSession, reservation_id: int, club_id: int):
+    """Update the payment status of a reservation based on its payments (like the old system)"""
+    # Get all payments for this reservation
+    result = await db.execute(
+        select(Payment).where(
+            Payment.reservation_id == reservation_id,
+            Payment.club_id == club_id
+        )
+    )
+    payments = result.scalars().all()
+    
+    # Get the reservation
+    result = await db.execute(
+        select(Reservation).where(
+            Reservation.id == reservation_id,
+            Reservation.club_id == club_id
+        )
+    )
+    reservation = result.scalar_one_or_none()
+    
+    if not reservation:
+        return
+    
+    # Calculate total paid amount
+    total_paid = sum(float(p.amount) for p in payments)
+    reservation_price = float(reservation.price) if reservation.price else 0
+    
+    # Update payment status based on payments (like the old system)
+    if total_paid >= reservation_price and reservation_price > 0:
+        reservation.payment_status = "paid"
+    elif total_paid > 0:
+        reservation.payment_status = "partial"
+    else:
+        reservation.payment_status = "unpaid"
+    
+    await db.commit()
+    await db.refresh(reservation)
 
 
 # Debt endpoints
