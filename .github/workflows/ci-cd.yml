@@ -74,10 +74,12 @@ jobs:
           if [ "${{ env.ENVIRONMENT }}" == "preproduction" ]; then
             # Deploy to preproduction
             docker-compose -f docker-compose.preproduction.yml down --remove-orphans
+            docker system prune -f
             docker-compose -f docker-compose.preproduction.yml up -d --build
           else
             # Deploy to production
             docker-compose down --remove-orphans
+            docker system prune -f
             docker-compose up -d --build
           fi
           
