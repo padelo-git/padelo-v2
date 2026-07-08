@@ -80,6 +80,7 @@ jobs:
             # Deploy to production
             docker-compose down --remove-orphans
             docker rm -f $(docker ps -aq) 2>/dev/null || true
+            docker network rm padelo-v2_default 2>/dev/null || true
             docker system prune -f
             docker-compose up -d --build
           fi
