@@ -605,8 +605,8 @@ async def update_reservation(reservation_id: int, reservation_update: Reservatio
 
 
 @router.delete("/reservations/{reservation_id}")
-async def delete_reservation(reservation_id: int, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
-    """Delete reservation (only for the authenticated club)"""
+async def delete_reservation(reservation_id: int, current_user: User = Depends(get_current_club_admin), db: AsyncSession = Depends(get_db)):
+    """Delete reservation (only for the authenticated club admin)"""
     result = await db.execute(select(Reservation).where(Reservation.id == reservation_id))
     reservation = result.scalar_one_or_none()
     
@@ -617,7 +617,7 @@ async def delete_reservation(reservation_id: int, current_club: Club = Depends(g
         )
     
     # Verify that the reservation belongs to the authenticated club
-    if reservation.club_id != current_club.id:
+    if reservation.club_id != current_user.club_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only delete reservations belonging to your club"
