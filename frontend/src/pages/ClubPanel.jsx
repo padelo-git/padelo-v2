@@ -746,6 +746,30 @@ function ClubPanel() {
     }
   }
 
+  const handleUpdateReservation = async () => {
+    if (!selectedReservation) return
+
+    try {
+      const token = localStorage.getItem('token')
+      const updateData = {
+        players: selectedReservation.players || []
+      }
+
+      await api.put(`/clubs/reservations/${selectedReservation.id}`, updateData, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      alert('Reserva actualizada exitosamente')
+      closeModal()
+      fetchReservationsForDate(selectedDate)
+    } catch (err) {
+      console.error('Error updating reservation:', err)
+      console.error('Error response:', err.response)
+      console.error('Error status:', err.response?.status)
+      console.error('Error data:', err.response?.data)
+      alert(`Error al actualizar la reserva: ${err.response?.data?.detail || err.message}`)
+    }
+  }
+
   const handleGeneratePayments = async (reservation) => {
     try {
       const token = localStorage.getItem('token')
@@ -1824,6 +1848,12 @@ function ClubPanel() {
                     style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                   >
                     Cerrar
+                  </button>
+                  <button
+                    onClick={handleUpdateReservation}
+                    style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                  >
+                    💾 Guardar Cambios
                   </button>
                   <button
                     onClick={() => {
