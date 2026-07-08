@@ -558,9 +558,11 @@ async def get_reservations_by_date(club_id: int, date: str, db: AsyncSession = D
                 "start_time": r.start_time,
                 "end_time": r.end_time,
                 "status": r.status,
+                "reservation_type": r.reservation_type,
                 "price": r.price,
                 "notes": r.notes,
                 "players": r.players,
+                "payment_status": r.payment_status,
                 "created_at": r.created_at.isoformat() if r.created_at else None,
                 "updated_at": r.updated_at.isoformat() if r.updated_at else None
             })
