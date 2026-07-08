@@ -79,6 +79,7 @@ jobs:
           else
             # Deploy to production
             docker-compose down --remove-orphans
+            docker rm -f $(docker ps -aq) 2>/dev/null || true
             docker system prune -f
             docker-compose up -d --build
           fi
