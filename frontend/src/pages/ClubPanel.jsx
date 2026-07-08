@@ -157,6 +157,7 @@ function ClubPanel() {
   
   // Estado para el modal de reserva
   const [reservationType, setReservationType] = useState('normal')
+  const [selectedProfessor, setSelectedProfessor] = useState('')
   const [players, setPlayers] = useState([
     { name: '' },
     { name: '' },
@@ -691,7 +692,8 @@ function ClubPanel() {
         reservation_type: reservationType === 'clases' ? 'class' : 'normal',
         price: Math.round(price),
         notes: reservationType === 'clases' ? 'Clase' : 'Reserva normal',
-        players: players.filter(p => p.name.trim() !== '').map(p => p.name)
+        players: players.filter(p => p.name.trim() !== '').map(p => p.name),
+        professor: reservationType === 'clases' ? selectedProfessor : null
       }
 
       const response = await api.post('/clubs/reservations', reservationData, {
@@ -1679,6 +1681,11 @@ function ClubPanel() {
                   <p style={{ color: '#fff', fontSize: '14px', marginBottom: '10px' }}>
                     <strong>Horario:</strong> {selectedReservation.start_time} - {selectedReservation.end_time}
                   </p>
+                  {selectedReservation.reservation_type === 'class' && (
+                    <p style={{ color: '#fff', fontSize: '14px', marginBottom: '10px' }}>
+                      <strong>Profesor:</strong> {selectedReservation.professor || 'No especificado'}
+                    </p>
+                  )}
                   <p style={{ color: '#fff', fontSize: '14px', marginBottom: '10px' }}>
                     <strong>Teléfono:</strong> {selectedReservation.phone || 'No especificado'}
                   </p>
@@ -1698,7 +1705,23 @@ function ClubPanel() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {[0, 1, 2, 3].map((index) => {
                       const player = selectedReservation.players && selectedReservation.players[index] ? selectedReservation.players[index] : ''
-                      const pricePerPlayer = selectedReservation.price ? (selectedReservation.price / (selectedReservation.players?.length || 4)).toFixed(0) : 0
+                      const playerCount = selectedReservation.players?.filter(p => p && p.trim() !== '').length || 0
+                      let pricePerPlayer = 0
+
+                      if (selectedReservation.reservation_type === 'class') {
+                        // Cálculo para clases según configuración del club
+                        if (playerCount <= 2) {
+                          pricePerPlayer = (config.lesson_1_2_players_price || 800) / playerCount
+                        } else if (playerCount === 3) {
+                          pricePerPlayer = (config.lesson_3_players_price || 1200) / 3
+                        } else if (playerCount === 4) {
+                          pricePerPlayer = (config.lesson_4_players_price || 1400) / 4
+                        }
+                      } else {
+                        // Cálculo para reservas normales
+                        pricePerPlayer = selectedReservation.price ? (selectedReservation.price / (playerCount || 4)).toFixed(0) : 0
+                      }
+
                       return (
                         <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: '#1a1a1a', borderRadius: '5px' }}>
                           <div style={{ flex: 1 }}>
@@ -1713,7 +1736,7 @@ function ClubPanel() {
                               placeholder={`Jugador ${index + 1}`}
                               style={{ width: '100%', padding: '5px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '3px', color: '#fff', fontSize: '14px' }}
                             />
-                            <span style={{ color: '#ccc', fontSize: '12px' }}>Precio: ${pricePerPlayer}</span>
+                            <span style={{ color: '#ccc', fontSize: '12px' }}>Precio: ${Math.round(pricePerPlayer)}</span>
                           </div>
                           <div style={{ marginLeft: '10px' }}>
                             {playerPayments[index] ? (
@@ -1843,7 +1866,7 @@ function ClubPanel() {
                 )}
                 <div style={{ marginBottom: '20px' }}>
                   <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Tipo de Reserva</label>
-                  <select 
+                  <select
                     style={{ width: '100%', padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
                     value={reservationType}
                     onChange={(e) => setReservationType(e.target.value)}
@@ -1852,6 +1875,18 @@ function ClubPanel() {
                     <option value="clases">Clases</option>
                   </select>
                 </div>
+                {reservationType === 'clases' && (
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Profesor</label>
+                    <input
+                      type="text"
+                      value={selectedProfessor}
+                      onChange={(e) => setSelectedProfessor(e.target.value)}
+                      placeholder="Nombre del profesor"
+                      style={{ width: '100%', padding: '10px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', color: '#fff' }}
+                    />
+                  </div>
+                )}
                 <div style={{ marginBottom: '20px' }}>
                   <label style={{ display: 'block', marginBottom: '5px', color: '#fff' }}>Jugadores</label>
                   {players.map((player, index) => (
