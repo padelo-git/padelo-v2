@@ -682,6 +682,8 @@ async def create_payment(payment_data: dict, current_club: Club = Depends(get_cu
 
 async def _update_reservation_payment_status(db: AsyncSession, reservation_id: int, club_id: int):
     """Update the payment status of a reservation based on its payments (like the old system)"""
+    print(f"DEBUG: _update_reservation_payment_status called - reservation_id={reservation_id}, club_id={club_id}")
+    
     # Get all payments for this reservation
     result = await db.execute(
         select(Payment).where(
@@ -690,6 +692,7 @@ async def _update_reservation_payment_status(db: AsyncSession, reservation_id: i
         )
     )
     payments = result.scalars().all()
+    print(f"DEBUG: Found {len(payments)} payments for reservation {reservation_id}")
     
     # Get the reservation
     result = await db.execute(
@@ -701,22 +704,31 @@ async def _update_reservation_payment_status(db: AsyncSession, reservation_id: i
     reservation = result.scalar_one_or_none()
     
     if not reservation:
+        print(f"DEBUG: Reservation {reservation_id} not found")
         return
+    
+    print(f"DEBUG: Reservation found - price={reservation.price}, current payment_status={reservation.payment_status}")
     
     # Calculate total paid amount
     total_paid = sum(float(p.amount) for p in payments)
     reservation_price = float(reservation.price) if reservation.price else 0
     
+    print(f"DEBUG: total_paid={total_paid}, reservation_price={reservation_price}")
+    
     # Update payment status based on payments (like the old system)
     if total_paid >= reservation_price and reservation_price > 0:
         reservation.payment_status = "paid"
+        print(f"DEBUG: Setting payment_status to 'paid'")
     elif total_paid > 0:
         reservation.payment_status = "partial"
+        print(f"DEBUG: Setting payment_status to 'partial'")
     else:
         reservation.payment_status = "unpaid"
+        print(f"DEBUG: Setting payment_status to 'unpaid'")
     
     await db.commit()
     await db.refresh(reservation)
+    print(f"DEBUG: Payment status updated to {reservation.payment_status}")
 
 
 # Debt endpoints
