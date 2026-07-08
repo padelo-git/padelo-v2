@@ -814,9 +814,17 @@ function ClubPanel() {
         }
       }
 
+      // Actualizar estado de pago de la reserva a 'paid'
+      await api.put(`/clubs/reservations/${reservation.id}`, {
+        payment_status: 'paid'
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
       alert('Pagos generados exitosamente')
       closeModal()
       fetchPayments()
+      fetchReservationsForDate(selectedDate)
     } catch (err) {
       console.error('=== GENERATE PAYMENTS ERROR ===')
       console.error('Error generating payments:', err)
