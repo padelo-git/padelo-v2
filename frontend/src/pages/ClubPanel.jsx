@@ -1710,7 +1710,7 @@ function ClubPanel() {
 
                       if (selectedReservation.reservation_type === 'class') {
                         // Cálculo para clases según configuración del club
-                        if (playerCount <= 2) {
+                        if (playerCount <= 2 && playerCount > 0) {
                           pricePerPlayer = (config.lesson_1_2_players_price || 800) / playerCount
                         } else if (playerCount === 3) {
                           pricePerPlayer = (config.lesson_3_players_price || 1200) / 3
@@ -1719,7 +1719,9 @@ function ClubPanel() {
                         }
                       } else {
                         // Cálculo para reservas normales
-                        pricePerPlayer = selectedReservation.price ? (selectedReservation.price / (playerCount || 4)).toFixed(0) : 0
+                        if (selectedReservation.price && playerCount > 0) {
+                          pricePerPlayer = selectedReservation.price / playerCount
+                        }
                       }
 
                       return (
@@ -1736,7 +1738,9 @@ function ClubPanel() {
                               placeholder={`Jugador ${index + 1}`}
                               style={{ width: '100%', padding: '5px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '3px', color: '#fff', fontSize: '14px' }}
                             />
-                            <span style={{ color: '#ccc', fontSize: '12px' }}>Precio: ${Math.round(pricePerPlayer)}</span>
+                            {player && player.trim() !== '' && (
+                              <span style={{ color: '#ccc', fontSize: '12px' }}>Precio: ${Math.round(pricePerPlayer)}</span>
+                            )}
                           </div>
                           <div style={{ marginLeft: '10px' }}>
                             {playerPayments[index] ? (
