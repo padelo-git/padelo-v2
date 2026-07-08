@@ -781,6 +781,10 @@ function ClubPanel() {
   const handleGeneratePayments = async (reservation) => {
     try {
       const token = localStorage.getItem('token')
+      console.log('=== GENERATE PAYMENTS DEBUG ===')
+      console.log('Reservation:', reservation)
+      console.log('PlayerPayments:', playerPayments)
+      console.log('Club ID:', club?.id)
 
       // Generar pagos solo para jugadores con método de pago seleccionado
       if (reservation.players && reservation.players.length > 0) {
@@ -788,8 +792,11 @@ function ClubPanel() {
           const playerName = reservation.players[index]
           const payment = playerPayments[index]
 
+          console.log(`Player ${index}: name="${playerName}", payment=`, payment)
+
           // Solo generar pago si el jugador tiene nombre y método de pago seleccionado
           if (playerName && playerName.trim() !== '' && payment && payment.method) {
+            console.log(`Generating payment for player ${index}: ${playerName} with method ${payment.method}`)
             await api.post(`/clubs/${club.id}/payments`, {
               user_id: null, // TODO: Implementar sistema de usuarios
               amount: reservation.price / reservation.players.length,
@@ -798,6 +805,8 @@ function ClubPanel() {
             }, {
               headers: { Authorization: `Bearer ${token}` }
             })
+          } else {
+            console.log(`Skipping player ${index}: no name or no payment method`)
           }
         }
       }
@@ -806,7 +815,11 @@ function ClubPanel() {
       closeModal()
       fetchPayments()
     } catch (err) {
+      console.error('=== GENERATE PAYMENTS ERROR ===')
       console.error('Error generating payments:', err)
+      console.error('Error response:', err.response)
+      console.error('Error status:', err.response?.status)
+      console.error('Error data:', err.response?.data)
       alert('Error al generar los pagos')
     }
   }
