@@ -1578,10 +1578,6 @@ function ClubPanel() {
                             right: 0,
                             backgroundColor,
                             cursor: 'pointer',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
                             fontSize: '11px',
                             color: '#fff',
                             fontWeight: 'bold',
@@ -1592,8 +1588,24 @@ function ClubPanel() {
                             zIndex: 10
                           }}
                         >
-                          <div>{r.players && r.players.length > 0 ? r.players[0] : ''}</div>
-                          <div style={{ color: paymentStatusColor, fontSize: '10px' }}>{paymentStatusText}</div>
+                          <div style={{ position: 'absolute', top: '2px', left: '4px', fontSize: '11px', fontWeight: 'bold' }}>
+                            {r.players && r.players.length > 0 ? r.players[0] : ''}
+                          </div>
+                          <div
+                            style={{
+                              position: 'absolute',
+                              top: '2px',
+                              right: '4px',
+                              backgroundColor: paymentStatusColor,
+                              color: '#fff',
+                              padding: '2px 6px',
+                              borderRadius: '3px',
+                              fontSize: '9px',
+                              fontWeight: 'bold'
+                            }}
+                          >
+                            {paymentStatusText}
+                          </div>
                         </div>
                       )
                     })}
