@@ -576,8 +576,8 @@ async def get_reservations_by_date(club_id: int, date: str, db: AsyncSession = D
 
 
 @router.put("/reservations/{reservation_id}", response_model=ReservationResponse)
-async def update_reservation(reservation_id: int, reservation_update: ReservationUpdate, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
-    """Update reservation (only for the authenticated club)"""
+async def update_reservation(reservation_id: int, reservation_update: ReservationUpdate, current_user: User = Depends(get_current_club_admin), db: AsyncSession = Depends(get_db)):
+    """Update reservation (only for the authenticated club admin)"""
     result = await db.execute(select(Reservation).where(Reservation.id == reservation_id))
     reservation = result.scalar_one_or_none()
     
@@ -588,7 +588,7 @@ async def update_reservation(reservation_id: int, reservation_update: Reservatio
         )
     
     # Verify that the reservation belongs to the authenticated club
-    if reservation.club_id != current_club.id:
+    if reservation.club_id != current_user.club_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only update reservations belonging to your club"
