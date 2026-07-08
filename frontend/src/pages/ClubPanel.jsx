@@ -1560,6 +1560,8 @@ function ClubPanel() {
 
                       const type = r.reservation_type || (r.notes && r.notes.includes('Clase') ? 'class' : 'normal')
                       const backgroundColor = type === 'class' ? '#8B5CF6' : type === 'auto_match' ? '#3B82F6' : '#F97316'
+                      const paymentStatusColor = r.payment_status === 'paid' ? '#10B981' : '#EF4444'
+                      const paymentStatusText = r.payment_status === 'paid' ? 'Pagado' : 'No pagado'
 
                       return (
                         <div
@@ -1577,6 +1579,7 @@ function ClubPanel() {
                             backgroundColor,
                             cursor: 'pointer',
                             display: 'flex',
+                            flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
                             fontSize: '11px',
@@ -1589,7 +1592,8 @@ function ClubPanel() {
                             zIndex: 10
                           }}
                         >
-                          {r.players && r.players.length > 0 ? r.players.join(', ') : ''}
+                          <div>{r.players && r.players.length > 0 ? r.players[0] : ''}</div>
+                          <div style={{ color: paymentStatusColor, fontSize: '10px' }}>{paymentStatusText}</div>
                         </div>
                       )
                     })}
