@@ -82,6 +82,8 @@ jobs:
             docker rm -f $(docker ps -aq) 2>/dev/null || true
             docker network prune -f
             docker network rm padelo-v2_default 2>/dev/null || true
+            docker network disconnect -f padelo-v2_default $(docker ps -q) 2>/dev/null || true
+            docker network rm padelo-v2_default 2>/dev/null || true
             docker system prune -f
             docker-compose up -d --build
           fi
