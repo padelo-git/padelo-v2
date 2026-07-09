@@ -652,10 +652,10 @@ async def get_payments(current_user: User = Depends(get_current_club_admin), db:
 
 
 @router.post("/payments")
-async def create_payment(payment_data: dict, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
-    """Create a new payment for the authenticated club"""
+async def create_payment(payment_data: dict, current_user: User = Depends(get_current_club_admin), db: AsyncSession = Depends(get_db)):
+    """Create a new payment for the authenticated club admin"""
     payment = Payment(
-        club_id=current_club.id,
+        club_id=current_user.club_id,
         user_id=payment_data.get("user_id"),
         reservation_id=payment_data.get("reservation_id"),
         amount=payment_data.get("amount"),
@@ -669,7 +669,7 @@ async def create_payment(payment_data: dict, current_club: Club = Depends(get_cu
     
     # Si el pago está vinculado a una reserva, actualizar el estado de pago de la reserva
     if payment.reservation_id:
-        await _update_reservation_payment_status(db, payment.reservation_id, current_club.id)
+        await _update_reservation_payment_status(db, payment.reservation_id, current_user.club_id)
     
     return {
         "id": payment.id,
