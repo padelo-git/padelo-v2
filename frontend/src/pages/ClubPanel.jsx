@@ -467,45 +467,45 @@ function ClubPanel() {
   const handleViewReservation = async (reservation) => {
     setSelectedReservation(reservation)
     
-    // Cargar pagos existentes de la reserva
+    // Cargar participantes de pago de la reserva usando el nuevo endpoint
     try {
-      const response = await api.get(`/clubs/payments`)
-      const reservationPayments = response.data.filter(p => p.reservation_id === reservation.id)
+      const response = await api.get(`/clubs/reservations/${reservation.id}/participants`)
+      const participants = response.data
       
       console.log('=== DEBUG HANDLE VIEW RESERVATION ===')
       console.log('Reservation ID:', reservation.id)
-      console.log('Reservation payments:', reservationPayments)
+      console.log('Participants:', participants)
       console.log('Reservation players:', reservation.players)
       
-      // Mapear pagos a jugadores por índice
+      // Mapear participantes a jugadores por índice
       const playerPaymentsMap = {}
-      reservationPayments.forEach(payment => {
-        // Buscar el índice del jugador basado en la descripción del pago
-        const description = payment.description || ''
-        console.log(`Processing payment: description="${description}"`)
+      participants.forEach(participant => {
+        // Buscar índice del jugador (comparación case-insensitive)
+        const playerIndex = reservation.players?.findIndex(p => p?.toLowerCase() === participant.name.toLowerCase())
+        console.log(`Participant "${participant.name}" -> index: ${playerIndex}, status: ${participant.status}`)
         
-        if (description.includes('Pago de reserva:')) {
-          const playerName = description.replace('Pago de reserva:', '').trim()
-          console.log(`Extracted player name: "${playerName}"`)
-          
-          // Buscar índice del jugador (comparación case-insensitive)
-          const playerIndex = reservation.players?.findIndex(p => p?.toLowerCase() === playerName.toLowerCase())
-          console.log(`Player index for "${playerName}": ${playerIndex}`)
-          
-          if (playerIndex !== undefined && playerIndex >= 0) {
-            // Usar el último pago del jugador
-            playerPaymentsMap[playerIndex] = { method: payment.method }
-            console.log(`Mapped payment for player ${playerIndex}: ${payment.method}`)
+        if (playerIndex !== undefined && playerIndex >= 0) {
+          if (participant.status === 'paid') {
+            playerPaymentsMap[playerIndex] = { 
+              method: participant.payment_method,
+              status: 'paid'
+            }
+            console.log(`Mapped paid payment for player ${playerIndex}: ${participant.payment_method}`)
           } else {
-            console.log(`Could not find player "${playerName}" in reservation players`)
+            playerPaymentsMap[playerIndex] = { 
+              status: 'pending'
+            }
+            console.log(`Mapped pending payment for player ${playerIndex}`)
           }
+        } else {
+          console.log(`Could not find participant "${participant.name}" in reservation players`)
         }
       })
       
       console.log('Final player payments map:', playerPaymentsMap)
       setPlayerPayments(playerPaymentsMap)
     } catch (err) {
-      console.error('Error fetching reservation payments:', err)
+      console.error('Error fetching reservation participants:', err)
       setPlayerPayments({})
     }
     
@@ -831,7 +831,7 @@ function ClubPanel() {
       console.log('PlayerPayments:', playerPayments)
       console.log('Club ID:', club?.id)
 
-      // Generar pagos solo para jugadores con método de pago seleccionado
+      // Generar pagos solo para jugadores con método de pago seleccionado usando nueva estructura de participantes
       if (reservation.players && reservation.players.length > 0) {
         for (let index = 0; index < reservation.players.length; index++) {
           const playerName = reservation.players[index]
@@ -843,36 +843,27 @@ function ClubPanel() {
           if (playerName && playerName.trim() !== '' && payment && payment.method) {
             console.log(`Generating payment for player ${index}: ${playerName} with method ${payment.method}`)
             await api.post(`/clubs/payments`, {
-              user_id: null, // TODO: Implementar sistema de usuarios
-              reservation_id: reservation.id, // Vincular pago a la reserva como en el sistema viejo
+              reservation_id: reservation.id,
+              player_name: playerName, // Usar player_name para identificar participante
               amount: reservation.price / reservation.players.length,
-              method: payment.method,
-              description: `Pago de reserva: ${playerName}`
+              method: payment.method
             }, {
               headers: { Authorization: `Bearer ${token}` }
             })
+            
+            // Actualizar estado local inmediatamente
+            setPlayerPayments(prev => ({
+              ...prev,
+              [index]: { method: payment.method, status: 'paid' }
+            }))
           } else {
             console.log(`Skipping player ${index}: no name or no payment method`)
           }
         }
       }
 
-      // Actualizar el estado local de playerPayments para reflejar los pagos generados
-      const updatedPlayerPayments = {...playerPayments}
-      if (reservation.players && reservation.players.length > 0) {
-        for (let index = 0; index < reservation.players.length; index++) {
-          const playerName = reservation.players[index]
-          const payment = playerPayments[index]
-          if (playerName && playerName.trim() !== '' && payment && payment.method) {
-            updatedPlayerPayments[index] = { method: payment.method }
-          }
-        }
-      }
-      setPlayerPayments(updatedPlayerPayments)
-
       alert('Pagos generados exitosamente')
       closeModal()
-      fetchPayments()
       fetchReservationsForDate(selectedDate)
     } catch (err) {
       console.error('=== GENERATE PAYMENTS ERROR ===')
