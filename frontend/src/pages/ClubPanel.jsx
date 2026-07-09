@@ -846,8 +846,18 @@ function ClubPanel() {
         }
       }
 
-      // El backend ahora calcula automáticamente el estado de pago basándose en los pagos
-      // No necesitamos actualizar manualmente el estado de pago
+      // Actualizar el estado local de playerPayments para reflejar los pagos generados
+      const updatedPlayerPayments = {...playerPayments}
+      if (reservation.players && reservation.players.length > 0) {
+        for (let index = 0; index < reservation.players.length; index++) {
+          const playerName = reservation.players[index]
+          const payment = playerPayments[index]
+          if (playerName && playerName.trim() !== '' && payment && payment.method) {
+            updatedPlayerPayments[index] = { method: payment.method }
+          }
+        }
+      }
+      setPlayerPayments(updatedPlayerPayments)
 
       alert('Pagos generados exitosamente')
       closeModal()
