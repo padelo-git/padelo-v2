@@ -175,3 +175,26 @@ class Penalty(Base):
     user = relationship("User")
     match = relationship("Match", foreign_keys=[match_id])
     reservation = relationship("Reservation", foreign_keys=[reservation_id])
+
+
+class ReservationPaymentParticipant(Base):
+    __tablename__ = "reservation_payment_participants"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    club_id = Column(Integer, ForeignKey("clubs.id"), nullable=False)
+    reservation_id = Column(Integer, ForeignKey("reservations.id"), nullable=False)
+    name = Column(String, nullable=False)  # Player name
+    is_titular = Column(Boolean, default=False)  # True if this is the main contact
+    due_amount = Column(Numeric(10, 3), nullable=False)  # Amount this player owes
+    due_precision = Column(Integer, default=3)  # Decimal precision for due_amount
+    status = Column(String, default="pending")  # pending, paid, partial
+    paid_amount = Column(Numeric(10, 2), nullable=True)  # Amount actually paid
+    payment_method = Column(String, nullable=True)  # cash, transfer, card
+    cash_register_id = Column(Integer, ForeignKey("cash_registers.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationships
+    club = relationship("Club")
+    reservation = relationship("Reservation")
+    cash_register = relationship("CashRegister")
