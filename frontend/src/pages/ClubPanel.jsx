@@ -472,26 +472,37 @@ function ClubPanel() {
       const response = await api.get(`/clubs/payments`)
       const reservationPayments = response.data.filter(p => p.reservation_id === reservation.id)
       
-      console.log('DEBUG: Reservation payments:', reservationPayments)
-      console.log('DEBUG: Reservation players:', reservation.players)
+      console.log('=== DEBUG HANDLE VIEW RESERVATION ===')
+      console.log('Reservation ID:', reservation.id)
+      console.log('Reservation payments:', reservationPayments)
+      console.log('Reservation players:', reservation.players)
       
       // Mapear pagos a jugadores por índice
       const playerPaymentsMap = {}
       reservationPayments.forEach(payment => {
         // Buscar el índice del jugador basado en la descripción del pago
         const description = payment.description || ''
+        console.log(`Processing payment: description="${description}"`)
+        
         if (description.includes('Pago de reserva:')) {
           const playerName = description.replace('Pago de reserva:', '').trim()
-          const playerIndex = reservation.players?.indexOf(playerName)
-          console.log(`DEBUG: Payment for ${playerName}, index: ${playerIndex}`)
+          console.log(`Extracted player name: "${playerName}"`)
+          
+          // Buscar índice del jugador (comparación case-insensitive)
+          const playerIndex = reservation.players?.findIndex(p => p?.toLowerCase() === playerName.toLowerCase())
+          console.log(`Player index for "${playerName}": ${playerIndex}`)
+          
           if (playerIndex !== undefined && playerIndex >= 0) {
             // Usar el último pago del jugador
             playerPaymentsMap[playerIndex] = { method: payment.method }
+            console.log(`Mapped payment for player ${playerIndex}: ${payment.method}`)
+          } else {
+            console.log(`Could not find player "${playerName}" in reservation players`)
           }
         }
       })
       
-      console.log('DEBUG: Player payments map:', playerPaymentsMap)
+      console.log('Final player payments map:', playerPaymentsMap)
       setPlayerPayments(playerPaymentsMap)
     } catch (err) {
       console.error('Error fetching reservation payments:', err)
