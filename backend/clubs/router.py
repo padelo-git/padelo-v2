@@ -633,9 +633,9 @@ async def delete_reservation(reservation_id: int, current_user: User = Depends(g
 
 # Payment endpoints
 @router.get("/payments")
-async def get_payments(current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
-    """Get all payments for the authenticated club"""
-    result = await db.execute(select(Payment).where(Payment.club_id == current_club.id))
+async def get_payments(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    """Get all payments for the authenticated user's club"""
+    result = await db.execute(select(Payment).where(Payment.club_id == current_user.club_id))
     payments = result.scalars().all()
     
     return [
@@ -653,10 +653,10 @@ async def get_payments(current_club: Club = Depends(get_current_club), db: Async
 
 
 @router.post("/payments")
-async def create_payment(payment_data: dict, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
-    """Create a new payment for the authenticated club"""
+async def create_payment(payment_data: dict, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    """Create a new payment for the authenticated user's club"""
     payment = Payment(
-        club_id=current_club.id,
+        club_id=current_user.club_id,
         user_id=payment_data.get("user_id"),
         reservation_id=payment_data.get("reservation_id"),
         amount=payment_data.get("amount"),
@@ -670,7 +670,7 @@ async def create_payment(payment_data: dict, current_club: Club = Depends(get_cu
     
     # Si el pago está vinculado a una reserva, actualizar el estado de pago de la reserva
     if payment.reservation_id:
-        await _update_reservation_payment_status(db, payment.reservation_id, current_club.id)
+        await _update_reservation_payment_status(db, payment.reservation_id, current_user.club_id)
     
     return {
         "id": payment.id,
