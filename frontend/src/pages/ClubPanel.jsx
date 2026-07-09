@@ -472,6 +472,9 @@ function ClubPanel() {
       const response = await api.get(`/clubs/payments`)
       const reservationPayments = response.data.filter(p => p.reservation_id === reservation.id)
       
+      console.log('DEBUG: Reservation payments:', reservationPayments)
+      console.log('DEBUG: Reservation players:', reservation.players)
+      
       // Mapear pagos a jugadores por índice
       const playerPaymentsMap = {}
       reservationPayments.forEach(payment => {
@@ -480,12 +483,15 @@ function ClubPanel() {
         if (description.includes('Pago de reserva:')) {
           const playerName = description.replace('Pago de reserva:', '').trim()
           const playerIndex = reservation.players?.indexOf(playerName)
+          console.log(`DEBUG: Payment for ${playerName}, index: ${playerIndex}`)
           if (playerIndex !== undefined && playerIndex >= 0) {
+            // Usar el último pago del jugador
             playerPaymentsMap[playerIndex] = { method: payment.method }
           }
         }
       })
       
+      console.log('DEBUG: Player payments map:', playerPaymentsMap)
       setPlayerPayments(playerPaymentsMap)
     } catch (err) {
       console.error('Error fetching reservation payments:', err)
