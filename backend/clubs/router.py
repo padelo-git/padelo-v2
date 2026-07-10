@@ -752,19 +752,25 @@ async def delete_reservation(reservation_id: int, current_club: Club = Depends(g
 
 # Payment endpoints
 @router.get("/payments")
-async def get_payments(current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+async def get_payments(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """Get all payment participants for the authenticated club"""
     print(f"=== DEBUG GET PAYMENTS ===")
-    print(f"Current club ID: {current_club.id}")
+    print(f"Current user ID: {current_user.id}, club_id: {current_user.club_id}")
+    
+    if not current_user.club_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with a club"
+        )
     
     result = await db.execute(
         select(ReservationPaymentParticipant).where(
-            ReservationPaymentParticipant.club_id == current_club.id
+            ReservationPaymentParticipant.club_id == current_user.club_id
         )
     )
     participants = result.scalars().all()
     
-    print(f"Found {len(participants)} participants for club {current_club.id}")
+    print(f"Found {len(participants)} participants for club {current_user.club_id}")
     
     participants_data = [
         {
@@ -786,11 +792,17 @@ async def get_payments(current_club: Club = Depends(get_current_club), db: Async
 
 
 @router.get("/reservations/{reservation_id}/participants")
-async def get_reservation_participants(reservation_id: int, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+async def get_reservation_participants(reservation_id: int, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """Get payment participants for a specific reservation"""
+    if not current_user.club_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with a club"
+        )
+    
     result = await db.execute(
         select(ReservationPaymentParticipant).where(
-            ReservationPaymentParticipant.club_id == current_club.id,
+            ReservationPaymentParticipant.club_id == current_user.club_id,
             ReservationPaymentParticipant.reservation_id == reservation_id
         )
     )
@@ -813,8 +825,14 @@ async def get_reservation_participants(reservation_id: int, current_club: Club =
 
 
 @router.post("/payments")
-async def create_payment(payment_data: dict, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+async def create_payment(payment_data: dict, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """Create a new payment for the authenticated club using participant structure"""
+    if not current_user.club_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with a club"
+        )
+    
     reservation_id = payment_data.get("reservation_id")
     player_name = payment_data.get("player_name")  # New field to identify participant
     amount = payment_data.get("amount")
@@ -829,7 +847,7 @@ async def create_payment(payment_data: dict, current_club: Club = Depends(get_cu
     # Find the participant by name and reservation
     participant_result = await db.execute(
         select(ReservationPaymentParticipant).where(
-            ReservationPaymentParticipant.club_id == current_club.id,
+            ReservationPaymentParticipant.club_id == current_user.club_id,
             ReservationPaymentParticipant.reservation_id == reservation_id,
             ReservationPaymentParticipant.name == player_name
         )
@@ -852,7 +870,7 @@ async def create_payment(payment_data: dict, current_club: Club = Depends(get_cu
     await db.refresh(participant)
     
     # Recalculate reservation payment status based on all participants
-    await _recalculate_reservation_payment_status(db, current_club.id, reservation_id)
+    await _recalculate_reservation_payment_status(db, current_user.club_id, reservation_id)
     
     return {
         "id": participant.id,
