@@ -1933,9 +1933,9 @@ function ClubPanel() {
                   </button>
                   <button
                     onClick={() => handleGeneratePayments(selectedReservation)}
-                    style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                    style={{ padding: '10px 20px', backgroundColor: Object.keys(playerPayments).length > 0 ? '#28a745' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                   >
-                    💳 Generar Pagos
+                    {Object.keys(playerPayments).length > 0 ? '💳 Pagado' : '💳 Generar Pagos'}
                   </button>
                 </div>
               </div>
