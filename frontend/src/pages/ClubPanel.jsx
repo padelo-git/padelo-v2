@@ -456,6 +456,7 @@ function ClubPanel() {
       // Es un drag para crear nueva reserva
       setIsDragging(false)
       setShowSelectionOverlay(true)
+      setPlayerPayments({}) // Limpiar estado de pagos para nueva reserva
       setShowReservationModal(true)
     } else if (reservation && dragStart && dragStart.hourIndex === slotIndex) {
       // Es un click simple en una reserva existente
