@@ -139,18 +139,30 @@ async def create_club(club: ClubCreate, db: AsyncSession = Depends(get_db)):
 @router.post("/login", response_model=ClubLoginResponse)
 async def login_club(credentials: ClubLogin, db: AsyncSession = Depends(get_db)):
     """Login for club administrators"""
+    print(f"=== DEBUG LOGIN ===")
+    print(f"Email: {credentials.email}")
+    
     # Find club by email (case-insensitive)
     result = await db.execute(select(Club).where(func.lower(Club.email) == credentials.email.lower()))
     club = result.scalar_one_or_none()
+    
+    print(f"Club found: {club is not None}")
+    if club:
+        print(f"Club ID: {club.id}, is_active: {club.is_active}")
 
     if not club:
+        print("Club not found")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password"
         )
 
     # Verify password
-    if not verify_password(credentials.password, club.hashed_password):
+    password_valid = verify_password(credentials.password, club.hashed_password)
+    print(f"Password valid: {password_valid}")
+    
+    if not password_valid:
+        print("Invalid password")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password"
@@ -158,6 +170,7 @@ async def login_club(credentials: ClubLogin, db: AsyncSession = Depends(get_db))
 
     # Check if club is active
     if not club.is_active:
+        print("Club not active")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Club account is not active. Please contact support."
@@ -170,6 +183,8 @@ async def login_club(credentials: ClubLogin, db: AsyncSession = Depends(get_db))
         "is_club": True,
         "club_id": str(club.id)
     })
+    
+    print("Login successful")
 
     return {
         "access_token": access_token,
