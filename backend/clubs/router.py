@@ -256,7 +256,7 @@ async def suspend_club(club_id: int, current_club: Club = Depends(get_current_cl
 
 
 @router.delete("/{club_id}")
-async def delete_club(club_id: int, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def delete_club(club_id: int, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
     """Delete a club (requires owner/admin) - WARNING: This will delete all club data"""
     result = await db.execute(select(Club).where(Club.id == club_id))
     club = result.scalar_one_or_none()
