@@ -537,8 +537,8 @@ async def get_alerts_public():
 
 
 @router.get("/admin-panel/health")
-async def get_health_status(current_user: dict = Depends(get_current_user)):
-    """Get health status of all services"""
+async def get_health_status():
+    """Get health status of all services without authentication"""
     try:
         health_status = {
             "database": "healthy",
