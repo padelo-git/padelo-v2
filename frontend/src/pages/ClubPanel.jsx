@@ -459,8 +459,7 @@ function ClubPanel() {
       setShowReservationModal(true)
     } else if (reservation && dragStart && dragStart.hourIndex === slotIndex) {
       // Es un click simple en una reserva existente
-      setSelectedReservation(reservation)
-      setShowReservationModal(true)
+      handleViewReservation(reservation)
     }
   }
 
