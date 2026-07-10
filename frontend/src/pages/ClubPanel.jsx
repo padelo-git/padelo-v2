@@ -467,45 +467,38 @@ function ClubPanel() {
   const handleViewReservation = async (reservation) => {
     setSelectedReservation(reservation)
     
-    // Cargar participantes de pago de la reserva usando el nuevo endpoint
+    // Cargar pagos de la reserva usando el endpoint simplificado
     try {
-      const response = await api.get(`/clubs/reservations/${reservation.id}/participants`)
-      const participants = response.data
+      const response = await api.get(`/clubs/payments?reservation_id=${reservation.id}`)
+      const payments = response.data
       
       console.log('=== DEBUG HANDLE VIEW RESERVATION ===')
       console.log('Reservation ID:', reservation.id)
-      console.log('Participants:', participants)
+      console.log('Payments:', payments)
       console.log('Reservation players:', reservation.players)
       
-      // Mapear participantes a jugadores por índice
+      // Mapear pagos a jugadores por índice
       const playerPaymentsMap = {}
-      participants.forEach(participant => {
+      payments.forEach(payment => {
         // Buscar índice del jugador (comparación case-insensitive)
-        const playerIndex = reservation.players?.findIndex(p => p?.toLowerCase() === participant.name.toLowerCase())
-        console.log(`Participant "${participant.name}" -> index: ${playerIndex}, status: ${participant.status}`)
+        const playerIndex = reservation.players?.findIndex(p => p?.toLowerCase() === payment.player_name.toLowerCase())
+        console.log(`Payment for "${payment.player_name}" -> index: ${playerIndex}, method: ${payment.method}`)
         
         if (playerIndex !== undefined && playerIndex >= 0) {
-          if (participant.status === 'paid') {
-            playerPaymentsMap[playerIndex] = { 
-              method: participant.payment_method,
-              status: 'paid'
-            }
-            console.log(`Mapped paid payment for player ${playerIndex}: ${participant.payment_method}`)
-          } else {
-            playerPaymentsMap[playerIndex] = { 
-              status: 'pending'
-            }
-            console.log(`Mapped pending payment for player ${playerIndex}`)
+          playerPaymentsMap[playerIndex] = { 
+            method: payment.method,
+            status: 'paid'
           }
+          console.log(`Mapped payment for player ${playerIndex}: ${payment.method}`)
         } else {
-          console.log(`Could not find participant "${participant.name}" in reservation players`)
+          console.log(`Could not find player "${payment.player_name}" in reservation players`)
         }
       })
       
       console.log('Final player payments map:', playerPaymentsMap)
       setPlayerPayments(playerPaymentsMap)
     } catch (err) {
-      console.error('Error fetching reservation participants:', err)
+      console.error('Error fetching reservation payments:', err)
       setPlayerPayments({})
     }
     
