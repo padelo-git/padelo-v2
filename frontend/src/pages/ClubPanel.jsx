@@ -1891,10 +1891,10 @@ function ClubPanel() {
                               </div>
                             ) : (
                               <button
-                                onClick={() => setPlayerPayments({...playerPayments, [index]: { method: null } })}
-                                style={{ padding: '5px 10px', backgroundColor: playerPayments[index] ? '#28a745' : '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+                                onClick={() => playerPayments[index]?.method ? null : setPlayerPayments({...playerPayments, [index]: { method: null } })}
+                                style={{ padding: '5px 10px', backgroundColor: playerPayments[index]?.method ? '#28a745' : '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: playerPayments[index]?.method ? 'default' : 'pointer', fontSize: '12px' }}
                               >
-                                {playerPayments[index] ? '💳 Pagado' : '💳 Pagar'}
+                                {playerPayments[index]?.method ? '💳 Pagado' : '💳 Pagar'}
                               </button>
                             )}
                           </div>
