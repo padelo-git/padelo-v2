@@ -237,7 +237,7 @@ async def activate_club(club_id: int, current_club: Club = Depends(get_current_c
 
 
 @router.put("/{club_id}/suspend")
-async def suspend_club(club_id: int, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def suspend_club(club_id: int, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
     """Suspend a club (requires owner/admin)"""
     result = await db.execute(select(Club).where(Club.id == club_id))
     club = result.scalar_one_or_none()
