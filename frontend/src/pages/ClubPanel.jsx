@@ -466,10 +466,13 @@ function ClubPanel() {
   const handleViewReservation = async (reservation) => {
     setSelectedReservation(reservation)
     
-    // Cargar pagos de la reserva usando el endpoint simplificado
+    // Cargar todos los pagos del club y filtrar por reservation_id en el cliente
     try {
-      const response = await api.get(`/clubs/payments?reservation_id=${reservation.id}`)
-      const payments = response.data
+      const response = await api.get(`/clubs/payments`)
+      const allPayments = response.data
+      
+      // Filtrar pagos por reservation_id
+      const payments = allPayments.filter(p => p.reservation_id === reservation.id)
       
       console.log('=== DEBUG HANDLE VIEW RESERVATION ===')
       console.log('Reservation ID:', reservation.id)
