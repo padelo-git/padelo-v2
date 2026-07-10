@@ -1892,9 +1892,9 @@ function ClubPanel() {
                             ) : (
                               <button
                                 onClick={() => setPlayerPayments({...playerPayments, [index]: { method: null } })}
-                                style={{ padding: '5px 10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+                                style={{ padding: '5px 10px', backgroundColor: playerPayments[index] ? '#28a745' : '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
                               >
-                                💳 Pagar
+                                {playerPayments[index] ? '💳 Pagado' : '💳 Pagar'}
                               </button>
                             )}
                           </div>
