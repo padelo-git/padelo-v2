@@ -658,7 +658,7 @@ async def delete_reservation(reservation_id: int, current_club: Club = Depends(g
 
 # Payment endpoints
 @router.get("/payments")
-async def get_payments(reservation_id: Optional[int] = None, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+async def get_payments(reservation_id: int = None, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
     """Get payments for the authenticated club, optionally filtered by reservation"""
     query = select(Payment).where(Payment.club_id == current_club.id)
     
