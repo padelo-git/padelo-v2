@@ -723,6 +723,79 @@ async def create_payment(payment_data: dict, current_club: Club = Depends(get_cu
     }
 
 
+@router.put("/payments/{payment_id}")
+async def update_payment(payment_id: int, payment_data: dict, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Update an existing payment for the authenticated club"""
+    # Get payment
+    payment_result = await db.execute(
+        select(Payment).where(
+            Payment.id == payment_id,
+            Payment.club_id == current_club.id
+        )
+    )
+    payment = payment_result.scalar_one_or_none()
+    
+    if not payment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Payment not found"
+        )
+    
+    # Update payment fields
+    if "player_name" in payment_data:
+        payment.player_name = payment_data["player_name"]
+    if "amount" in payment_data:
+        payment.amount = payment_data["amount"]
+    if "method" in payment_data:
+        payment.method = payment_data["method"]
+    if "status" in payment_data:
+        payment.status = payment_data["status"]
+    
+    await db.commit()
+    await db.refresh(payment)
+    
+    # Update reservation payment status
+    await _update_reservation_payment_status(db, current_club.id, payment.reservation_id)
+    
+    return {
+        "id": payment.id,
+        "reservation_id": payment.reservation_id,
+        "player_name": payment.player_name,
+        "amount": float(payment.amount),
+        "method": payment.method,
+        "status": payment.status
+    }
+
+
+@router.delete("/payments/{payment_id}")
+async def delete_payment(payment_id: int, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Delete a payment for the authenticated club"""
+    # Get payment
+    payment_result = await db.execute(
+        select(Payment).where(
+            Payment.id == payment_id,
+            Payment.club_id == current_club.id
+        )
+    )
+    payment = payment_result.scalar_one_or_none()
+    
+    if not payment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Payment not found"
+        )
+    
+    reservation_id = payment.reservation_id
+    
+    await db.delete(payment)
+    await db.commit()
+    
+    # Update reservation payment status
+    await _update_reservation_payment_status(db, current_club.id, reservation_id)
+    
+    return {"message": "Payment deleted successfully"}
+
+
 async def _update_reservation_payment_status(db: AsyncSession, club_id: int, reservation_id: int):
     """Update reservation payment status based on total payments"""
     # Get reservation
