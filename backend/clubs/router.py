@@ -4,9 +4,8 @@ from sqlalchemy import select, func
 from typing import List, Optional
 from datetime import datetime
 from core.database import get_db
-from core.security import get_current_user, get_current_club_admin, get_current_club, verify_password, create_access_token
-from auth.models import User
-from clubs.models import Club, Court, Reservation, Payment, Debt, CashRegister, Penalty, ReservationPaymentParticipant
+from core.security import get_current_club, verify_password, create_access_token
+from clubs.models import Club, Court, Reservation, Payment, Debt, CashRegister, Penalty
 from clubs.schemas import (
     ClubCreate, ClubUpdate, ClubResponse, ClubWithCourts,
     CourtCreate, CourtUpdate, CourtResponse,
@@ -15,114 +14,6 @@ from clubs.schemas import (
 from pydantic import BaseModel, EmailStr
 
 router = APIRouter()
-
-
-def _split_amount_3_decimals(total: float, num_parts: int) -> float:
-    """Split amount evenly with 3 decimal precision to avoid rounding errors"""
-    if num_parts == 0 or total == 0:
-        return 0.0
-    return round(total / num_parts, 3)
-
-
-async def _create_reservation_participants(db: AsyncSession, club_id: int, reservation_id: int, players: list, price: float):
-    """Create payment participants for a reservation based on the old system logic"""
-    if not players or len(players) == 0:
-        return
-    
-    # Filter out empty player names
-    player_names = [p for p in players if p and p.strip()]
-    if not player_names:
-        return
-    
-    # Calculate amount per player
-    amount_per_player = _split_amount_3_decimals(price, len(player_names))
-    
-    # Get existing participants to avoid duplicates
-    existing_result = await db.execute(
-        select(ReservationPaymentParticipant).where(
-            ReservationPaymentParticipant.club_id == club_id,
-            ReservationPaymentParticipant.reservation_id == reservation_id
-        )
-    )
-    existing_participants = existing_result.scalars().all()
-    existing_names = {p.name for p in existing_participants}
-    
-    # Create participants for players that don't already exist
-    for i, player_name in enumerate(player_names):
-        if player_name not in existing_names:
-            # First player is considered the titular
-            is_titular = (i == 0)
-            
-            participant = ReservationPaymentParticipant(
-                club_id=club_id,
-                reservation_id=reservation_id,
-                name=player_name,
-                is_titular=is_titular,
-                due_amount=amount_per_player,
-                due_precision=3,
-                status='pending',
-                paid_amount=None,
-                payment_method=None,
-                cash_register_id=None
-            )
-            db.add(participant)
-    
-    await db.commit()
-
-
-async def _recalculate_reservation_payment_status(db: AsyncSession, club_id: int, reservation_id: int):
-    """Recalculate reservation payment status based on participants (like old system)"""
-    result = await db.execute(
-        select(ReservationPaymentParticipant).where(
-            ReservationPaymentParticipant.club_id == club_id,
-            ReservationPaymentParticipant.reservation_id == reservation_id
-        )
-    )
-    participants = result.scalars().all()
-    
-    if not participants:
-        return
-    
-    total_due = 0.0
-    total_paid = 0.0
-    any_paid = False
-    all_paid = True
-    
-    for participant in participants:
-        try:
-            due = float(participant.due_amount or 0)
-        except (TypeError, ValueError):
-            due = 0.0
-        total_due += due
-        
-        if participant.status == 'paid':
-            any_paid = True
-            try:
-                paid = float(participant.paid_amount or due)
-            except (TypeError, ValueError):
-                paid = due
-            total_paid += paid
-        else:
-            all_paid = False
-    
-    # Update reservation payment status
-    reservation_result = await db.execute(
-        select(Reservation).where(
-            Reservation.id == reservation_id,
-            Reservation.club_id == club_id
-        )
-    )
-    reservation = reservation_result.scalar_one_or_none()
-    
-    if reservation:
-        if all_paid:
-            reservation.payment_status = 'paid'
-        elif any_paid:
-            reservation.payment_status = 'partial'
-        else:
-            reservation.payment_status = 'unpaid'
-        
-        await db.commit()
 
 
 def get_language_from_country(country: str) -> str:
@@ -752,185 +643,120 @@ async def delete_reservation(reservation_id: int, current_club: Club = Depends(g
 
 # Payment endpoints
 @router.get("/payments")
-async def get_payments(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    """Get all payment participants for the authenticated club"""
-    print(f"=== DEBUG GET PAYMENTS ===")
-    print(f"Current user ID: {current_user.id}, club_id: {current_user.club_id}")
+async def get_payments(reservation_id: Optional[int] = None, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Get payments for the authenticated club, optionally filtered by reservation"""
+    query = select(Payment).where(Payment.club_id == current_club.id)
     
-    if not current_user.club_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is not associated with a club"
-        )
+    if reservation_id:
+        query = query.where(Payment.reservation_id == reservation_id)
     
-    result = await db.execute(
-        select(ReservationPaymentParticipant).where(
-            ReservationPaymentParticipant.club_id == current_user.club_id
-        )
-    )
-    participants = result.scalars().all()
+    result = await db.execute(query)
+    payments = result.scalars().all()
     
-    print(f"Found {len(participants)} participants for club {current_user.club_id}")
-    
-    participants_data = [
+    return [
         {
             "id": p.id,
             "reservation_id": p.reservation_id,
-            "name": p.name,
-            "is_titular": p.is_titular,
-            "due_amount": float(p.due_amount),
+            "player_name": p.player_name,
+            "amount": float(p.amount),
+            "method": p.method,
             "status": p.status,
-            "paid_amount": float(p.paid_amount) if p.paid_amount else None,
-            "payment_method": p.payment_method,
             "created_at": p.created_at.isoformat() if p.created_at else None
         }
-        for p in participants
+        for p in payments
     ]
-    
-    print(f"Returning participants data: {participants_data}")
-    return participants_data
-
-
-@router.get("/reservations/{reservation_id}/participants")
-async def get_reservation_participants(reservation_id: int, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    """Get payment participants for a specific reservation"""
-    if not current_user.club_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is not associated with a club"
-        )
-    
-    result = await db.execute(
-        select(ReservationPaymentParticipant).where(
-            ReservationPaymentParticipant.club_id == current_user.club_id,
-            ReservationPaymentParticipant.reservation_id == reservation_id
-        )
-    )
-    participants = result.scalars().all()
-    
-    participants_data = [
-        {
-            "id": p.id,
-            "name": p.name,
-            "is_titular": p.is_titular,
-            "due_amount": float(p.due_amount),
-            "status": p.status,
-            "paid_amount": float(p.paid_amount) if p.paid_amount else None,
-            "payment_method": p.payment_method
-        }
-        for p in participants
-    ]
-    
-    return participants_data
 
 
 @router.post("/payments")
-async def create_payment(payment_data: dict, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    """Create a new payment for the authenticated club using participant structure"""
-    if not current_user.club_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is not associated with a club"
-        )
-    
+async def create_payment(payment_data: dict, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+    """Create a new payment for the authenticated club"""
     reservation_id = payment_data.get("reservation_id")
-    player_name = payment_data.get("player_name")  # New field to identify participant
+    player_name = payment_data.get("player_name")
     amount = payment_data.get("amount")
     method = payment_data.get("method")
     
-    if not reservation_id or not player_name:
+    if not reservation_id or not player_name or not amount or not method:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="reservation_id and player_name are required"
+            detail="reservation_id, player_name, amount, and method are required"
         )
     
-    # Find the participant by name and reservation
-    participant_result = await db.execute(
-        select(ReservationPaymentParticipant).where(
-            ReservationPaymentParticipant.club_id == current_user.club_id,
-            ReservationPaymentParticipant.reservation_id == reservation_id,
-            ReservationPaymentParticipant.name == player_name
+    # Verify reservation belongs to this club
+    reservation_result = await db.execute(
+        select(Reservation).where(
+            Reservation.id == reservation_id,
+            Reservation.club_id == current_club.id
         )
     )
-    participant = participant_result.scalar_one_or_none()
+    reservation = reservation_result.scalar_one_or_none()
     
-    if not participant:
+    if not reservation:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Participant {player_name} not found for reservation {reservation_id}"
+            detail="Reservation not found"
         )
     
-    # Update participant payment status
-    participant.status = 'paid'
-    participant.paid_amount = amount
-    participant.payment_method = method
-    participant.updated_at = datetime.now()
-    
+    # Create payment
+    payment = Payment(
+        club_id=current_club.id,
+        reservation_id=reservation_id,
+        player_name=player_name,
+        amount=amount,
+        method=method,
+        status="completed"
+    )
+    db.add(payment)
     await db.commit()
-    await db.refresh(participant)
+    await db.refresh(payment)
     
-    # Recalculate reservation payment status based on all participants
-    await _recalculate_reservation_payment_status(db, current_user.club_id, reservation_id)
+    # Update reservation payment status
+    await _update_reservation_payment_status(db, current_club.id, reservation_id)
     
     return {
-        "id": participant.id,
-        "reservation_id": participant.reservation_id,
-        "player_name": participant.name,
-        "amount": float(participant.paid_amount),
-        "method": participant.payment_method,
-        "status": participant.status
+        "id": payment.id,
+        "reservation_id": payment.reservation_id,
+        "player_name": payment.player_name,
+        "amount": float(payment.amount),
+        "method": payment.method,
+        "status": payment.status
     }
 
 
-async def _update_reservation_payment_status(db: AsyncSession, reservation_id: int, club_id: int):
-    """Update the payment status of a reservation based on its payments (like the old system)"""
-    print(f"DEBUG: _update_reservation_payment_status called - reservation_id={reservation_id}, club_id={club_id}")
-    
-    # Get all payments for this reservation
-    result = await db.execute(
-        select(Payment).where(
-            Payment.reservation_id == reservation_id,
-            Payment.club_id == club_id
-        )
-    )
-    payments = result.scalars().all()
-    print(f"DEBUG: Found {len(payments)} payments for reservation {reservation_id}")
-    
-    # Get the reservation
-    result = await db.execute(
+async def _update_reservation_payment_status(db: AsyncSession, club_id: int, reservation_id: int):
+    """Update reservation payment status based on total payments"""
+    # Get reservation
+    reservation_result = await db.execute(
         select(Reservation).where(
             Reservation.id == reservation_id,
             Reservation.club_id == club_id
         )
     )
-    reservation = result.scalar_one_or_none()
+    reservation = reservation_result.scalar_one_or_none()
     
     if not reservation:
-        print(f"DEBUG: Reservation {reservation_id} not found")
         return
     
-    print(f"DEBUG: Reservation found - price={reservation.price}, current payment_status={reservation.payment_status}")
+    # Get total payments for this reservation
+    payments_result = await db.execute(
+        select(Payment).where(
+            Payment.club_id == club_id,
+            Payment.reservation_id == reservation_id,
+            Payment.status == "completed"
+        )
+    )
+    payments = payments_result.scalars().all()
     
-    # Calculate total paid amount
     total_paid = sum(float(p.amount) for p in payments)
-    reservation_price = float(reservation.price) if reservation.price else 0
     
-    print(f"DEBUG: total_paid={total_paid}, reservation_price={reservation_price}")
-    
-    # Update payment status based on payments (like the old system)
-    if total_paid >= reservation_price and reservation_price > 0:
+    # Update payment status
+    if total_paid >= float(reservation.price):
         reservation.payment_status = "paid"
-        print(f"DEBUG: Setting payment_status to 'paid'")
     elif total_paid > 0:
         reservation.payment_status = "partial"
-        print(f"DEBUG: Setting payment_status to 'partial'")
     else:
         reservation.payment_status = "unpaid"
-        print(f"DEBUG: Setting payment_status to 'unpaid'")
     
     await db.commit()
-    await db.refresh(reservation)
-    print(f"DEBUG: Payment status updated to {reservation.payment_status}")
 
 
 # Debt endpoints
