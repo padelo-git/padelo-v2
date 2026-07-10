@@ -476,29 +476,34 @@ function ClubPanel() {
       console.log('Reservation ID:', reservation.id)
       console.log('Payments:', payments)
       console.log('Reservation players:', reservation.players)
+      console.log('Number of payments:', payments.length)
       
       // Mapear pagos a jugadores por índice
       const playerPaymentsMap = {}
       payments.forEach(payment => {
         // Buscar índice del jugador (comparación case-insensitive)
         const playerIndex = reservation.players?.findIndex(p => p?.toLowerCase() === payment.player_name.toLowerCase())
-        console.log(`Payment for "${payment.player_name}" -> index: ${playerIndex}, method: ${payment.method}`)
+        console.log(`Payment for "${payment.player_name}" -> index: ${playerIndex}, method: ${payment.method}, amount: ${payment.amount}`)
         
         if (playerIndex !== undefined && playerIndex >= 0) {
           playerPaymentsMap[playerIndex] = { 
             method: payment.method,
-            status: 'paid'
+            status: 'paid',
+            amount: payment.amount
           }
-          console.log(`Mapped payment for player ${playerIndex}: ${payment.method}`)
+          console.log(`✅ Mapped payment for player ${playerIndex}: ${payment.method}`)
         } else {
-          console.log(`Could not find player "${payment.player_name}" in reservation players`)
+          console.log(`❌ Could not find player "${payment.player_name}" in reservation players`)
         }
       })
       
       console.log('Final player payments map:', playerPaymentsMap)
+      console.log('Setting playerPayments state...')
       setPlayerPayments(playerPaymentsMap)
+      console.log('PlayerPayments state set successfully')
     } catch (err) {
-      console.error('Error fetching reservation payments:', err)
+      console.error('❌ Error fetching reservation payments:', err)
+      console.error('Error response:', err.response)
       setPlayerPayments({})
     }
     
