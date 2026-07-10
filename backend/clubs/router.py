@@ -503,17 +503,6 @@ async def create_reservation(
         await db.refresh(db_reservation)
         print(f"Reservation refreshed: {db_reservation}")
         
-        # Create payment participants automatically based on players
-        if reservation.players:
-            await _create_reservation_participants(
-                db, 
-                reservation.club_id, 
-                db_reservation.id, 
-                reservation.players, 
-                price
-            )
-            print(f"Created payment participants for reservation {db_reservation.id}")
-        
         print(f"=== CREATE RESERVATION SUCCESS ===")
         return db_reservation
     except Exception as e:
