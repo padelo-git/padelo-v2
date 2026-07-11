@@ -797,8 +797,7 @@ function ClubPanel() {
     try {
       const token = localStorage.getItem('token')
       const updateData = {
-        players: selectedReservation.players || [],
-        payment_status: selectedReservation.payment_status || 'no_pagado'
+        players: selectedReservation.players || []
       }
 
       await api.put(`/clubs/reservations/${selectedReservation.id}`, updateData, {
@@ -860,7 +859,7 @@ function ClubPanel() {
       }
 
       alert('Pagos generados exitosamente')
-      closeModal()
+      // No cerrar el modal, solo recargar las reservas para actualizar el estado
       fetchReservationsForDate(selectedDate)
     } catch (err) {
       console.error('=== GENERATE PAYMENTS ERROR ===')
@@ -1800,7 +1799,7 @@ function ClubPanel() {
                 </div>
 
                 <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
-                  <h4 style={{ color: '#fff', marginBottom: '15px' }}>Jugadores</h4>
+                  <h4 style={{ color: '#fff', marginBottom: '15px' }}>Jugadores y Pagos</h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {[0, 1, 2, 3].map((index) => {
                       const player = selectedReservation.players && selectedReservation.players[index] ? selectedReservation.players[index] : ''
@@ -1821,6 +1820,8 @@ function ClubPanel() {
                         }
                       }
 
+                      const payment = playerPayments[index]
+
                       return (
                         <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: '#1a1a1a', borderRadius: '5px' }}>
                           <div style={{ flex: 1 }}>
@@ -1839,24 +1840,87 @@ function ClubPanel() {
                               <span style={{ color: '#ccc', fontSize: '12px' }}>Precio: ${Math.round(pricePerPlayer)}</span>
                             )}
                           </div>
+                          <div style={{ marginLeft: '10px' }}>
+                            {payment && payment.method ? (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <span style={{ color: '#10B981', fontSize: '12px', fontWeight: 'bold' }}>
+                                  {payment.method === 'efectivo' ? '💵 Efectivo' :
+                                   payment.method === 'transferencia' ? '🏦 Transferencia' :
+                                   payment.method === 'tarjeta' ? '💳 Tarjeta' :
+                                   payment.method === 'sistema' ? '📱 Sistema' :
+                                   payment.method === 'club' ? '🏟️ Club' : 'Pagado'}
+                                </span>
+                                <button
+                                  onClick={() => setPlayerPayments({...playerPayments, [index]: null})}
+                                  style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => setPlayerPayments({...playerPayments, [index]: { method: null } })}
+                                style={{ padding: '5px 10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+                              >
+                                💳 Pagar
+                              </button>
+                            )}
+                          </div>
                         </div>
                       )
                     })}
                   </div>
                 </div>
 
-                <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
-                  <h4 style={{ color: '#fff', marginBottom: '15px' }}>Estado de Pago</h4>
-                  <select
-                    value={selectedReservation.payment_status || 'no_pagado'}
-                    onChange={(e) => setSelectedReservation({...selectedReservation, payment_status: e.target.value})}
-                    style={{ width: '100%', padding: '8px', backgroundColor: '#1a1a1a', border: '1px solid #444', borderRadius: '3px', color: '#fff', fontSize: '14px' }}
-                  >
-                    <option value="no_pagado">No pagado</option>
-                    <option value="senia">Seña</option>
-                    <option value="pagado">Pagado</option>
-                  </select>
-                </div>
+                {Object.values(playerPayments).some(p => p && p.method === null) && (
+                  <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
+                    <h4 style={{ color: '#fff', marginBottom: '15px' }}>Seleccionar Método de Pago</h4>
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                      {[0, 1, 2, 3].map((index) => {
+                        const payment = playerPayments[index]
+                        if (!payment || payment.method !== null) return null
+                        const player = selectedReservation.players && selectedReservation.players[index] ? selectedReservation.players[index] : `Jugador ${index + 1}`
+                        
+                        return (
+                          <div key={index} style={{ flex: 1, minWidth: '200px' }}>
+                            <p style={{ color: '#fff', fontSize: '12px', marginBottom: '5px' }}>{player}</p>
+                            <div style={{ display: 'flex', gap: '5px' }}>
+                              <button
+                                onClick={() => setPlayerPayments({...playerPayments, [index]: { method: 'efectivo' } })}
+                                style={{ padding: '5px 10px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
+                              >
+                                💵 Efectivo
+                              </button>
+                              <button
+                                onClick={() => setPlayerPayments({...playerPayments, [index]: { method: 'transferencia' } })}
+                                style={{ padding: '5px 10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
+                              >
+                                🏦 Transferencia
+                              </button>
+                              <button
+                                onClick={() => setPlayerPayments({...playerPayments, [index]: { method: 'tarjeta' } })}
+                                style={{ padding: '5px 10px', backgroundColor: '#6f42c1', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
+                              >
+                                💳 Tarjeta
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {Object.values(playerPayments).some(p => p && p.method && p.method !== null) && (
+                  <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
+                    <button
+                      onClick={() => handleGeneratePayments(selectedReservation)}
+                      style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '14px' }}
+                    >
+                      💳 Generar Pagos
+                    </button>
+                  </div>
+                )}
 
                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                   <button
