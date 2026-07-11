@@ -691,7 +691,7 @@ async def get_payments(current_user: User = Depends(get_current_club_admin), db:
 
 
 @router.post("/payments")
-async def create_payment(payment_data: dict, current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
+async def create_payment(payment_data: dict, current_user: User = Depends(get_current_club_admin), db: AsyncSession = Depends(get_db)):
     """Create a new payment for the authenticated club"""
     reservation_id = payment_data.get("reservation_id")
     player_name = payment_data.get("player_name")
@@ -709,7 +709,7 @@ async def create_payment(payment_data: dict, current_club: Club = Depends(get_cu
     reservation_result = await db.execute(
         select(Reservation).where(
             Reservation.id == reservation_id,
-            Reservation.club_id == current_club.id
+            Reservation.club_id == current_user.club_id
         )
     )
     reservation = reservation_result.scalar_one_or_none()
@@ -722,7 +722,7 @@ async def create_payment(payment_data: dict, current_club: Club = Depends(get_cu
     
     # Create payment
     payment = Payment(
-        club_id=current_club.id,
+        club_id=current_user.club_id,
         reservation_id=reservation_id,
         player_name=player_name,
         player_index=player_index,
