@@ -797,7 +797,8 @@ function ClubPanel() {
     try {
       const token = localStorage.getItem('token')
       const updateData = {
-        players: selectedReservation.players || []
+        players: selectedReservation.players || [],
+        payment_status: selectedReservation.payment_status || 'no_pagado'
       }
 
       await api.put(`/clubs/reservations/${selectedReservation.id}`, updateData, {
@@ -1799,7 +1800,7 @@ function ClubPanel() {
                 </div>
 
                 <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
-                  <h4 style={{ color: '#fff', marginBottom: '15px' }}>Jugadores y Pagos</h4>
+                  <h4 style={{ color: '#fff', marginBottom: '15px' }}>Jugadores</h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {[0, 1, 2, 3].map((index) => {
                       const player = selectedReservation.players && selectedReservation.players[index] ? selectedReservation.players[index] : ''
@@ -1807,7 +1808,6 @@ function ClubPanel() {
                       let pricePerPlayer = 0
 
                       if (selectedReservation.reservation_type === 'class') {
-                        // Cálculo para clases según configuración del club
                         if (playerCount <= 2 && playerCount > 0) {
                           pricePerPlayer = (config.lesson_1_2_players_price || 800) / playerCount
                         } else if (playerCount === 3) {
@@ -1816,7 +1816,6 @@ function ClubPanel() {
                           pricePerPlayer = (config.lesson_4_players_price || 1400) / 4
                         }
                       } else {
-                        // Cálculo para reservas normales
                         if (selectedReservation.price && playerCount > 0) {
                           pricePerPlayer = selectedReservation.price / playerCount
                         }
@@ -1840,63 +1839,23 @@ function ClubPanel() {
                               <span style={{ color: '#ccc', fontSize: '12px' }}>Precio: ${Math.round(pricePerPlayer)}</span>
                             )}
                           </div>
-                          <div style={{ marginLeft: '10px' }}>
-                            {playerPayments[index] && playerPayments[index].method ? (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                <span style={{ color: '#10B981', fontSize: '12px', fontWeight: 'bold' }}>
-                                  {playerPayments[index].method === 'efectivo' ? '💵 Efectivo' :
-                                   playerPayments[index].method === 'transferencia' ? '🏦 Transferencia' :
-                                   playerPayments[index].method === 'tarjeta' ? '💳 Tarjeta' :
-                                   playerPayments[index].method === 'sistema' ? '📱 Sistema' :
-                                   playerPayments[index].method === 'club' ? '🏟️ Club' : 'Pagado'}
-                                </span>
-                                <button
-                                  onClick={() => setPlayerPayments({...playerPayments, [index]: null})}
-                                  style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                            ) : playerPayments[index] && playerPayments[index].method === null ? (
-                              <div style={{ display: 'flex', gap: '5px' }}>
-                                <button
-                                  onClick={() => setPlayerPayments({...playerPayments, [index]: { method: 'efectivo' } })}
-                                  style={{ padding: '5px 10px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
-                                >
-                                  💵
-                                </button>
-                                <button
-                                  onClick={() => setPlayerPayments({...playerPayments, [index]: { method: 'transferencia' } })}
-                                  style={{ padding: '5px 10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
-                                >
-                                  🏦
-                                </button>
-                                <button
-                                  onClick={() => setPlayerPayments({...playerPayments, [index]: { method: 'tarjeta' } })}
-                                  style={{ padding: '5px 10px', backgroundColor: '#6f42c1', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
-                                >
-                                  💳
-                                </button>
-                                <button
-                                  onClick={() => setPlayerPayments({...playerPayments, [index]: null})}
-                                  style={{ padding: '5px 10px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                onClick={() => playerPayments[index]?.method ? null : setPlayerPayments({...playerPayments, [index]: { method: null } })}
-                                style={{ padding: '5px 10px', backgroundColor: playerPayments[index]?.method ? '#28a745' : '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: playerPayments[index]?.method ? 'default' : 'pointer', fontSize: '12px' }}
-                              >
-                                {playerPayments[index]?.method ? '💳 Pagado' : '💳 Pagar'}
-                              </button>
-                            )}
-                          </div>
                         </div>
                       )
                     })}
                   </div>
+                </div>
+
+                <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
+                  <h4 style={{ color: '#fff', marginBottom: '15px' }}>Estado de Pago</h4>
+                  <select
+                    value={selectedReservation.payment_status || 'no_pagado'}
+                    onChange={(e) => setSelectedReservation({...selectedReservation, payment_status: e.target.value})}
+                    style={{ width: '100%', padding: '8px', backgroundColor: '#1a1a1a', border: '1px solid #444', borderRadius: '3px', color: '#fff', fontSize: '14px' }}
+                  >
+                    <option value="no_pagado">No pagado</option>
+                    <option value="senia">Seña</option>
+                    <option value="pagado">Pagado</option>
+                  </select>
                 </div>
 
                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
