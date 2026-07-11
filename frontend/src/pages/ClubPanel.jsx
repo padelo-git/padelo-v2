@@ -1816,29 +1816,6 @@ function ClubPanel() {
                   <p style={{ color: '#fff', fontSize: '14px' }}>
                     <strong>Notas:</strong> {selectedReservation.notes || 'Sin notas'}
                   </p>
-                  {/* Estado de pago */}
-                  {(() => {
-                    const totalPlayers = selectedReservation.players?.length || 0
-                    const paidPlayers = Object.keys(playerPayments).length
-                    let statusText = 'No pagado'
-                    let statusColor = '#EF4444'
-                    
-                    if (totalPlayers > 0 && paidPlayers === totalPlayers) {
-                      statusText = 'Pagado'
-                      statusColor = '#10B981'
-                    } else if (paidPlayers > 0) {
-                      statusText = `Parcialmente pagado (${paidPlayers}/${totalPlayers})`
-                      statusColor = '#F59E0B'
-                    }
-                    
-                    return (
-                      <div style={{ marginTop: '15px', padding: '10px', backgroundColor: statusColor + '20', borderRadius: '5px', border: `1px solid ${statusColor}` }}>
-                        <p style={{ color: statusColor, fontSize: '16px', fontWeight: 'bold', margin: 0, textAlign: 'center' }}>
-                          {statusText}
-                        </p>
-                      </div>
-                    )
-                  })()}
                 </div>
 
                 <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
