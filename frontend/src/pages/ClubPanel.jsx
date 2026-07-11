@@ -1864,7 +1864,7 @@ function ClubPanel() {
                               <div style={{ position: 'relative' }}>
                                 <button
                                   onClick={() => setPaymentMenuOpen(paymentMenuOpen === index ? null : index)}
-                                  style={{ padding: '5px 10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
+                                  style={{ padding: '5px 10px', backgroundColor: '#555', color: 'white', border: '1px solid #666', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}
                                 >
                                   💳 Pagar
                                 </button>
@@ -1872,19 +1872,19 @@ function ClubPanel() {
                                   <div style={{ position: 'absolute', right: '0', top: '100%', marginTop: '5px', backgroundColor: '#2d2d2d', border: '1px solid #444', borderRadius: '5px', padding: '5px', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '5px', minWidth: '120px' }}>
                                     <button
                                       onClick={() => { setPlayerPayments({...playerPayments, [index]: { method: 'efectivo' }}); setPaymentMenuOpen(null) }}
-                                      style={{ padding: '5px 10px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
+                                      style={{ padding: '5px 10px', backgroundColor: '#444', color: 'white', border: '1px solid #555', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
                                     >
                                       💵 Efectivo
                                     </button>
                                     <button
                                       onClick={() => { setPlayerPayments({...playerPayments, [index]: { method: 'transferencia' }}); setPaymentMenuOpen(null) }}
-                                      style={{ padding: '5px 10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
+                                      style={{ padding: '5px 10px', backgroundColor: '#444', color: 'white', border: '1px solid #555', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
                                     >
                                       🏦 Transferencia
                                     </button>
                                     <button
                                       onClick={() => { setPlayerPayments({...playerPayments, [index]: { method: 'tarjeta' }}); setPaymentMenuOpen(null) }}
-                                      style={{ padding: '5px 10px', backgroundColor: '#6f42c1', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
+                                      style={{ padding: '5px 10px', backgroundColor: '#444', color: 'white', border: '1px solid #555', borderRadius: '3px', cursor: 'pointer', fontSize: '10px' }}
                                     >
                                       💳 Tarjeta
                                     </button>
@@ -1902,7 +1902,7 @@ function ClubPanel() {
                 <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2d2d2d', borderRadius: '5px', border: '1px solid #444' }}>
                   <button
                     onClick={() => handleGeneratePayments(selectedReservation)}
-                    style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '14px' }}
+                    style={{ padding: '10px 20px', backgroundColor: '#555', color: 'white', border: '1px solid #666', borderRadius: '5px', cursor: 'pointer', fontSize: '14px' }}
                   >
                     💳 Generar Pagos
                   </button>
