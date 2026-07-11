@@ -469,25 +469,10 @@ function ClubPanel() {
     console.log('Reservation:', reservation)
     setSelectedReservation(reservation)
     
-    // Cargar todos los pagos del club y filtrar por reservation_id en el cliente
-    try {
-      console.log('Fetching payments from /clubs/payments...')
-      const response = await api.get(`/clubs/payments`)
-      const allPayments = response.data
-      console.log('All payments received:', allPayments)
-      
-      // Filtrar pagos por reservation_id
-      const payments = allPayments.filter(p => p.reservation_id === reservation.id)
-      
-      console.log('=== DEBUG HANDLE VIEW RESERVATION ===')
-      console.log('Reservation ID:', reservation.id)
-      console.log('Payments:', payments)
-      console.log('Reservation players:', reservation.players)
-      console.log('Number of payments:', payments.length)
-      
-      // Mapear pagos a jugadores por player_index directo
-      const playerPaymentsMap = {}
-      payments.forEach(payment => {
+    // Usar los pagos que ya están incluidos en los datos de la reserva
+    const playerPaymentsMap = {}
+    if (reservation.payments && Array.isArray(reservation.payments)) {
+      reservation.payments.forEach(payment => {
         // Usar player_index directamente si existe
         if (payment.player_index !== null && payment.player_index !== undefined) {
           playerPaymentsMap[payment.player_index] = {
@@ -513,16 +498,10 @@ function ClubPanel() {
           }
         }
       })
-      
-      console.log('Final player payments map:', playerPaymentsMap)
-      console.log('Setting playerPayments state...')
-      setPlayerPayments(playerPaymentsMap)
-      console.log('PlayerPayments state set successfully')
-    } catch (err) {
-      console.error('❌ Error fetching reservation payments:', err)
-      console.error('Error response:', err.response)
-      setPlayerPayments({})
     }
+    
+    console.log('Final player payments map:', playerPaymentsMap)
+    setPlayerPayments(playerPaymentsMap)
     
     setShowReservationModal(true)
     console.log('=== RESERVATION MODAL OPENED ===')

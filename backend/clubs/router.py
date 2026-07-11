@@ -564,6 +564,25 @@ async def get_reservations_by_date(club_id: int, date: str, db: AsyncSession = D
         # Convert to dict to avoid Pydantic validation issues
         reservations_data = []
         for r in reservations:
+            # Query payments for this reservation
+            payments_result = await db.execute(
+                select(Payment).where(Payment.reservation_id == r.id)
+            )
+            payments = payments_result.scalars().all()
+            
+            # Convert payments to dict
+            payments_data = []
+            for p in payments:
+                payments_data.append({
+                    "id": p.id,
+                    "player_name": p.player_name,
+                    "player_index": p.player_index,
+                    "amount": float(p.amount),
+                    "method": p.method,
+                    "status": p.status,
+                    "created_at": p.created_at.isoformat() if p.created_at else None
+                })
+            
             reservations_data.append({
                 "id": r.id,
                 "club_id": r.club_id,
@@ -578,6 +597,7 @@ async def get_reservations_by_date(club_id: int, date: str, db: AsyncSession = D
                 "notes": r.notes,
                 "players": r.players,
                 "payment_status": r.payment_status,
+                "payments": payments_data,  # Include payments in reservation data
                 "created_at": r.created_at.isoformat() if r.created_at else None,
                 "updated_at": r.updated_at.isoformat() if r.updated_at else None
             })
