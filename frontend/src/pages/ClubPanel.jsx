@@ -525,6 +525,7 @@ function ClubPanel() {
     }
     
     setShowReservationModal(true)
+    console.log('=== RESERVATION MODAL OPENED ===')
   }
 
   const handleReservationMouseEnter = (e, reservation) => {
