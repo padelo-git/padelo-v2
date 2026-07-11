@@ -458,7 +458,7 @@ function ClubPanel() {
       setShowSelectionOverlay(true)
       setPlayerPayments({}) // Limpiar estado de pagos para nueva reserva
       setShowReservationModal(true)
-    } else if (reservation && dragStart && dragStart.hourIndex === slotIndex) {
+    } else if (reservation) {
       // Es un click simple en una reserva existente
       handleViewReservation(reservation)
     }
