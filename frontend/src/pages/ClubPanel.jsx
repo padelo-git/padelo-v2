@@ -465,12 +465,16 @@ function ClubPanel() {
   }
 
   const handleViewReservation = async (reservation) => {
+    console.log('=== HANDLE VIEW RESERVATION CALLED ===')
+    console.log('Reservation:', reservation)
     setSelectedReservation(reservation)
     
     // Cargar todos los pagos del club y filtrar por reservation_id en el cliente
     try {
+      console.log('Fetching payments from /clubs/payments...')
       const response = await api.get(`/clubs/payments`)
       const allPayments = response.data
+      console.log('All payments received:', allPayments)
       
       // Filtrar pagos por reservation_id
       const payments = allPayments.filter(p => p.reservation_id === reservation.id)
