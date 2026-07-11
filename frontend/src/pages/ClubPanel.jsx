@@ -1925,10 +1925,22 @@ function ClubPanel() {
                     🗑️ Eliminar Reserva
                   </button>
                   <button
-                    onClick={() => handleGeneratePayments(selectedReservation)}
+                    onClick={() => {
+                      if (Object.keys(playerPayments).length > 0) {
+                        const totalPlayers = selectedReservation.players?.filter(p => p && p.trim() !== '').length || 0
+                        const paidPlayers = Object.keys(playerPayments).length
+                        let statusText = 'Pagado'
+                        if (paidPlayers < totalPlayers) {
+                          statusText = `Parcialmente pagado (${paidPlayers}/${totalPlayers})`
+                        }
+                        toast.info(statusText)
+                      } else {
+                        handleGeneratePayments(selectedReservation)
+                      }
+                    }}
                     style={{ padding: '10px 20px', backgroundColor: Object.keys(playerPayments).length > 0 ? '#28a745' : '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                   >
-                    {Object.keys(playerPayments).length > 0 ? '💳 Pagado' : '💳 Generar Pagos'}
+                    {Object.keys(playerPayments).length > 0 ? '💳 Ver Estado' : '💳 Generar Pagos'}
                   </button>
                 </div>
               </div>
