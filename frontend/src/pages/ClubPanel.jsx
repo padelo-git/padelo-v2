@@ -1933,10 +1933,7 @@ function ClubPanel() {
                     💾 Guardar Cambios
                   </button>
                   <button
-                    onClick={() => {
-                      setSelectedReservation(null)
-                      setShowReservationModal(true)
-                    }}
+                    onClick={() => handleViewReservation(selectedReservation)}
                     style={{ padding: '10px 20px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                   >
                     ✏️ Editar Reserva
