@@ -4,13 +4,14 @@ from sqlalchemy import select, func
 from typing import List, Optional
 from datetime import datetime
 from core.database import get_db
-from core.security import get_current_club, verify_password, create_access_token
+from core.security import get_current_club, verify_password, create_access_token, get_current_club_admin
 from clubs.models import Club, Court, Reservation, Payment, Debt, CashRegister, Penalty
 from clubs.schemas import (
     ClubCreate, ClubUpdate, ClubResponse, ClubWithCourts,
     CourtCreate, CourtUpdate, CourtResponse,
     ReservationCreate, ReservationUpdate, ReservationResponse
 )
+from auth.models import User
 from pydantic import BaseModel, EmailStr
 
 router = APIRouter()
@@ -647,9 +648,9 @@ async def delete_reservation(reservation_id: int, current_club: Club = Depends(g
 
 # Payment endpoints
 @router.get("/payments")
-async def get_payments(current_club: Club = Depends(get_current_club), db: AsyncSession = Depends(get_db)):
-    """Get all payments for the authenticated club"""
-    query = select(Payment).where(Payment.club_id == current_club.id)
+async def get_payments(current_user: User = Depends(get_current_club_admin), db: AsyncSession = Depends(get_db)):
+    """Get all payments for the authenticated club admin"""
+    query = select(Payment).where(Payment.club_id == current_user.club_id)
     
     result = await db.execute(query)
     payments = result.scalars().all()
