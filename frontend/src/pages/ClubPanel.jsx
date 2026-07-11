@@ -485,22 +485,32 @@ function ClubPanel() {
       console.log('Reservation players:', reservation.players)
       console.log('Number of payments:', payments.length)
       
-      // Mapear pagos a jugadores por índice
+      // Mapear pagos a jugadores por player_index directo
       const playerPaymentsMap = {}
       payments.forEach(payment => {
-        // Buscar índice del jugador (comparación case-insensitive)
-        const playerIndex = reservation.players?.findIndex(p => p?.toLowerCase() === payment.player_name.toLowerCase())
-        console.log(`Payment for "${payment.player_name}" -> index: ${playerIndex}, method: ${payment.method}, amount: ${payment.amount}`)
-        
-        if (playerIndex !== undefined && playerIndex >= 0) {
-          playerPaymentsMap[playerIndex] = { 
+        // Usar player_index directamente si existe
+        if (payment.player_index !== null && payment.player_index !== undefined) {
+          playerPaymentsMap[payment.player_index] = {
             method: payment.method,
             status: 'paid',
             amount: payment.amount
           }
-          console.log(`✅ Mapped payment for player ${playerIndex}: ${payment.method}`)
+          console.log(`✅ Mapped payment for player ${payment.player_index}: ${payment.method}`)
         } else {
-          console.log(`❌ Could not find player "${payment.player_name}" in reservation players`)
+          // Fallback: buscar por nombre para pagos antiguos sin player_index
+          const playerIndex = reservation.players?.findIndex(p => p?.toLowerCase() === payment.player_name.toLowerCase())
+          console.log(`Payment for "${payment.player_name}" -> index: ${playerIndex}, method: ${payment.method}, amount: ${payment.amount}`)
+          
+          if (playerIndex !== undefined && playerIndex >= 0) {
+            playerPaymentsMap[playerIndex] = {
+              method: payment.method,
+              status: 'paid',
+              amount: payment.amount
+            }
+            console.log(`✅ Mapped payment for player ${playerIndex}: ${payment.method}`)
+          } else {
+            console.log(`❌ Could not find player "${payment.player_name}" in reservation players`)
+          }
         }
       })
       
@@ -849,7 +859,8 @@ function ClubPanel() {
             console.log(`Generating payment for player ${index}: ${playerName} with method ${payment.method}`)
             await api.post(`/clubs/payments`, {
               reservation_id: reservation.id,
-              player_name: playerName, // Usar player_name para identificar participante
+              player_name: playerName,
+              player_index: index, // Enviar el índice del jugador
               amount: reservation.price / reservation.players.length,
               method: payment.method
             }, {

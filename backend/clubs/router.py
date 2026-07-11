@@ -659,6 +659,7 @@ async def get_payments(current_club: Club = Depends(get_current_club), db: Async
             "id": p.id,
             "reservation_id": p.reservation_id,
             "player_name": p.player_name,
+            "player_index": p.player_index,
             "amount": float(p.amount),
             "method": p.method,
             "status": p.status,
@@ -673,6 +674,7 @@ async def create_payment(payment_data: dict, current_club: Club = Depends(get_cu
     """Create a new payment for the authenticated club"""
     reservation_id = payment_data.get("reservation_id")
     player_name = payment_data.get("player_name")
+    player_index = payment_data.get("player_index")
     amount = payment_data.get("amount")
     method = payment_data.get("method")
     
@@ -702,6 +704,7 @@ async def create_payment(payment_data: dict, current_club: Club = Depends(get_cu
         club_id=current_club.id,
         reservation_id=reservation_id,
         player_name=player_name,
+        player_index=player_index,
         amount=amount,
         method=method,
         status="completed"
@@ -717,6 +720,7 @@ async def create_payment(payment_data: dict, current_club: Club = Depends(get_cu
         "id": payment.id,
         "reservation_id": payment.reservation_id,
         "player_name": payment.player_name,
+        "player_index": payment.player_index,
         "amount": float(payment.amount),
         "method": payment.method,
         "status": payment.status

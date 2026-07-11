@@ -109,6 +109,7 @@ class Payment(Base):
     club_id = Column(Integer, ForeignKey("clubs.id"), nullable=False)
     reservation_id = Column(Integer, ForeignKey("reservations.id"), nullable=False)
     player_name = Column(String, nullable=False)  # Player name for tracking
+    player_index = Column(Integer, nullable=True)  # Player index in reservation.players array
     amount = Column(Numeric(10, 2), nullable=False)
     method = Column(String, nullable=False)  # cash, transfer, card
     status = Column(String, default="completed")  # completed, refunded
