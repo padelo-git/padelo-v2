@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - NEXA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-message {
+            font-size: 24px;
+            font-weight: bold;
+            color: #208AEF;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .welcome-subtext {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #208AEF;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        .input:focus {
+            outline: none;
+            border-color: #208AEF;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .option-button {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .option-button:hover {
+            background: #f5f5f5;
+        }
+        
+        .option-button.selected {
+            background: #208AEF;
+            border-color: #208AEF;
+            color: white;
+        }
+        
+        .button {
+            width: 100%;
+            padding: 15px;
+            background: #208AEF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        
+        .button:hover {
+            background: #1a7ad9;
+        }
+        
+        .cancel-button {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            color: #666;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .cancel-button:hover {
+            color: #333;
+        }
+        
+        .note {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+        
+        .label {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #208AEF;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Registro</h1>
+            <p class="subtitle">Club ID: <span id="clubId">-</span></p>
+            
+            <p class="welcome-message">¡Bienvenido a NEXA! 🎾</p>
+            <p class="welcome-subtext">Completa tu registro para unirte a <span id="clubName">tu club</span></p>
+        </div>
+        
+        <form id="registrationForm">
+            <h2 class="section-title">Datos Personales</h2>
+            
+            <input type="text" class="input" id="name" placeholder="Nombre completo" required>
+            <input type="email" class="input" id="email" placeholder="Email" required>
+            <input type="tel" class="input" id="phone" placeholder="Teléfono" required>
+            
+            <h2 class="section-title">Perfil de Juego</h2>
+            
+            <label class="label">¿De qué lado jugás?</label>
+            <div class="button-group">
+                <button type="button" class="option-button" data-value="derecha" onclick="selectOption('playingSide', this)">Derecha</button>
+                <button type="button" class="option-button" data-value="reves" onclick="selectOption('playingSide', this)">Revés</button>
+                <button type="button" class="option-button selected" data-value="ambas" onclick="selectOption('playingSide', this)">Ambas</button>
+            </div>
+            
+            <label class="label">Género</label>
+            <div class="button-group">
+                <button type="button" class="option-button" data-value="varon" onclick="selectOption('gender', this)">Varón</button>
+                <button type="button" class="option-button" data-value="mujer" onclick="selectOption('gender', this)">Mujer</button>
+            </div>
+            
+            <h2 class="section-title">Disponibilidad</h2>
+            
+            <input type="text" class="input" id="availabilityDays" placeholder="Días disponibles (ej: Lunes, Miércoles, Viernes)">
+            <input type="text" class="input" id="availabilityHours" placeholder="Rango horario (ej: 18:00 - 22:00)">
+            
+            <h2 class="section-title">Método de Pago</h2>
+            <p class="note">El procesamiento de pagos estará disponible próximamente</p>
+            
+            <button type="submit" class="button">Registrarse</button>
+            <button type="button" class="cancel-button" onclick="window.location.href='/'">Cancelar</button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Procesando registro...</p>
+        </div>
+    </div>
+
+    <script>
+        // Get club ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const clubId = urlParams.get('clubId') || '1';
+        document.getElementById('clubId').textContent = clubId;
+        
+        // Fetch club name
+        fetch(`http://localhost:8000/api/clubes/${clubId}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('clubName').textContent = data.nombre || 'tu club';
+            })
+            .catch(error => {
+                console.error('Error fetching club name:', error);
+            });
+        
+        // Form state
+        const formData = {
+            playingSide: 'ambas',
+            gender: ''
+        };
+        
+        function selectOption(field, button) {
+            const group = button.parentElement;
+            const buttons = group.querySelectorAll('.option-button');
+            buttons.forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+            formData[field] = button.dataset.value;
+        }
+        
+        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const availabilityDays = document.getElementById('availabilityDays').value;
+            const availabilityHours = document.getElementById('availabilityHours').value;
+            
+            if (!name || !email || !phone || !formData.gender) {
+                alert('Por favor completa todos los campos requeridos');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('registrationForm').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            
+            try {
+                // Simulate registration (replace with actual API call)
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                alert(`¡Bienvenido a NEXA! 🎾\n\nTe has registrado exitosamente.\n\nNombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\nLado: ${formData.playingSide}\nGénero: ${formData.gender}\nDisponibilidad: ${availabilityDays} ${availabilityHours}\n\n¡Gracias por unirte a la comunidad de pádel más grande!`);
+                
+                window.location.href = '/';
+            } catch (error) {
+                alert('Error', 'Hubo un error al procesar el registro');
+                document.getElementById('registrationForm').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
