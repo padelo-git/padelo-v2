@@ -1,0 +1,28 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - dist-deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Deploy HTML file to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: nexasist.com
+          username: ec2-user
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/ec2-user
+            wget https://github.com/padelo-git/padelo-v2/raw/${{ github.sha }}/web-club-registration.html
+            sudo mv web-club-registration.html /var/www/padelo-pwa/dist/registro.html
+            sudo chown nginx:nginx /var/www/padelo-pwa/dist/registro.html
+            sudo chmod 644 /var/www/padelo-pwa/dist/registro.html
+            echo "Deployment successful"
