@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro - NEXA</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#FFD700">
     <style>
         * {
             margin: 0;
@@ -13,154 +15,129 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #000000;
             min-height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
+            color: #ffffff;
+        }
+        
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
             padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 500px;
+            max-width: 600px;
+            margin: 0 auto;
             width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding-bottom: 80px;
         }
         
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .title {
-            font-size: 32px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 20px;
-        }
-        
-        .welcome-message {
-            font-size: 24px;
-            font-weight: bold;
-            color: #208AEF;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        
-        .welcome-subtext {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 25px;
-            text-align: center;
-        }
-        
-        .section-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #208AEF;
-            margin-top: 25px;
+        .message {
             margin-bottom: 15px;
+            animation: fadeIn 0.3s ease-in;
         }
         
-        .input {
-            width: 100%;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bot-message {
+            background: #1a1a1a;
             padding: 15px;
-            border: 2px solid #e0e0e0;
             border-radius: 8px;
-            font-size: 16px;
-            margin-bottom: 15px;
-            transition: border-color 0.3s;
+            max-width: 80%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            color: #ffffff;
         }
         
-        .input:focus {
-            outline: none;
-            border-color: #208AEF;
+        .user-message {
+            background: #333333;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 80%;
+            margin-left: auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .nexa-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        
+        .nexa-title .x {
+            color: #FFD700;
+        }
+        
+        .button-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1a1a1a;
+            padding: 15px;
+            padding-bottom: 30px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+            max-width: 600px;
+            margin: 0 auto;
+            z-index: 1000;
         }
         
         .button-group {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 10px;
-            margin-bottom: 20px;
+            width: 100%;
         }
         
-        .option-button {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            background: white;
+        .chat-button {
+            padding: 15px;
+            background: #444444;
+            color: white;
+            border: 1px solid #555555;
+            border-radius: 4px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-        }
-        
-        .option-button:hover {
-            background: #f5f5f5;
-        }
-        
-        .option-button.selected {
-            background: #208AEF;
-            border-color: #208AEF;
-            color: white;
-        }
-        
-        .button {
             width: 100%;
+            text-align: center;
+        }
+        
+        .chat-button:hover {
+            background: #555555;
+        }
+        
+        .chat-button:active {
+            background: #666666;
+        }
+        
+        .input-container {
+            display: none;
             padding: 15px;
-            background: #208AEF;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background 0.3s;
+            background: #1a1a1a;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
         }
         
-        .button:hover {
-            background: #1a7ad9;
-        }
-        
-        .cancel-button {
-            width: 100%;
-            padding: 15px;
-            background: transparent;
-            color: #666;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        
-        .cancel-button:hover {
-            color: #333;
-        }
-        
-        .note {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 15px;
-            font-style: italic;
-        }
-        
-        .label {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 10px;
+        .input-container.active {
             display: block;
+        }
+        
+        .chat-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #444444;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            background: #2a2a2a;
+            color: #ffffff;
+        }
+        
+        .chat-input:focus {
+            border-color: #666666;
         }
         
         .loading {
@@ -169,133 +146,352 @@
             padding: 20px;
         }
         
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #208AEF;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
+        .loading.active {
+            display: block;
         }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .typing-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #666666;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-indicator:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-indicator:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1 class="title">Registro</h1>
-            <p class="subtitle">Club ID: <span id="clubId">-</span></p>
-            
-            <p class="welcome-message">¡Bienvenido a NEXA! 🎾</p>
-            <p class="welcome-subtext">Completa tu registro para unirte a <span id="clubName">tu club</span></p>
+    <div class="chat-container" id="chatContainer">
+        <!-- Messages will be added here -->
+    </div>
+    
+    <div class="button-container" id="buttonContainer">
+        <div class="button-group" id="buttonGroup">
+            <!-- Buttons will be added here -->
         </div>
-        
-        <form id="registrationForm">
-            <h2 class="section-title">Datos Personales</h2>
-            
-            <input type="text" class="input" id="name" placeholder="Nombre completo" required>
-            <input type="email" class="input" id="email" placeholder="Email" required>
-            <input type="tel" class="input" id="phone" placeholder="Teléfono" required>
-            
-            <h2 class="section-title">Perfil de Juego</h2>
-            
-            <label class="label">¿De qué lado jugás?</label>
-            <div class="button-group">
-                <button type="button" class="option-button" data-value="derecha" onclick="selectOption('playingSide', this)">Derecha</button>
-                <button type="button" class="option-button" data-value="reves" onclick="selectOption('playingSide', this)">Revés</button>
-                <button type="button" class="option-button selected" data-value="ambas" onclick="selectOption('playingSide', this)">Ambas</button>
-            </div>
-            
-            <label class="label">Género</label>
-            <div class="button-group">
-                <button type="button" class="option-button" data-value="varon" onclick="selectOption('gender', this)">Varón</button>
-                <button type="button" class="option-button" data-value="mujer" onclick="selectOption('gender', this)">Mujer</button>
-            </div>
-            
-            <h2 class="section-title">Disponibilidad</h2>
-            
-            <input type="text" class="input" id="availabilityDays" placeholder="Días disponibles (ej: Lunes, Miércoles, Viernes)">
-            <input type="text" class="input" id="availabilityHours" placeholder="Rango horario (ej: 18:00 - 22:00)">
-            
-            <h2 class="section-title">Método de Pago</h2>
-            <p class="note">El procesamiento de pagos estará disponible próximamente</p>
-            
-            <button type="submit" class="button">Registrarse</button>
-            <button type="button" class="cancel-button" onclick="window.location.href='/'">Cancelar</button>
-        </form>
-        
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Procesando registro...</p>
-        </div>
+    </div>
+    
+    <div class="input-container" id="inputContainer">
+        <input type="text" class="chat-input" id="chatInput" placeholder="Escribe aquí...">
+    </div>
+    
+    <div class="loading" id="loading">
+        <div class="typing-indicator"></div>
+        <div class="typing-indicator"></div>
+        <div class="typing-indicator"></div>
     </div>
 
     <script>
         // Get club ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const clubId = urlParams.get('clubId') || '1';
-        document.getElementById('clubId').textContent = clubId;
+        
+        // Check if user is already authenticated
+        async function checkAuthentication() {
+            const token = localStorage.getItem('auth_token');
+            const sessionId = localStorage.getItem('session_id');
+            
+            if (token || sessionId) {
+                try {
+                    // Verify with backend
+                    const response = await fetch('http://localhost:8000/api/jugador/me', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'X-Session-ID': sessionId || ''
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        // User is authenticated, redirect to app
+                        window.location.href = '/app';
+                        return true;
+                    }
+                } catch (error) {
+                    console.log('Auth check failed, proceeding with registration');
+                }
+            }
+            return false;
+        }
+        
+        // Check authentication on page load
+        checkAuthentication().then(isAuthenticated => {
+            if (isAuthenticated) {
+                document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; color: white; font-family: sans-serif;">Redirigiendo a la app...</div>';
+            }
+        });
+        
+        // Capture PWA install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            window.deferredPrompt = deferredPrompt;
+        });
+        
+        // Form data
+        const formData = {
+            name: '',
+            email: '',
+            phone: '',
+            playingSide: 'ambas',
+            gender: '',
+            availabilityDays: [],
+            availabilityHours: ''
+        };
+        
+        let clubName = 'Greco Academy Padel';
         
         // Fetch club name
         fetch(`http://localhost:8000/api/clubes/${clubId}`)
             .then(response => response.json())
             .then(data => {
-                document.getElementById('clubName').textContent = data.nombre || 'tu club';
+                if (data && data.nombre) {
+                    clubName = data.nombre;
+                }
             })
             .catch(error => {
                 console.error('Error fetching club name:', error);
             });
         
-        // Form state
-        const formData = {
-            playingSide: 'ambas',
-            gender: ''
-        };
+        const chatContainer = document.getElementById('chatContainer');
+        const buttonContainer = document.getElementById('buttonContainer');
+        const buttonGroup = document.getElementById('buttonGroup');
+        const inputContainer = document.getElementById('inputContainer');
+        const chatInput = document.getElementById('chatInput');
+        const loading = document.getElementById('loading');
         
-        function selectOption(field, button) {
-            const group = button.parentElement;
-            const buttons = group.querySelectorAll('.option-button');
-            buttons.forEach(btn => btn.classList.remove('selected'));
-            button.classList.add('selected');
-            formData[field] = button.dataset.value;
+        let currentStep = 0;
+        
+        function addBotMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot-message';
+            messageDiv.innerHTML = text;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
         
-        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const phone = document.getElementById('phone').value;
-            const availabilityDays = document.getElementById('availabilityDays').value;
-            const availabilityHours = document.getElementById('availabilityHours').value;
-            
-            if (!name || !email || !phone || !formData.gender) {
-                alert('Por favor completa todos los campos requeridos');
-                return;
-            }
-            
-            // Show loading
-            document.getElementById('registrationForm').style.display = 'none';
-            document.getElementById('loading').style.display = 'block';
-            
-            try {
-                // Simulate registration (replace with actual API call)
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                alert(`¡Bienvenido a NEXA! 🎾\n\nTe has registrado exitosamente.\n\nNombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\nLado: ${formData.playingSide}\nGénero: ${formData.gender}\nDisponibilidad: ${availabilityDays} ${availabilityHours}\n\n¡Gracias por unirte a la comunidad de pádel más grande!`);
-                
-                window.location.href = '/';
-            } catch (error) {
-                alert('Error', 'Hubo un error al procesar el registro');
-                document.getElementById('registrationForm').style.display = 'block';
-                document.getElementById('loading').style.display = 'none';
+        function addUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user-message';
+            messageDiv.textContent = text;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function showButtons(buttons) {
+            buttonGroup.innerHTML = '';
+            buttons.forEach(button => {
+                const btn = document.createElement('button');
+                btn.className = 'chat-button';
+                btn.textContent = button.label;
+                btn.onclick = () => handleButtonClick(button.value, button.label);
+                buttonGroup.appendChild(btn);
+            });
+            buttonContainer.style.display = 'block';
+            inputContainer.classList.remove('active');
+        }
+        
+        function showInput(placeholder = 'Escribe aquí...') {
+            buttonContainer.style.display = 'none';
+            inputContainer.classList.add('active');
+            chatInput.placeholder = placeholder;
+            chatInput.value = '';
+            chatInput.focus();
+        }
+        
+        function showLoading() {
+            loading.classList.add('active');
+            buttonContainer.style.display = 'none';
+            inputContainer.classList.remove('active');
+        }
+        
+        function hideLoading() {
+            loading.classList.remove('active');
+        }
+        
+        function handleButtonClick(value, label) {
+            addUserMessage(label);
+            processStep(value);
+        }
+        
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && chatInput.value.trim()) {
+                addUserMessage(chatInput.value);
+                processStep(chatInput.value);
             }
         });
+        
+        function processStep(value) {
+            showLoading();
+            
+            setTimeout(() => {
+                hideLoading();
+                
+                switch(currentStep) {
+                    case 0:
+                        if (value === 'login') {
+                            addBotMessage('¡Perfecto! Redirigiendo al login...');
+                            setTimeout(() => {
+                                window.location.href = '/app';
+                            }, 1000);
+                        } else if (value === 'register') {
+                            currentStep = 1;
+                            addBotMessage('¡Excelente! Vamos a registrarte. ¿Cuál es tu nombre completo?');
+                            showInput('Tu nombre completo');
+                        }
+                        break;
+                    case 1:
+                        formData.name = value;
+                        currentStep = 2;
+                        addBotMessage('¡Hola! ¿Cuál es tu email?');
+                        showInput('email@ejemplo.com');
+                        break;
+                    case 2:
+                        formData.email = value;
+                        currentStep = 3;
+                        addBotMessage('¿Cuál es tu número de teléfono?');
+                        showInput('+54 9 11 1234-5678');
+                        break;
+                    case 3:
+                        formData.phone = value;
+                        currentStep = 4;
+                        addBotMessage('¿De qué lado jugás al pádel?');
+                        showButtons([
+                            { label: 'Derecha', value: 'derecha' },
+                            { label: 'Revés', value: 'reves' },
+                            { label: 'Ambas', value: 'ambas' }
+                        ]);
+                        break;
+                    case 4:
+                        formData.playingSide = value;
+                        currentStep = 5;
+                        addBotMessage('¿Cuál es tu género?');
+                        showButtons([
+                            { label: 'Varón', value: 'varon' },
+                            { label: 'Mujer', value: 'mujer' }
+                        ]);
+                        break;
+                    case 5:
+                        formData.gender = value;
+                        currentStep = 6;
+                        addBotMessage('¿Qué días estás disponible para jugar? (Selecciona todos los que apliquen)');
+                        showButtons([
+                            { label: 'Lunes', value: 'lunes' },
+                            { label: 'Martes', value: 'martes' },
+                            { label: 'Miércoles', value: 'miercoles' },
+                            { label: 'Jueves', value: 'jueves' },
+                            { label: 'Viernes', value: 'viernes' },
+                            { label: 'Sábado', value: 'sabado' },
+                            { label: 'Domingo', value: 'domingo' }
+                        ]);
+                        break;
+                    case 6:
+                        if (value === 'done') {
+                            currentStep = 7;
+                            addBotMessage('¿En qué rango horario preferís jugar?');
+                            showButtons([
+                                { label: 'Mañana (6-12)', value: '6:00 - 12:00' },
+                                { label: 'Tarde (12-18)', value: '12:00 - 18:00' },
+                                { label: 'Noche (18-24)', value: '18:00 - 24:00' },
+                                { label: 'Todo el día', value: '6:00 - 24:00' }
+                            ]);
+                        } else {
+                            if (!formData.availabilityDays.includes(value)) {
+                                formData.availabilityDays.push(value);
+                            }
+                            addBotMessage(`Seleccionado: ${value}. ¿Algún otro día?`);
+                            showButtons([
+                                { label: 'Lunes', value: 'lunes' },
+                                { label: 'Martes', value: 'martes' },
+                                { label: 'Miércoles', value: 'miercoles' },
+                                { label: 'Jueves', value: 'jueves' },
+                                { label: 'Viernes', value: 'viernes' },
+                                { label: 'Sábado', value: 'sabado' },
+                                { label: 'Domingo', value: 'domingo' },
+                                { label: 'Listo', value: 'done' }
+                            ]);
+                        }
+                        break;
+                    case 7:
+                        formData.availabilityHours = value;
+                        currentStep = 8;
+                        addBotMessage('¡Perfecto! ¿Confirmás tu registro?');
+                        showButtons([
+                            { label: '✓ Sí, confirmar', value: 'confirm' },
+                            { label: '✗ Cancelar', value: 'cancel' }
+                        ]);
+                        break;
+                    case 8:
+                        if (value === 'confirm') {
+                            // Show PWA install prompt immediately when confirming
+                            if (window.deferredPrompt) {
+                                window.deferredPrompt.prompt();
+                                window.deferredPrompt.userChoice.then((choiceResult) => {
+                                    if (choiceResult.outcome === 'accepted') {
+                                        console.log('User accepted the install prompt');
+                                    }
+                                    window.deferredPrompt = null;
+                                });
+                            }
+                            
+                            addBotMessage(`¡Bienvenido a <span class="nexa-title">NE<span class="x">X</span>A</span>! 🎾<br><br>Te has registrado exitosamente en ${clubName}.<br><br>Nombre: ${formData.name}<br>Email: ${formData.email}<br>Teléfono: ${formData.phone}<br>Lado: ${formData.playingSide}<br>Género: ${formData.gender}<br>Días: ${formData.availabilityDays.join(', ')}<br>Horario: ${formData.availabilityHours}<br><br>¡Gracias por unirte a la comunidad de pádel más grande!`);
+                            buttonGroup.innerHTML = '';
+                            buttonContainer.style.display = 'none';
+                            
+                            // Vibrate and play sound
+                            if (navigator.vibrate) {
+                                navigator.vibrate([200, 100, 200]);
+                            }
+                            
+                            // Play notification sound
+                            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleQoAAMV7c3R4fH+AgYKCg4OEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS09TV1tfY2drb3N3e3+Dh4uPk5ebn6Onq6+zt7u/w8fLz9PX29/j5+vv8/f7/AA==');
+                            audio.play().catch(e => console.log('Audio play failed:', e));
+                            
+                            // Redirect to app after delay
+                            setTimeout(() => {
+                                window.location.href = '/app';
+                            }, 3000);
+                        } else {
+                            window.location.href = '/';
+                        }
+                        break;
+                }
+            }, 500);
+        }
+        
+        // Start the chat
+        setTimeout(() => {
+            addBotMessage(`<span class="nexa-title">NE<span class="x">X</span>A</span> 🎾<br><br>¡Bienvenido a ${clubName}!<br><br>¿Ya tenés cuenta?`);
+            showButtons([
+                { label: 'Sí, ya tengo cuenta', value: 'login' },
+                { label: 'No, quiero registrarme', value: 'register' }
+            ]);
+        }, 500);
+        
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then((registration) => {
+                    console.log('Service Worker registered:', registration);
+                })
+                .catch((error) => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
     </script>
 </body>
 </html>
