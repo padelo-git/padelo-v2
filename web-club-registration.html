@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro - NEXA</title>
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/app/manifest.json">
     <meta name="theme-color" content="#FFD700">
     <style>
         * {
@@ -484,7 +484,7 @@
         
         // Register service worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
+            navigator.serviceWorker.register('/app/sw.js')
                 .then((registration) => {
                     console.log('Service Worker registered:', registration);
                 })
